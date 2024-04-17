@@ -19,3 +19,6 @@ Cargo.lock
 # IDEA files
 .idea
 *.iml
+
+# docs/target
+docs/build/

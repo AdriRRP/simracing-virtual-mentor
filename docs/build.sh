@@ -13,7 +13,7 @@ if [ ! -x "$(command -v docker)" ]; then
     exit 1
 fi
 
-echo "Building the Docker 'latex-builder' image to compile the document..."
+echo "Building the Docker 'latex-builder' image to compile the document... (it will take several minutes)"
 docker build . -t latex-builder
 
 if [ $? -eq 0 ]; then

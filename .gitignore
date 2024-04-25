@@ -21,4 +21,4 @@ Cargo.lock
 *.iml
 
 # docs/target
-docs/build/
+docs/report/build/

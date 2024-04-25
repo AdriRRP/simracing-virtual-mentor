@@ -15,6 +15,16 @@ Una vez catalogados los requisitos del sistema se procederá con su análisis em
 \item \textbf{Modelo de interfaz de usuario}. Puede consistir en un prototipo de baja fidelidad de la interfaz de usuario.
 \end{itemize}
 
+\subsection{Análisis de Formatos de Telemetría en Simuladores de Carreras}
+Dentro del análisis del sistema, es crucial comprender los formatos de ficheros de telemetría utilizados por las plataformas de simuladores de carreras. Estos formatos presentan particularidades que afectan la extracción y gestión de datos. A continuación, se detallan algunos aspectos relevantes:
+
+\begin{itemize}
+\item \textbf{Formatos Propietarios y Herramientas de Extracción}. La mayoría de los simuladores de carreras utilizan formatos binarios propietarios para sus ficheros de telemetría, cuya especificación no es de dominio público. Esto implica dificultades para acceder y comprender estos datos, ya que se requiere de herramientas específicas para su extracción y análisis.
+
+\item \textbf{Elección de iRacing y su Formato .ibt}. iRacing destaca como una plataforma de sim-racing ampliamente utilizada, lo que ha motivado el desarrollo de herramientas libres para la gestión de sus ficheros de telemetría en formato .ibt. Este formato binario contiene información detallada sobre parámetros como posición en pista, velocidad, aceleración, frenado, entradas del piloto, entre otros.
+\item \textbf{Herramientas de Extracción y Análisis}. Dentro de la comunidad de sim-racing, existen diversas herramientas de código abierto que permiten la extracción y análisis de los ficheros .ibt de iRacing. Estas herramientas facilitan la visualización de datos de rendimiento, la comparación de sesiones y la mejora del desempeño en pista.
+\end{itemize}
+
 \section{Diseño del sistema}
 En esta sección se define la arquitectura lógica general del sistema. Para describirla se puede emplear un modelo como C4~\cite{Brown22}, el cual permite representar la arquitectura de un sistema software mediante varios diagramas a distintos niveles de abstracción.
 

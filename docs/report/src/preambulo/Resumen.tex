@@ -1,0 +1,86 @@
+%--- Ajustes del documento.
+\pagestyle{plain}	% Páginas sólo con numeración inferior al pie
+
+% -------------------------
+%
+% RESUMEN:
+% 
+%
+
+% EDITAR: Resumen (máx. 1 pág.)
+%\cleardoublepage % Se incluye para modificar el contador de página antes de añadir bookmark
+\phantomsection  % Necesario con hyperref
+\addcontentsline{toc}{chapter}{Resumen} % Añade al TOC.
+\selectlanguage{spanish} % Selección de idioma del resumen.
+\makeatletter
+\begin{center} %
+   {\textsc{TRABAJO FIN DE GRADO - ESCUELA SUPERIOR DE INFORMÁTICA 
+   (UCLM)}\par} % Tipo de trabajo
+   \vspace{1cm} %  
+   {\textbf{\Large\@tituloCorto}\par}  % Título del trabajo
+   \vspace{0.4cm} %
+   {\@autor \\ \@cityTF,{} \@mesTF{} \@yearTF\par} 
+   \vspace{0.9cm} %
+   {\textbf{\large\textsf{Resumen}}\par} % Título de resumen
+\end{center}   
+\makeatother %
+
+Los simuladores han experimentado una evolución significativa, pasando de ser modelos simplificados de la realidad a sistemas complejos que reflejan con precisión los sistemas que simulan. Esta capacidad de imitar casi a la perfección los sistemas simulados convierte a estos simuladores en herramientas eficaces para el aprendizaje y el entrenamiento.
+
+Un campo en el que la popularidad de estos simuladores ha crecido de manera notable es en la conducción deportiva, también conocida como simracing. En estos sistemas, el piloto utiliza un conjunto de hardware que simula el vehículo, la pista y las leyes físicas que rigen las interacciones, permitiendo realizar sesiones de entrenamiento a un coste muy reducido.
+
+El proceso de entrenamiento y aprendizaje puede ser autónomo, donde el piloto observa las diferentes telemetrías que proporciona el simulador e intenta mejorarlas, o puede ser asistido por un entrenador que aporta el conocimiento y la experiencia necesarios para indicar las mejoras a realizar.
+
+Este trabajo se sitúa en este contexto con el objetivo de definir y construir un asistente o entrenador virtual de simracing. Este asistente será capaz de interpretar de manera comparativa la telemetría de un experto frente a la del piloto en entrenamiento, proporcionando planes de mejora y realizando un seguimiento de dicha mejora.
+
+
+%En una página como máximo, el resumen explica de modo conciso la problemática que trata de resolver el trabajo \emph{(<<Qué>>)}, la metodología para  abordar su solución (\emph{<<Cómo>>)} y las principales conclusiones del trabajo. En los trabajos cuyo idioma principal sea el inglés, el orden de \textsf{Resumen} y \textsf{Abstract} se invertirá.
+
+%En concreto este documento debe servir como guía para preparar, con \LaTeX, el TFG en la \href{http://webpub.esi.uclm.es/}{Escuela Superior de Informática} (ESI) de la Univ. de Castilla-La Mancha (UCLM), siguiendo la \href{https://pruebasaluuclm.sharepoint.com/sites/esicr/tfg/SitePages/Inicio.aspx}{normativa de aplicación}. Está disponible tanto en \href{https://github.com/JesusSalido/TFG_ESI_UCLM}{GitHub} como \href{https://www.overleaf.com/latex/templates/plantilla-de-tfg-escuela-superior-de-informatica-uclm/phjgscmfqtsw}{Overleaf}. Por tanto, se puede emplear, tanto en un equipo con \LaTeX{} (modo local) instalado, o bien empleando el servicio de edición \href{https://www.overleaf.com/latex/templates/plantilla-de-tfg-escuela-superior-de-informatica-uclm/phjgscmfqtsw}{Overleaf} (modo online).
+
+%Este texto se aprovecha para proporcionar información sobre la elaboración de la memoria del TFG con ayuda de \LaTeX{} empleando este documento como plantilla. Por este motivo, sigue una estructura similar a la que se espera encontrar en un TFG, mostrando ejemplos de uso de distintos elementos y comandos de maquetación de textos que se amplía en el anexo~\ref{cap:AnexoA}.
+
+%\noindent\emph{IMPORTANTE: Aunque la plantilla se ajusta a las necesidades y reglamentación de la ESI-UCLM, se puede adaptar fácilmente a otras titulaciones, instituciones y otros documentos de carácter académico. Esta plantilla permite la elaboración automática del documento en idioma inglés en cualquier SO (Windows, Linux, Mac OSX, etc.).}
+
+\bigskip
+\noindent\textbf{Palabras clave}: TFG, Simulación, Telemetría, Simracing, UCLM %\emph{(como mucho 5 palabras que se puedan emplear como etiquetas de búsqueda)}.
+
+%---
+\cleardoublepage % Se incluye para modificar el contador de página antes de añadir 
+
+
+
+
+
+% EDITAR: Abstract (máx. 1 pág.)
+%---
+\phantomsection  % Necesario con hyperref
+\addcontentsline{toc}{chapter}{Abstract} % Añade al TOC.
+\selectlanguage{english} % Selección de idioma del resumen.
+\makeatletter
+\begin{center} %
+   {\textsc{BACHELOR DISSERTATION - ESCUELA SUPERIOR DE INFORMÁTICA 
+   (UCLM)}\par}
+   \vspace{1cm} %  
+   {\textbf{\Large Virtual Assistant for Sports Driving Simulation}\par}
+   \vspace{0.4cm} %
+   {\@autor \\ \@cityTF,{} \@monthTF{} \@yearTF\par} 
+   \vspace{0.9cm} %
+   {\textbf{\large\textsf{Abstract}}\par} 
+\end{center}   
+\makeatother %
+
+Simulators have undergone a significant evolution from simulated models of reality to complex systems that accurately reflect the systems they simulate. This ability to mimic simulated systems almost perfectly makes these simulators effective tools for learning and training.
+
+One area where the popularity of these simulators has grown significantly is in sports driving, also known as simracing. In these systems, the driver uses a set of hardware that simulates the vehicle, the track and the physical laws that govern the interactions, allowing training sessions to be carried out at a very low cost.
+
+The training and learning process can be autonomous, where the driver observes the different telemetries provided by the simulator and tries to improve them, or can be assisted by a trainer who provides the necessary knowledge and experience to indicate the improvements to be made.
+
+This work is placed in this context with the objective of defining and building a virtual simracing assistant or trainer. This assistant will be able to interpret in a comparative way the telemetry of an expert versus that of the driver in training, providing improvement plans and monitoring the improvement.
+
+\bigskip 
+
+\noindent\textbf{Keywords}: TFG, Simulation, Telemetry, Simracing, UCLM
+
+\cleardoublepage % Se incluye para modificar el contador de página antes de añadir 
+

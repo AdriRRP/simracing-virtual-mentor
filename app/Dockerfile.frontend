@@ -1,0 +1,25 @@
+FROM rust:latest
+
+# Add wasm target
+RUN rustup target add wasm32-unknown-unknown
+
+# Install trunk
+# note that this might take a while to install because it compiles everything from scratch
+# Trunk also provides prebuilt binaries for a number of major package managers
+# See https://trunkrs.dev/#install for further details
+RUN cargo install --locked trunk
+
+RUN mkdir -p /app/{frontend,shared}
+
+ADD ./shared/src /app/shared/src/
+ADD ./shared/Cargo.toml /app/shared/
+ADD ./frontend/src/ /app/frontend/src/
+ADD ./frontend/Cargo.toml ./frontend/Trunk.toml ./frontend/index.html ./frontend/index.scss /app/frontend/
+
+WORKDIR /app/frontend
+
+EXPOSE 8000
+
+CMD [ "trunk", "serve", "--config", "Trunk.toml"]
+
+# TODO: Make multi-stage builder to minify size

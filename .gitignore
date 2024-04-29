@@ -22,3 +22,6 @@ Cargo.lock
 
 # docs/target
 docs/report/build/
+
+# dist/ trunk folder
+dist/

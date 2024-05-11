@@ -7,11 +7,17 @@ pub mod ibt {
 use crate::ibt::domain::file::File as IbtFile;
 
 use std::fs::File as StdFile;
-use std::io;
+use std::{env, io};
 use std::io::ErrorKind;
 
 fn main() -> io::Result<()> {
-    let mut f = StdFile::open("/Users/adrianramos/Downloads/telemetry.ibt")?;
+    let args: Vec<String> = env::args().collect();
+
+    let Some(path) = args.get(1) else {
+        panic!("First argument `path` not found")
+    };
+
+    let mut f = StdFile::open(path)?;
 
     let ibt_file = IbtFile::from_reader(&mut f)
         .map_err(|e| io::Error::new(ErrorKind::Other, format!("{e}")))?;

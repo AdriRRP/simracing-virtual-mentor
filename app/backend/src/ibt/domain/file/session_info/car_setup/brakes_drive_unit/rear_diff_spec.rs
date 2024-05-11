@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(PartialEq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct RearDiffSpec {
     pub coast_drive_ramp_angles: Option<String>,

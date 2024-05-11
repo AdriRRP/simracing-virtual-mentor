@@ -13,42 +13,31 @@ use std::io::ErrorKind;
 fn main() -> io::Result<()> {
     let mut f = StdFile::open("/Users/adrianramos/Downloads/telemetry.ibt")?;
 
-    let ibt_file = IbtFile::from_stream(&mut f)
+    let ibt_file = IbtFile::from_reader(&mut f)
         .map_err(|e| io::Error::new(ErrorKind::Other, format!("{e}")))?;
 
-    //let vars: Vec<(VarHeader, &VarValue)> = ibt_file
-    //    .var_headers
-    //    .zip(ibt_file.var_values.iter())
-    //    .collect();
-    //
-    //for (var_header, var_value) in vars {
-    //    println!(
-    //        "{}: {}. Type: {}. Unit: {}. Count: {}. CaT: {}. Offset: {}. Value = {:?})",
-    //        var_header.name(),
-    //        var_header.description(),
-    //        var_header.var_type,
-    //        var_header.unit(),
-    //        var_header.count,
-    //        var_header.count_as_time,
-    //        var_header.offset,
-    //        var_value,
-    //    );
-    //}
+    println!(
+        "Theoretical number of metrics: {}",
+        ibt_file.header.num_vars
+    );
+    println!("Number of metrics: {}", ibt_file.metrics.len());
+    ibt_file.metrics.iter().for_each(|metric| {
+        let var_header = &metric.var_header;
+        println!(
+            "{}: {}. Type: {}. Unit: {}. Count: {}. CaT: {}. Offset: {}. Total: {})",
+            var_header.name(),
+            var_header.description(),
+            var_header.var_type,
+            var_header.unit(),
+            var_header.count,
+            var_header.count_as_time,
+            var_header.offset,
+            metric.len()
+        );
+        metric.iter().for_each(|v| println!("{:?}", v));
+    });
 
-    //for var_header in ibt_file.var_headers {
-    //    println!(
-    //        "{}: {}. Type: {}. Unit: {}. Count: {}. CaT: {}. Offset: {})",
-    //        var_header.name(),
-    //        var_header.description(),
-    //        var_header.var_type,
-    //        var_header.unit(),
-    //        var_header.count,
-    //        var_header.count_as_time,
-    //        var_header.offset,
-    //    );
-    //}
-
-    println!("{:?}", ibt_file);
+    //metric.iter().for_each(|v| println!("{:?}", v));
 
     Ok(())
 }

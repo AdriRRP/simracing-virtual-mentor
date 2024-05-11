@@ -3,7 +3,7 @@ pub mod driver;
 use crate::ibt::domain::file::session_info::driver_info::driver::Driver;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(PartialEq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct DriverInfo {
     pub driver_car_idx: Option<i32>,

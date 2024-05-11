@@ -16,7 +16,7 @@ use crate::ibt::domain::file::session_info::car_setup::chassis::rear::Rear;
 use crate::ibt::domain::file::session_info::car_setup::chassis::right_front::RightFront;
 use crate::ibt::domain::file::session_info::car_setup::chassis::right_rear::RightRear;
 
-#[derive(Debug, Deserialize)]
+#[derive(PartialEq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct Chassis {
     pub front: Option<Front>,

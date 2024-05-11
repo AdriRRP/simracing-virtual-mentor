@@ -7,7 +7,7 @@ use crate::ibt::domain::file::session_info::car_setup::chassis::Chassis;
 use crate::ibt::domain::file::session_info::car_setup::tires_aero::TiresAero;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(PartialEq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct CarSetup {
     pub update_count: Option<i32>,

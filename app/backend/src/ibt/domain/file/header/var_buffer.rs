@@ -7,7 +7,7 @@ pub struct VarBuffer {
     /// Used to detect changes in data
     /// Original type: i32 (4 byte integer)
     pub tick_count: u32,
-    /// Offset from header
+    /// Offset from the beginning of the file
     /// Original type: i32 (4 byte integer)
     pub offset: u64,
     // Raw source contains HERE an 8 bytes padding for 16 bytes alignment
@@ -25,12 +25,34 @@ impl TryFrom<&[u8; VAR_BUFFER_BYTES_SIZE]> for VarBuffer {
 }
 
 /// Errors that can be returned from [`VarBuffer::try_from`].
-#[derive(Debug, thiserror::Error)]
+#[derive(PartialEq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Var Buffer error extracting `tick_count`: {0}")]
     TickCount(String),
     #[error("Var Buffer error extracting `offset`: {0}")]
     Offset(String),
-    #[error("Error trying to extract VarBuffer from Stream: {0}")]
-    FromStream(String),
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    fn test_bytes() -> [u8; VAR_BUFFER_BYTES_SIZE] {
+        [253, 15, 0, 0, 50, 207, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    }
+
+    fn expected_var_buffer() -> VarBuffer {
+        VarBuffer {
+            tick_count: 4093,
+            offset: 53042,
+        }
+    }
+
+    #[test]
+    fn try_from_u8_slice_ok() {
+        let result = VarBuffer::try_from(&test_bytes());
+        let expected_result = Ok(expected_var_buffer());
+        assert_eq!(result, expected_result)
+    }
 }

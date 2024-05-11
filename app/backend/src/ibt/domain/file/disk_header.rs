@@ -1,11 +1,11 @@
+use crate::ibt::domain::file::from_reader::FromReaderFixedSize;
 use crate::ibt::domain::file::macros::num_from_le;
 
-use crate::ibt::domain::file::header::HEADER_BYTES_SIZE;
-use std::io::{Read, Seek, SeekFrom};
+use std::io::{Read, Seek};
 
 pub const DISK_HEADER_BYTES_SIZE: usize = 32;
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct DiskHeader {
     /// Original type: i64 (8 byte integer)
     pub start_date: u64, // Unix Time
@@ -17,20 +17,9 @@ pub struct DiskHeader {
     pub record_count: u32,
 }
 
-impl DiskHeader {
-    pub fn from_stream(reader: &mut (impl Read + Seek)) -> Result<Self, Error> {
-        let mut disk_header_buffer = [0u8; DISK_HEADER_BYTES_SIZE];
-
-        reader
-            .seek(SeekFrom::Start(HEADER_BYTES_SIZE as u64))
-            .map_err(|e| Error::FromStream(format!("{e}")))?;
-
-        reader
-            .read_exact(&mut disk_header_buffer)
-            .map_err(|e| Error::FromStream(format!("{e}")))?;
-
-        DiskHeader::try_from(&disk_header_buffer)
-    }
+impl<ReadSeek> FromReaderFixedSize<ReadSeek, Error, DISK_HEADER_BYTES_SIZE> for DiskHeader where
+    ReadSeek: Read + Seek
+{
 }
 
 impl TryFrom<&[u8; DISK_HEADER_BYTES_SIZE]> for DiskHeader {
@@ -48,7 +37,7 @@ impl TryFrom<&[u8; DISK_HEADER_BYTES_SIZE]> for DiskHeader {
 }
 
 /// Errors that can be returned from [`DiskHeader::try_from`].
-#[derive(Debug, thiserror::Error)]
+#[derive(PartialEq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Disk Header error extracting `start_date`: {0}")]
     StartDate(String),
@@ -60,6 +49,33 @@ pub enum Error {
     LapCount(String),
     #[error("Disk Header error extracting `record_count`: {0}")]
     RecordCount(String),
-    #[error("Error trying to extract Disk Header from Stream: {0}")]
-    FromStream(String),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_bytes() -> [u8; DISK_HEADER_BYTES_SIZE] {
+        [
+            119, 207, 88, 101, 0, 0, 0, 0, 154, 169, 170, 122, 119, 119, 87, 64, 135, 234, 59, 34,
+            162, 72, 164, 64, 28, 0, 0, 0, 130, 74, 2, 0,
+        ]
+    }
+
+    fn expected_disk_header() -> DiskHeader {
+        DiskHeader {
+            start_date: 1700319095,
+            start_time: 93.86666742960224,
+            end_time: 2596.3166674350537,
+            lap_count: 28,
+            record_count: 150146,
+        }
+    }
+
+    #[test]
+    fn try_from_u8_slice_ok() {
+        let result = DiskHeader::try_from(&test_bytes());
+        let expected_result = Ok(expected_disk_header());
+        assert_eq!(result, expected_result)
+    }
 }

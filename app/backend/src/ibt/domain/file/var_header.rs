@@ -1,15 +1,16 @@
 pub mod var_type;
 
+use crate::ibt::domain::file::from_reader::FromReaderFixedSize;
 use crate::ibt::domain::file::macros::{num_from_le, str_from_le};
 use crate::ibt::domain::file::var_header::var_type::VarType;
 
-use std::io::{Read, Seek, SeekFrom};
+use std::io::{Read, Seek};
 
 pub const VAR_HEADER_BYTES_SIZE: usize = 144;
 pub const MAX_STRING_BYTES_SIZE: usize = 32;
 pub const MAX_DESCRIPTION_BYTES_SIZE: usize = 64;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct VarHeader {
     /// Data type of the variable value
     /// Original type: i32 (4 byte integer)
@@ -23,11 +24,17 @@ pub struct VarHeader {
     /// Original type: i32 (4 byte integer)
     pub count: usize,
 
+    /// 1 byte
     pub count_as_time: i8,
-    name: [char; MAX_STRING_BYTES_SIZE],
-    description: [char; MAX_DESCRIPTION_BYTES_SIZE],
+
+    // Raw source contains HERE an 3 bytes padding for 16 bytes alignment
+    /// 32 x 1 bytes
+    pub(crate) name: [char; MAX_STRING_BYTES_SIZE],
+    /// 64 x 1 bytes
+    pub(crate) description: [char; MAX_DESCRIPTION_BYTES_SIZE],
     /// Something like "kg/m^2"
-    unit: [char; MAX_STRING_BYTES_SIZE],
+    /// 32 x 1 bytes
+    pub(crate) unit: [char; MAX_STRING_BYTES_SIZE],
 }
 
 impl VarHeader {
@@ -39,6 +46,7 @@ impl VarHeader {
             .parse()
             .unwrap()
     }
+
     pub fn description(&self) -> String {
         self.description
             .iter()
@@ -47,6 +55,7 @@ impl VarHeader {
             .parse()
             .unwrap()
     }
+
     pub fn unit(&self) -> String {
         self.unit
             .iter()
@@ -54,20 +63,6 @@ impl VarHeader {
             .trim_matches(char::from(0))
             .parse()
             .unwrap()
-    }
-
-    pub fn from_stream(reader: &mut (impl Read + Seek), offset: u64) -> Result<Self, Error> {
-        let mut header_buffer = [0u8; VAR_HEADER_BYTES_SIZE];
-
-        reader
-            .seek(SeekFrom::Start(offset))
-            .map_err(|e| Error::FromStream(format!("{e}")))?;
-
-        reader
-            .read_exact(&mut header_buffer)
-            .map_err(|e| Error::FromStream(format!("{e}")))?;
-
-        Self::try_from(&header_buffer)
     }
 }
 
@@ -88,8 +83,13 @@ impl TryFrom<&[u8; VAR_HEADER_BYTES_SIZE]> for VarHeader {
     }
 }
 
+impl<ReadSeek> FromReaderFixedSize<ReadSeek, Error, VAR_HEADER_BYTES_SIZE> for VarHeader where
+    ReadSeek: Read + Seek
+{
+}
+
 /// Errors that can be returned from [`VarHeader::try_from`].
-#[derive(Debug, thiserror::Error)]
+#[derive(PartialEq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Disk Header error extracting `var_type_extract`: {0}")]
     VarTypeExtract(String),
@@ -107,4 +107,72 @@ pub enum Error {
     Unit(String),
     #[error("Error trying to extract VarHeader from Stream: {0}")]
     FromStream(String),
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_bytes() -> [u8; VAR_HEADER_BYTES_SIZE] {
+        [
+            5, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 83, 101, 115, 115, 105, 111, 110, 84,
+            105, 109, 101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 83, 101,
+            99, 111, 110, 100, 115, 32, 115, 105, 110, 99, 101, 32, 115, 101, 115, 115, 105, 111,
+            110, 32, 115, 116, 97, 114, 116, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 115, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ]
+    }
+
+    fn expected_var_header() -> VarHeader {
+        VarHeader {
+            var_type: VarType::Double,
+            offset: 0,
+            count: 1,
+            count_as_time: 0,
+            name: [
+                'S', 'e', 's', 's', 'i', 'o', 'n', 'T', 'i', 'm', 'e', '\0', '\0', '\0', '\0',
+                '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                '\0', '\0', '\0',
+            ],
+            description: [
+                'S', 'e', 'c', 'o', 'n', 'd', 's', ' ', 's', 'i', 'n', 'c', 'e', ' ', 's', 'e',
+                's', 's', 'i', 'o', 'n', ' ', 's', 't', 'a', 'r', 't', '\0', '\0', '\0', '\0',
+                '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                '\0', '\0', '\0', '\0', '\0',
+            ],
+            unit: [
+                's', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
+                '\0', '\0', '\0', '\0',
+            ],
+        }
+    }
+
+    #[test]
+    fn try_from_u8_slice_ok() {
+        let result = VarHeader::try_from(&test_bytes());
+        let expected_result = Ok(expected_var_header());
+        assert_eq!(result, expected_result);
+    }
+    #[test]
+    fn name_ok() {
+        let current_var_header = VarHeader::try_from(&test_bytes()).unwrap();
+        assert_eq!(current_var_header.name(), "SessionTime".to_string());
+    }
+
+    #[test]
+    fn description_ok() {
+        let current_var_header = VarHeader::try_from(&test_bytes()).unwrap();
+        assert_eq!(
+            current_var_header.description(),
+            "Seconds since session start".to_string()
+        );
+    }
+    #[test]
+    fn unit_ok() {
+        let current_var_header = VarHeader::try_from(&test_bytes()).unwrap();
+        assert_eq!(current_var_header.unit(), "s".to_string());
+    }
 }

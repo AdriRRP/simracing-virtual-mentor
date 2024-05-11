@@ -1,13 +1,12 @@
-use std::io::{Read, Seek};
-use crate::ibt::domain::file::from_stream;
-use crate::ibt::domain::file::from_stream::FromStream;
+pub mod status;
+pub mod var_buffer;
 
+use crate::ibt::domain::file::from_reader::FromReaderFixedSize;
 use crate::ibt::domain::file::header::status::Status;
 use crate::ibt::domain::file::header::var_buffer::{VarBuffer, VAR_BUFFER_BYTES_SIZE};
 use crate::ibt::domain::file::macros::num_from_le;
 
-pub mod status;
-pub mod var_buffer;
+use std::io::{Read, Seek};
 
 pub const HEADER_BYTES_SIZE: usize = 112;
 const MAX_NUMBER_OF_BUFFERS: usize = 4;
@@ -85,17 +84,17 @@ impl TryFrom<&[u8; HEADER_BYTES_SIZE]> for Header {
                 };
 
                 [
-                    try_from_and_map_error(40, 56)?,
-                    try_from_and_map_error(56, 72)?,
-                    try_from_and_map_error(72, 88)?,
-                    try_from_and_map_error(88, 104)?,
+                    try_from_and_map_error(48, 64)?,
+                    try_from_and_map_error(64, 80)?,
+                    try_from_and_map_error(80, 96)?,
+                    try_from_and_map_error(96, 112)?,
                 ]
             },
         })
     }
 }
 
-impl<ReadSeek> FromStream<ReadSeek, Error, HEADER_BYTES_SIZE> for Header where
+impl<ReadSeek> FromReaderFixedSize<ReadSeek, Error, HEADER_BYTES_SIZE> for Header where
     ReadSeek: Read + Seek
 {
 }
@@ -125,25 +124,16 @@ pub enum Error {
     BufLen(String),
     #[error("Header error extracting `var_buffers`: {0}")]
     VarBuffers(String),
-    #[error("Error trying to extract Header from Stream: {0}")]
-    FromStream(String),
-}
-
-impl From<from_stream::Error> for Error {
-    fn from(error: from_stream::Error) -> Self {
-        match error {
-            from_stream::Error::FromStream(msg) => Self::FromStream(msg),
-        }
-    }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::ibt::domain::file::from_reader;
     use std::io::Cursor;
 
     use super::*;
 
-    fn test_bytes() -> [u8; 112] {
+    fn test_bytes() -> [u8; HEADER_BYTES_SIZE] {
         [
             2, 0, 0, 0, 1, 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 34, 49, 0, 0, 16, 158, 0, 0, 24, 1, 0,
             0, 144, 0, 0, 0, 1, 0, 0, 0, 67, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 253, 15, 0, 0, 50,
@@ -167,8 +157,8 @@ mod tests {
             buf_len: 1091,
             var_buffers: [
                 VarBuffer {
-                    tick_count: 0,
-                    offset: 0,
+                    tick_count: 4093,
+                    offset: 53042,
                 },
                 VarBuffer {
                     tick_count: 0,
@@ -188,38 +178,42 @@ mod tests {
 
     #[test]
     fn try_from_u8_slice_ok() {
-        let header = Header::try_from(&test_bytes()).expect("Can't get header from bytes");
-        assert_eq!(header, expected_header())
-    }
-
-    #[test]
-    fn from_stream_ok() {
-        let test_bytes = test_bytes();
-        let mut cursor = Cursor::new(&test_bytes);
-        let result = Header::from_stream(&mut cursor, 0);
+        let result = Header::try_from(&test_bytes());
         let expected_result = Ok(expected_header());
         assert_eq!(result, expected_result)
     }
 
     #[test]
-    fn from_stream_lower_than_header_size_ko() {
-        let test_bytes: [u8; 100] = [0u8; 100];
+    fn from_reader_ok() {
+        let test_bytes = test_bytes();
         let mut cursor = Cursor::new(&test_bytes);
-        let result = Header::from_stream(&mut cursor, 0);
-        let expected_result = Err(Error::FromStream("failed to fill whole buffer".to_string()));
+        let result = Header::from_reader(&mut cursor, 0);
+        let expected_result = Ok(expected_header());
         assert_eq!(result, expected_result)
     }
 
     #[test]
-    fn from_stream_invalid_u32_ko() {
+    fn from_reader_lower_than_header_size_ko() {
+        let test_bytes: [u8; 100] = [0u8; 100];
+        let mut cursor = Cursor::new(&test_bytes);
+        let result = Header::from_reader(&mut cursor, 0);
+        let expected_result = Err(from_reader::Error::Reading(
+            "failed to fill whole buffer".to_string(),
+        ));
+        assert_eq!(result, expected_result)
+    }
+
+    #[test]
+    fn from_reader_invalid_u32_ko() {
         let mut test_bytes: [u8; 112] = [0; 112];
         let invalid_bytes: [u8; 4] = [0xFF; 4];
         let start_index = 8;
         test_bytes[start_index..start_index + invalid_bytes.len()].copy_from_slice(&invalid_bytes);
         let mut cursor = Cursor::new(&test_bytes);
-        let result = Header::from_stream(&mut cursor, 0);
-        let expected_result = Err(Error::TickRate(
-            "-1 of type i32 cannot be converted converted to type u32: \
+        let result = Header::from_reader(&mut cursor, 0);
+        let expected_result = Err(from_reader::Error::Reading(
+            "Header error extracting `tick_rate`: \
+            -1 of type i32 cannot be converted converted to type u32: \
             out of range integral type conversion attempted"
                 .to_string(),
         ));
@@ -227,15 +221,16 @@ mod tests {
     }
 
     #[test]
-    fn from_stream_invalid_usize_ko() {
+    fn from_reader_invalid_usize_ko() {
         let mut test_bytes: [u8; 112] = [0; 112];
         let invalid_bytes: [u8; 4] = [0xFF; 4];
         let start_index = 16;
         test_bytes[start_index..start_index + invalid_bytes.len()].copy_from_slice(&invalid_bytes);
         let mut cursor = Cursor::new(&test_bytes);
-        let result = Header::from_stream(&mut cursor, 0);
-        let expected_result = Err(Error::SessionInfoLength(
-            "-1 of type i32 cannot be converted converted to type usize: \
+        let result = Header::from_reader(&mut cursor, 0);
+        let expected_result = Err(from_reader::Error::Reading(
+            "Header error extracting `session_info_length`: \
+            -1 of type i32 cannot be converted converted to type usize: \
             out of range integral type conversion attempted"
                 .to_string(),
         ));
@@ -243,15 +238,16 @@ mod tests {
     }
 
     #[test]
-    fn from_stream_invalid_u64_ko() {
+    fn from_reader_invalid_u64_ko() {
         let mut test_bytes: [u8; 112] = [0; 112];
         let invalid_bytes: [u8; 4] = [0xFF; 4];
         let start_index = 20;
         test_bytes[start_index..start_index + invalid_bytes.len()].copy_from_slice(&invalid_bytes);
         let mut cursor = Cursor::new(&test_bytes);
-        let result = Header::from_stream(&mut cursor, 0);
-        let expected_result = Err(Error::SessionInfoOffset(
-            "-1 of type i32 cannot be converted converted to type u64: \
+        let result = Header::from_reader(&mut cursor, 0);
+        let expected_result = Err(from_reader::Error::Reading(
+            "Header error extracting `session_info_offset`: \
+            -1 of type i32 cannot be converted converted to type u64: \
             out of range integral type conversion attempted"
                 .to_string(),
         ));

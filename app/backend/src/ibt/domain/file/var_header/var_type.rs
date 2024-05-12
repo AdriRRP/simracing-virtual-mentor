@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum VarType {
     // 1 byte
     Char = 0,
@@ -17,7 +17,7 @@ pub enum VarType {
 
 impl VarType {
     #[must_use]
-    pub fn byte_size(&self) -> usize {
+    pub const fn byte_size(&self) -> usize {
         match self {
             Self::Char | Self::Bool => 1,
             Self::Int | Self::BitField | Self::Float => 4,
@@ -32,13 +32,13 @@ impl TryFrom<i32> for VarType {
 
     fn try_from(value: i32) -> Result<Self, Self::Error> {
         match value {
-            0 => Ok(VarType::Char),
-            1 => Ok(VarType::Bool),
-            2 => Ok(VarType::Int),
-            3 => Ok(VarType::BitField),
-            4 => Ok(VarType::Float),
-            5 => Ok(VarType::Double),
-            6 => Ok(VarType::ETCount),
+            0 => Ok(Self::Char),
+            1 => Ok(Self::Bool),
+            2 => Ok(Self::Int),
+            3 => Ok(Self::BitField),
+            4 => Ok(Self::Float),
+            5 => Ok(Self::Double),
+            6 => Ok(Self::ETCount),
             unknown => Err(Error::FromI32(format!("{unknown}"))),
         }
     }
@@ -59,7 +59,7 @@ impl fmt::Display for VarType {
     }
 }
 
-#[derive(PartialEq, Debug, thiserror::Error)]
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Var Type error extracting from i32: {0}")]
     FromI32(String),

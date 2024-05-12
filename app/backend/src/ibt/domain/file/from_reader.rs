@@ -47,7 +47,7 @@ where
     }
 }
 
-#[derive(PartialEq, Debug, thiserror::Error)]
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Cannot extract data from reader: {0}")]
     Reading(String),

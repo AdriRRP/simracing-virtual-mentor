@@ -46,7 +46,7 @@ impl TryFrom<&Vec<u8>> for SessionInfo {
 impl<ReadSeek> VariableSize<ReadSeek, Error> for SessionInfo where ReadSeek: Read + Seek {}
 
 /// Errors that can be returned from [`DiskHeader::try_from`].
-#[derive(PartialEq, Debug, thiserror::Error)]
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Error trying to extract Session Info from Stream: {0}")]
     FromStream(String),

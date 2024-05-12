@@ -22,7 +22,7 @@ impl Metrics {
         reader: &mut ReadSeek,
         header: &Header,
         filter: &Option<VarFilter>,
-    ) -> Result<Metrics, from_reader::Error> {
+    ) -> Result<Self, from_reader::Error> {
         // Headers of all metrics
         let mut var_headers = VarHeaders::from_reader(reader, header)?;
 
@@ -47,15 +47,17 @@ impl Metrics {
                     .var_buffers
                     .iter()
                     .max_by_key(|b| b.tick_count)
-                    .ok_or(from_reader::Error::Reading(
-                        "Can't get the buffer with the highest tick_count".to_string(),
-                    ))?;
+                    .ok_or_else(|| {
+                        from_reader::Error::Reading(
+                            "Can't get the buffer with the highest tick_count".to_string(),
+                        )
+                    })?;
 
                 Metric::from_reader(reader, var_header, current_buffer.offset, var_block_size)
             })
             .collect();
 
-        metrics_result.map(|metrics| Metrics { metrics })
+        metrics_result.map(|metrics| Self { metrics })
     }
 }
 

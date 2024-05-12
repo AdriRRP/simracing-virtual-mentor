@@ -11,7 +11,7 @@ use std::io::{Read, Seek};
 pub const HEADER_BYTES_SIZE: usize = 112;
 const MAX_NUMBER_OF_BUFFERS: usize = 4;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Header {
     /// Version of telemetry headers
     /// Original type: i32 (4 byte integer)
@@ -63,7 +63,7 @@ impl TryFrom<&[u8; HEADER_BYTES_SIZE]> for Header {
     type Error = Error;
 
     fn try_from(bytes: &[u8; HEADER_BYTES_SIZE]) -> Result<Self, Self::Error> {
-        Ok(Header {
+        Ok(Self {
             version: num_from_le!(bytes, 0, 4, i32, Error, Version),
             status: Status::from(num_from_le!(bytes, 4, 8, i32, Error, Status)),
             tick_rate: num_from_le!(bytes, 8, 12, i32, Error, TickRate, u32),
@@ -94,13 +94,10 @@ impl TryFrom<&[u8; HEADER_BYTES_SIZE]> for Header {
     }
 }
 
-impl<ReadSeek> FixedSize<ReadSeek, Error, HEADER_BYTES_SIZE> for Header where
-    ReadSeek: Read + Seek
-{
-}
+impl<ReadSeek> FixedSize<ReadSeek, Error, HEADER_BYTES_SIZE> for Header where ReadSeek: Read + Seek {}
 
 /// Errors that can be returned from [`Header::try_from`].
-#[derive(PartialEq, Debug, thiserror::Error)]
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Header error extracting `version`: {0}")]
     Version(String),

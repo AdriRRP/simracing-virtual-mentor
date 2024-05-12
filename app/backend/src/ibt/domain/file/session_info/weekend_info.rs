@@ -5,7 +5,7 @@ use serde::Deserialize;
 use telemetry_options::TelemetryOptions;
 use weekend_options::WeekendOptions;
 
-#[derive(PartialEq, Deserialize, Debug)]
+#[derive(PartialEq, Eq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct WeekendInfo {
     pub track_name: Option<String>,

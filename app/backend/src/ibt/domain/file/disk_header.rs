@@ -26,7 +26,7 @@ impl TryFrom<&[u8; DISK_HEADER_BYTES_SIZE]> for DiskHeader {
     type Error = Error;
 
     fn try_from(bytes: &[u8; DISK_HEADER_BYTES_SIZE]) -> Result<Self, Self::Error> {
-        Ok(DiskHeader {
+        Ok(Self {
             start_date: num_from_le!(&bytes, 0, 8, i64, Error, StartDate, u64),
             start_time: num_from_le!(&bytes, 8, 16, f64, Error, StartTime),
             end_time: num_from_le!(&bytes, 16, 24, f64, Error, EndTime),
@@ -37,7 +37,7 @@ impl TryFrom<&[u8; DISK_HEADER_BYTES_SIZE]> for DiskHeader {
 }
 
 /// Errors that can be returned from [`DiskHeader::try_from`].
-#[derive(PartialEq, Debug, thiserror::Error)]
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Disk Header error extracting `start_date`: {0}")]
     StartDate(String),

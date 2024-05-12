@@ -15,7 +15,7 @@ use crate::ibt::domain::file::session_info::car_setup::brakes_drive_unit::rear_d
 use crate::ibt::domain::file::session_info::car_setup::brakes_drive_unit::traction_control::TractionControl;
 use serde::Deserialize;
 
-#[derive(PartialEq, Deserialize, Debug)]
+#[derive(PartialEq, Eq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct BrakesDriveUnit {
     pub lighting: Option<Lighting>,

@@ -54,7 +54,7 @@ impl File {
             .map_err(|e| Error::Metrics(format!("{e}")))?;
 
         // Return complete file
-        Ok(File {
+        Ok(Self {
             header,
             disk_header,
             session_info,
@@ -64,7 +64,7 @@ impl File {
 }
 
 /// Errors that can be returned from [`Header::try_from`].
-#[derive(PartialEq, Debug, thiserror::Error)]
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("File error extracting `header`: {0}")]
     Header(String),

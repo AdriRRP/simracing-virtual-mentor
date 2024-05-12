@@ -20,7 +20,7 @@ impl Metric {
         var_header: &VarHeader,
         offset: u64,
         var_block_size: u64,
-    ) -> Result<Metric, from_reader::Error> {
+    ) -> Result<Self, from_reader::Error> {
         let mut var_values: Vec<VarValue> = Vec::new();
         let mut offset = offset;
 
@@ -34,7 +34,7 @@ impl Metric {
             offset += var_block_size;
         }
 
-        Ok(Metric {
+        Ok(Self {
             var_header: var_header.clone(),
             var_values,
         })

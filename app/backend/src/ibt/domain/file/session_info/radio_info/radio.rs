@@ -4,7 +4,7 @@ pub mod radio_frequency;
 use crate::ibt::domain::file::session_info::radio_info::radio::radio_frequency::RadioFrequency;
 use serde::Deserialize;
 
-#[derive(PartialEq, Deserialize, Debug)]
+#[derive(PartialEq, Eq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct Radio {
     pub radio_num: Option<i32>,

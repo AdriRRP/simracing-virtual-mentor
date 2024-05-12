@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-#[derive(PartialEq, Deserialize, Debug)]
+#[derive(PartialEq, Eq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct LeftTire {
     pub starting_pressure: Option<String>,

@@ -20,8 +20,8 @@ impl TryFrom<(&VarType, Vec<u8>)> for Primitive {
     fn try_from(value: (&VarType, Vec<u8>)) -> Result<Self, Self::Error> {
         let (var_type, bytes) = value;
         match (var_type, bytes.len()) {
-            (VarType::Bool, 1) => Ok(Primitive::Bool(bytes[0] != 0u8)),
-            (VarType::Char, 1) => Ok(Primitive::Char(char::from(bytes[0]))),
+            (VarType::Bool, 1) => Ok(Self::Bool(bytes[0] != 0u8)),
+            (VarType::Char, 1) => Ok(Self::Char(char::from(bytes[0]))),
             (VarType::Int, 4) => Ok(Self::Int(num_from_le!(bytes, 0, 4, i32, Error, Int))),
             (VarType::BitField, 4) => Ok(Self::BitField(num_from_le!(
                 bytes, 0, 4, u32, Error, BitField
@@ -35,7 +35,7 @@ impl TryFrom<(&VarType, Vec<u8>)> for Primitive {
     }
 }
 
-#[derive(PartialEq, Debug, thiserror::Error)]
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Incompatible number of bytes provided: {0}")]
     IncompatibleNumberOfBytes(String),

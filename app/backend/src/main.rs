@@ -3,10 +3,10 @@ use std::io::ErrorKind;
 use std::{env, io};
 
 use crate::ibt::domain::file::var_filter::VarFilter;
+use crate::ibt::domain::file::var_header::VarHeader;
 use crate::ibt::domain::file::var_value::primitive::Primitive;
 use crate::ibt::domain::file::var_value::VarValue;
 use crate::ibt::domain::file::File as IbtFile;
-use crate::ibt::domain::file::var_header::VarHeader;
 
 pub mod ibt {
     pub mod domain {
@@ -21,9 +21,9 @@ fn main() -> io::Result<()> {
         panic!("First argument `path` not found")
     };
 
-    let filter = args.get(2).map(|filter_str| {
-        VarFilter::new(filter_str.split(',').map(ToString::to_string).collect())
-    });
+    let filter = args
+        .get(2)
+        .map(|filter_str| VarFilter::new(filter_str.split(',').map(ToString::to_string).collect()));
 
     let mut f = StdFile::open(path)?;
 

@@ -6,7 +6,7 @@ use crate::ibt::domain::file::var_header::{VarHeader, VAR_HEADER_BYTES_SIZE};
 use std::io::{Read, Seek};
 use std::ops::{Deref, DerefMut};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct VarHeaders {
     var_headers: Vec<VarHeader>,
 }

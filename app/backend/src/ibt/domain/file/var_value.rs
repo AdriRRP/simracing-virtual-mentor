@@ -13,7 +13,6 @@ pub enum VarValue {
 }
 
 impl VarValue {
-
     /// # Errors
     ///
     /// Will return `Err` if `reader` can't seek or read exact, or if `Primitive::try_from` fails

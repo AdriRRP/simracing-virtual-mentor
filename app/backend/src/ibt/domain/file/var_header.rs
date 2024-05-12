@@ -10,7 +10,7 @@ pub const VAR_HEADER_BYTES_SIZE: usize = 144;
 pub const MAX_STRING_BYTES_SIZE: usize = 32;
 pub const MAX_DESCRIPTION_BYTES_SIZE: usize = 64;
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct VarHeader {
     /// Data type of the variable value
     /// Original type: i32 (4 byte integer)
@@ -67,7 +67,7 @@ impl TryFrom<&[u8; VAR_HEADER_BYTES_SIZE]> for VarHeader {
     type Error = Error;
 
     fn try_from(bytes: &[u8; VAR_HEADER_BYTES_SIZE]) -> Result<Self, Self::Error> {
-        Ok(VarHeader {
+        Ok(Self {
             var_type: num_from_le!(&bytes, 0, 4, i32, Error, VarTypeExtract, VarType),
             offset: num_from_le!(&bytes, 4, 8, i32, Error, Offset, u64),
             count: num_from_le!(&bytes, 8, 12, i32, Error, Count, usize),
@@ -86,7 +86,7 @@ impl<ReadSeek> FixedSize<ReadSeek, Error, VAR_HEADER_BYTES_SIZE> for VarHeader w
 }
 
 /// Errors that can be returned from [`VarHeader::try_from`].
-#[derive(PartialEq, Debug, thiserror::Error)]
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Disk Header error extracting `var_type_extract`: {0}")]
     VarTypeExtract(String),

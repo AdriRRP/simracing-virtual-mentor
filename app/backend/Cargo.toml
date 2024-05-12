@@ -1,0 +1,12 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1.37.0", features = ["fs", "io-util", "rt", "rt-multi-thread", "macros"] }
+serde = { version = "1.0.200", features = ["derive"] }
+serde_yaml = "0.9"
+thiserror = "1.0.60"

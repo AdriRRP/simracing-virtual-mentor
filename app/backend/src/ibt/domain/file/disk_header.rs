@@ -1,4 +1,4 @@
-use crate::ibt::domain::file::from_reader::FromReaderFixedSize;
+use crate::ibt::domain::file::from_reader::FixedSize;
 use crate::ibt::domain::file::macros::num_from_le;
 
 use std::io::{Read, Seek};
@@ -17,7 +17,7 @@ pub struct DiskHeader {
     pub record_count: u32,
 }
 
-impl<ReadSeek> FromReaderFixedSize<ReadSeek, Error, DISK_HEADER_BYTES_SIZE> for DiskHeader where
+impl<ReadSeek> FixedSize<ReadSeek, Error, DISK_HEADER_BYTES_SIZE> for DiskHeader where
     ReadSeek: Read + Seek
 {
 }

@@ -13,6 +13,11 @@ pub struct Metrics {
 }
 
 impl Metrics {
+    /// # Errors
+    ///
+    /// Will return `Err` if max by tick count `header.var_buffers` can't be retrieved,
+    /// or if `Metric::from_reader` fails
+    #[allow(clippy::similar_names)]
     pub fn from_reader<ReadSeek: Read + Seek>(
         reader: &mut ReadSeek,
         header: &Header,

@@ -1,6 +1,6 @@
 pub mod var_type;
 
-use crate::ibt::domain::file::from_reader::FromReaderFixedSize;
+use crate::ibt::domain::file::from_reader::FixedSize;
 use crate::ibt::domain::file::macros::{num_from_le, str_from_le};
 use crate::ibt::domain::file::var_header::var_type::VarType;
 
@@ -38,31 +38,28 @@ pub struct VarHeader {
 }
 
 impl VarHeader {
+    #[must_use]
     pub fn name(&self) -> String {
         self.name
-            .iter()
+            .into_iter()
+            .filter(|c| c.ne(&char::from(0)))
             .collect::<String>()
-            .trim_matches(char::from(0))
-            .parse()
-            .unwrap()
     }
 
+    #[must_use]
     pub fn description(&self) -> String {
         self.description
-            .iter()
+            .into_iter()
+            .filter(|c| c.ne(&char::from(0)))
             .collect::<String>()
-            .trim_matches(char::from(0))
-            .parse()
-            .unwrap()
     }
 
+    #[must_use]
     pub fn unit(&self) -> String {
         self.unit
-            .iter()
+            .into_iter()
+            .filter(|c| c.ne(&char::from(0)))
             .collect::<String>()
-            .trim_matches(char::from(0))
-            .parse()
-            .unwrap()
     }
 }
 
@@ -83,7 +80,7 @@ impl TryFrom<&[u8; VAR_HEADER_BYTES_SIZE]> for VarHeader {
     }
 }
 
-impl<ReadSeek> FromReaderFixedSize<ReadSeek, Error, VAR_HEADER_BYTES_SIZE> for VarHeader where
+impl<ReadSeek> FixedSize<ReadSeek, Error, VAR_HEADER_BYTES_SIZE> for VarHeader where
     ReadSeek: Read + Seek
 {
 }

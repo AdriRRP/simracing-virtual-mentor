@@ -1,7 +1,7 @@
 pub mod status;
 pub mod var_buffer;
 
-use crate::ibt::domain::file::from_reader::FromReaderFixedSize;
+use crate::ibt::domain::file::from_reader::FixedSize;
 use crate::ibt::domain::file::header::status::Status;
 use crate::ibt::domain::file::header::var_buffer::{VarBuffer, VAR_BUFFER_BYTES_SIZE};
 use crate::ibt::domain::file::macros::num_from_le;
@@ -94,7 +94,7 @@ impl TryFrom<&[u8; HEADER_BYTES_SIZE]> for Header {
     }
 }
 
-impl<ReadSeek> FromReaderFixedSize<ReadSeek, Error, HEADER_BYTES_SIZE> for Header where
+impl<ReadSeek> FixedSize<ReadSeek, Error, HEADER_BYTES_SIZE> for Header where
     ReadSeek: Read + Seek
 {
 }

@@ -11,7 +11,7 @@ pub mod var_headers;
 pub mod var_value;
 
 use crate::ibt::domain::file::disk_header::DiskHeader;
-use crate::ibt::domain::file::from_reader::{FromReaderFixedSize, FromReaderVarSize};
+use crate::ibt::domain::file::from_reader::{FixedSize, VariableSize};
 use crate::ibt::domain::file::header::{Header, HEADER_BYTES_SIZE};
 use crate::ibt::domain::file::metrics::Metrics;
 use crate::ibt::domain::file::session_info::SessionInfo;
@@ -29,6 +29,11 @@ pub struct File {
 }
 
 impl File {
+    /// # Errors
+    ///
+    /// Will return `Err` if `Header::from_reader`, `DiskHeader::from_reader`,
+    /// `SessionInfo::from_reader` or `Metrics::from_reader` fails
+    #[allow(clippy::similar_names)]
     pub fn from_reader(
         reader: &mut (impl Read + Seek),
         filter: &Option<VarFilter>,

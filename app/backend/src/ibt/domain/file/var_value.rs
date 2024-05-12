@@ -13,6 +13,10 @@ pub enum VarValue {
 }
 
 impl VarValue {
+
+    /// # Errors
+    ///
+    /// Will return `Err` if `reader` can't seek or read exact, or if `Primitive::try_from` fails
     pub fn try_read_next<ReadSeek: Read + Seek>(
         reader: &mut ReadSeek,
         var_type: &VarType,
@@ -52,7 +56,7 @@ impl VarValue {
             })
             .collect();
 
-        opt_primitives_result.map(|opt| opt.map(|v| Self::from(v)))
+        opt_primitives_result.map(|opt| opt.map(Self::from))
     }
 }
 
@@ -65,7 +69,7 @@ impl From<Primitive> for VarValue {
 impl From<Vec<Primitive>> for VarValue {
     fn from(values: Vec<Primitive>) -> Self {
         if values.len() == 1 {
-            Self::Single(values[0].clone())
+            Self::Single(values[0])
         } else {
             Self::Array(values)
         }

@@ -16,6 +16,7 @@ pub enum VarType {
 }
 
 impl VarType {
+    #[must_use]
     pub fn byte_size(&self) -> usize {
         match self {
             Self::Char | Self::Bool => 1,

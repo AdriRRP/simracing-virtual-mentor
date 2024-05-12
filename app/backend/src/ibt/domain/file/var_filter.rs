@@ -5,10 +5,12 @@ pub struct VarFilter {
 }
 
 impl VarFilter {
+    #[must_use]
     pub fn new(allowed_names: Vec<String>) -> Self {
         Self { allowed_names }
     }
 
+    #[must_use]
     pub fn allow(&self, var_header: &VarHeader) -> bool {
         self.allowed_names.iter().any(|a| {
             var_header

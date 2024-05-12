@@ -6,6 +6,7 @@ use crate::ibt::domain::file::var_filter::VarFilter;
 use crate::ibt::domain::file::var_value::primitive::Primitive;
 use crate::ibt::domain::file::var_value::VarValue;
 use crate::ibt::domain::file::File as IbtFile;
+use crate::ibt::domain::file::var_header::VarHeader;
 
 pub mod ibt {
     pub mod domain {
@@ -21,7 +22,7 @@ fn main() -> io::Result<()> {
     };
 
     let filter = args.get(2).map(|filter_str| {
-        VarFilter::new(Vec::from_iter(filter_str.split(",").map(|s| s.to_string())))
+        VarFilter::new(filter_str.split(',').map(ToString::to_string).collect())
     });
 
     let mut f = StdFile::open(path)?;
@@ -49,24 +50,13 @@ fn main() -> io::Result<()> {
         .metrics
         .iter()
         .map(|m| &m.var_header)
-        .map(|var_header| var_header.name())
+        .map(VarHeader::name)
         .collect::<Vec<String>>()
         .join(",");
 
     println!("{header}");
 
-    fn primitive_to_string(primitive: &Primitive) -> String {
-        match primitive {
-            Primitive::Bool(pv) => pv.to_string(),
-            Primitive::Char(pv) => pv.to_string(),
-            Primitive::Int(pv) => pv.to_string(),
-            Primitive::BitField(pv) => pv.to_string(),
-            Primitive::Float(pv) => pv.to_string(),
-            Primitive::Double(pv) => pv.to_string(),
-        }
-    }
-
-    (0..ibt_file.metrics.get(0).unwrap().var_values.len()).for_each(|i| {
+    (0..ibt_file.metrics.first().unwrap().var_values.len()).for_each(|i| {
         let row = ibt_file
             .metrics
             .iter()
@@ -79,8 +69,19 @@ fn main() -> io::Result<()> {
             })
             .collect::<Vec<String>>()
             .join(",");
-        println!("{row}")
+        println!("{row}");
     });
 
     Ok(())
+}
+
+fn primitive_to_string(primitive: &Primitive) -> String {
+    match primitive {
+        Primitive::Bool(pv) => pv.to_string(),
+        Primitive::Char(pv) => pv.to_string(),
+        Primitive::Int(pv) => pv.to_string(),
+        Primitive::BitField(pv) => pv.to_string(),
+        Primitive::Float(pv) => pv.to_string(),
+        Primitive::Double(pv) => pv.to_string(),
+    }
 }

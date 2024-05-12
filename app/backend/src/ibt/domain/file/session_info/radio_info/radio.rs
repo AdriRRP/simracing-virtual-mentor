@@ -1,3 +1,4 @@
+#[allow(clippy::module_name_repetitions)]
 pub mod radio_frequency;
 
 use crate::ibt::domain::file::session_info::radio_info::radio::radio_frequency::RadioFrequency;

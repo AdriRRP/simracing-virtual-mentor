@@ -1,5 +1,5 @@
 use crate::ibt::domain::file::from_reader::Error;
-use crate::ibt::domain::file::from_reader::FromReaderFixedSize;
+use crate::ibt::domain::file::from_reader::FixedSize;
 use crate::ibt::domain::file::header::Header;
 use crate::ibt::domain::file::var_header::{VarHeader, VAR_HEADER_BYTES_SIZE};
 
@@ -12,6 +12,10 @@ pub struct VarHeaders {
 }
 
 impl VarHeaders {
+    /// # Errors
+    ///
+    /// Will return `Err` if `VarHeader::from_reader` fails
+    #[allow(clippy::similar_names)]
     pub fn from_reader(reader: &mut (impl Read + Seek), header: &Header) -> Result<Self, Error> {
         // Result implements FromIterator, so you can move the Result outside and iterators will
         // take care of the rest (including stopping iteration if an error is found).

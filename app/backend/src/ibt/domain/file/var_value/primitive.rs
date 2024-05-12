@@ -14,48 +14,6 @@ pub enum Primitive {
     Double(f64),
 }
 
-impl Primitive {
-    pub fn as_char(&self) -> Option<char> {
-        match self {
-            Self::Char(c) => Some(c.clone()),
-            _ => None,
-        }
-    }
-    pub fn as_bool(&self) -> Option<bool> {
-        match self {
-            Self::Bool(b) => Some(b.clone()),
-            _ => None,
-        }
-    }
-    pub fn as_int(&self) -> Option<i32> {
-        match self {
-            Self::Int(i) => Some(i.clone()),
-            _ => None,
-        }
-    }
-
-    pub fn as_bit_field(&self) -> Option<u32> {
-        match self {
-            Self::BitField(bf) => Some(bf.clone()),
-            _ => None,
-        }
-    }
-
-    pub fn as_float(&self) -> Option<f32> {
-        match self {
-            Self::Float(f) => Some(f.clone()),
-            _ => None,
-        }
-    }
-
-    pub fn as_double(&self) -> Option<f64> {
-        match self {
-            Self::Double(d) => Some(d.clone()),
-            _ => None,
-        }
-    }
-}
-
 impl TryFrom<(&VarType, Vec<u8>)> for Primitive {
     type Error = Error;
 

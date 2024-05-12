@@ -6,7 +6,7 @@ pub mod sessions;
 pub mod split_time_info;
 pub mod weekend_info;
 
-use crate::ibt::domain::file::from_reader::FromReaderVarSize;
+use crate::ibt::domain::file::from_reader::VariableSize;
 use crate::ibt::domain::file::session_info::camera_info::CameraInfo;
 use crate::ibt::domain::file::session_info::car_setup::CarSetup;
 use crate::ibt::domain::file::session_info::driver_info::DriverInfo;
@@ -43,7 +43,7 @@ impl TryFrom<&Vec<u8>> for SessionInfo {
     }
 }
 
-impl<ReadSeek> FromReaderVarSize<ReadSeek, Error> for SessionInfo where ReadSeek: Read + Seek {}
+impl<ReadSeek> VariableSize<ReadSeek, Error> for SessionInfo where ReadSeek: Read + Seek {}
 
 /// Errors that can be returned from [`DiskHeader::try_from`].
 #[derive(PartialEq, Debug, thiserror::Error)]

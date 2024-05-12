@@ -12,6 +12,9 @@ pub struct Metric {
 }
 
 impl Metric {
+    /// # Errors
+    ///
+    /// Will return `Err` if `VarValue::try_read_next` fails
     pub fn from_reader<ReadSeek: Read + Seek>(
         reader: &mut ReadSeek,
         var_header: &VarHeader,

@@ -3,6 +3,7 @@ use crate::ibt::domain::file::header::Header;
 use crate::ibt::domain::file::metric::Metric;
 use crate::ibt::domain::file::var_headers::VarHeaders;
 
+use crate::ibt::domain::file::var_filter::VarFilter;
 use std::io::{Read, Seek};
 use std::ops::Deref;
 
@@ -15,15 +16,21 @@ impl Metrics {
     pub fn from_reader<ReadSeek: Read + Seek>(
         reader: &mut ReadSeek,
         header: &Header,
+        filter: &Option<VarFilter>,
     ) -> Result<Metrics, from_reader::Error> {
         // Headers of all metrics
-        let var_headers = VarHeaders::from_reader(reader, header)?;
+        let mut var_headers = VarHeaders::from_reader(reader, header)?;
 
         // Size of a sample of values of all headers
         let var_block_size = var_headers
             .iter()
             .fold(0usize, |acc, e| acc + e.var_type.byte_size() * e.count)
             as u64;
+
+        // Filter headers
+        if let Some(var_filter) = filter {
+            var_headers.retain(|var_header| var_filter.allow(var_header));
+        }
 
         // Result implements FromIterator, so you can move the Result outside and iterators will
         // take care of the rest (including stopping iteration if an error is found).

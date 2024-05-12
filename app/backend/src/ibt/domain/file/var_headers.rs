@@ -4,7 +4,7 @@ use crate::ibt::domain::file::header::Header;
 use crate::ibt::domain::file::var_header::{VarHeader, VAR_HEADER_BYTES_SIZE};
 
 use std::io::{Read, Seek};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 #[derive(PartialEq, Debug)]
 pub struct VarHeaders {
@@ -32,6 +32,12 @@ impl Deref for VarHeaders {
 
     fn deref(&self) -> &Self::Target {
         &self.var_headers
+    }
+}
+
+impl DerefMut for VarHeaders {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.var_headers
     }
 }
 

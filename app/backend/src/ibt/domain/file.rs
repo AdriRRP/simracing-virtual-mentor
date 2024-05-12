@@ -5,6 +5,7 @@ pub mod macros;
 pub mod metric;
 pub mod metrics;
 pub mod session_info;
+pub mod var_filter;
 pub mod var_header;
 pub mod var_headers;
 pub mod var_value;
@@ -15,6 +16,7 @@ use crate::ibt::domain::file::header::{Header, HEADER_BYTES_SIZE};
 use crate::ibt::domain::file::metrics::Metrics;
 use crate::ibt::domain::file::session_info::SessionInfo;
 
+use crate::ibt::domain::file::var_filter::VarFilter;
 use std::fmt::Debug;
 use std::io::{Read, Seek};
 
@@ -27,7 +29,10 @@ pub struct File {
 }
 
 impl File {
-    pub fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, Error> {
+    pub fn from_reader(
+        reader: &mut (impl Read + Seek),
+        filter: &Option<VarFilter>,
+    ) -> Result<Self, Error> {
         let header = Header::from_reader(reader, 0).map_err(|e| Error::Header(format!("{e}")))?;
 
         let disk_header = DiskHeader::from_reader(reader, HEADER_BYTES_SIZE as u64)
@@ -40,8 +45,8 @@ impl File {
         )
         .map_err(|e| Error::SessionInfo(format!("{e}")))?;
 
-        let metrics =
-            Metrics::from_reader(reader, &header).map_err(|e| Error::Metrics(format!("{e}")))?;
+        let metrics = Metrics::from_reader(reader, &header, filter)
+            .map_err(|e| Error::Metrics(format!("{e}")))?;
 
         // Return complete file
         Ok(File {

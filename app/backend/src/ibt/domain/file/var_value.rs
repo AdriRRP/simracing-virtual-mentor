@@ -35,8 +35,15 @@ impl VarValue {
                     .read(&mut buffer)
                     .map_err(|e| from_reader::Error::Reading(format!("{e}")))?;
 
-                if bytes_read != var_type.byte_size() {
+                if bytes_read == 0 {
                     return Ok(None);
+                } else if bytes_read != var_type.byte_size() {
+                    return Err(from_reader::Error::Reading(format!(
+                        "{} bytes are needed to read the {} type but only {} could be read",
+                        var_type.byte_size(),
+                        var_type,
+                        bytes_read
+                    )));
                 }
 
                 Ok(Some(Primitive::try_from((var_type, buffer)).map_err(

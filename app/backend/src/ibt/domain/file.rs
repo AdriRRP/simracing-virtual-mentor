@@ -15,8 +15,8 @@ use crate::ibt::domain::file::from_reader::{FixedSize, VariableSize};
 use crate::ibt::domain::file::header::{Header, HEADER_BYTES_SIZE};
 use crate::ibt::domain::file::metrics::Metrics;
 use crate::ibt::domain::file::session_info::SessionInfo;
-
 use crate::ibt::domain::file::var_filter::VarFilter;
+
 use std::fmt::Debug;
 use std::io::{Read, Seek};
 

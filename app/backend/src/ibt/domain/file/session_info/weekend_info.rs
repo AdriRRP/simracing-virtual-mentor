@@ -1,9 +1,10 @@
 pub mod telemetry_options;
 pub mod weekend_options;
 
+use crate::ibt::domain::file::session_info::weekend_info::telemetry_options::TelemetryOptions;
+use crate::ibt::domain::file::session_info::weekend_info::weekend_options::WeekendOptions;
+
 use serde::Deserialize;
-use telemetry_options::TelemetryOptions;
-use weekend_options::WeekendOptions;
 
 #[derive(PartialEq, Eq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]

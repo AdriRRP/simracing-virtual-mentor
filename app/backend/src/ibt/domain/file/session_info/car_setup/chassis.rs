@@ -6,8 +6,6 @@ pub mod rear;
 pub mod right_front;
 pub mod right_rear;
 
-use serde::Deserialize;
-
 use crate::ibt::domain::file::session_info::car_setup::chassis::front::Front;
 use crate::ibt::domain::file::session_info::car_setup::chassis::in_car_dials::InCarDials;
 use crate::ibt::domain::file::session_info::car_setup::chassis::left_front::LeftFront;
@@ -15,6 +13,8 @@ use crate::ibt::domain::file::session_info::car_setup::chassis::left_rear::LeftR
 use crate::ibt::domain::file::session_info::car_setup::chassis::rear::Rear;
 use crate::ibt::domain::file::session_info::car_setup::chassis::right_front::RightFront;
 use crate::ibt::domain::file::session_info::car_setup::chassis::right_rear::RightRear;
+
+use serde::Deserialize;
 
 #[derive(PartialEq, Eq, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]

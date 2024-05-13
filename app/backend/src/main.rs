@@ -1,12 +1,12 @@
-use std::fs::File as StdFile;
-use std::io::ErrorKind;
-use std::{env, io};
-
 use crate::ibt::domain::file::var_filter::VarFilter;
 use crate::ibt::domain::file::var_header::VarHeader;
 use crate::ibt::domain::file::var_value::primitive::Primitive;
 use crate::ibt::domain::file::var_value::VarValue;
 use crate::ibt::domain::file::File as IbtFile;
+
+use std::fs::File as StdFile;
+use std::io::ErrorKind;
+use std::{env, io};
 
 pub mod ibt {
     pub mod domain {

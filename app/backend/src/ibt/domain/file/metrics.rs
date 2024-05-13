@@ -1,9 +1,9 @@
 use crate::ibt::domain::file::from_reader;
 use crate::ibt::domain::file::header::Header;
 use crate::ibt::domain::file::metric::Metric;
+use crate::ibt::domain::file::var_filter::VarFilter;
 use crate::ibt::domain::file::var_headers::VarHeaders;
 
-use crate::ibt::domain::file::var_filter::VarFilter;
 use std::io::{Read, Seek};
 use std::ops::Deref;
 

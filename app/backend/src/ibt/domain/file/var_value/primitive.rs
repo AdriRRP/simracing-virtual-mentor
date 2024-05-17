@@ -39,13 +39,13 @@ impl TryFrom<(&VarType, Vec<u8>)> for Primitive {
 pub enum Error {
     #[error("Incompatible number of bytes provided: {0}")]
     IncompatibleNumberOfBytes(String),
-    #[error("Cannot extract Int: {0}")]
+    #[error("Cannot load Int: {0}")]
     Int(String),
-    #[error("Cannot extract BitField: {0}")]
+    #[error("Cannot load BitField: {0}")]
     BitField(String),
-    #[error("Cannot extract Float: {0}")]
+    #[error("Cannot load Float: {0}")]
     Float(String),
-    #[error("Cannot extract Double: {0}")]
+    #[error("Cannot load Double: {0}")]
     Double(String),
 }
 

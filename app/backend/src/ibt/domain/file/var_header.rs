@@ -102,7 +102,7 @@ pub enum Error {
     Description(String),
     #[error("Disk Header error extracting `unit`: {0}")]
     Unit(String),
-    #[error("Error trying to extract VarHeader from Stream: {0}")]
+    #[error("Error trying to load VarHeader from Stream: {0}")]
     FromStream(String),
 }
 

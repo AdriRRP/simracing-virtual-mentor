@@ -48,7 +48,7 @@ impl<ReadSeek> VariableSize<ReadSeek, Error> for SessionInfo where ReadSeek: Rea
 /// Errors that can be returned from [`DiskHeader::try_from`].
 #[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Error trying to extract Session Info from Stream: {0}")]
+    #[error("Error trying to load Session Info from Stream: {0}")]
     FromStream(String),
     #[error("Error trying to parse Session Info to yaml: {0}")]
     ParseYaml(String),

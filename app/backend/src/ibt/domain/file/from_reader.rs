@@ -49,6 +49,6 @@ where
 
 #[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Cannot extract data from reader: {0}")]
+    #[error("Cannot load data from reader: {0}")]
     Reading(String),
 }

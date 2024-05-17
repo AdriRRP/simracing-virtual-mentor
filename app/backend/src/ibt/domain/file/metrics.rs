@@ -36,7 +36,36 @@ impl Metrics {
         if let Some(var_filter) = filter {
             var_headers.retain(|var_header| var_filter.allow(var_header));
         }
+        
 
+        // TODO: Async parsing
+        //let metrics_tasks: Vec<JoinHandle<Result<Metric, from_reader::Error>>> = var_headers
+        //    .iter()
+        //    .map(|var_header| {
+        //        // Pick the buffer with the highest tick_count
+        //        let current_buffer = header
+        //            .var_buffers
+        //            .iter()
+        //            .max_by_key(|b| b.tick_count)
+        //            .ok_or_else(|| {
+        //                from_reader::Error::Reading(
+        //                    "Can't get the buffer with the highest tick_count".to_string(),
+        //                )
+        //            });
+        //        task::spawn(async move {
+        //            let current_buffer = current_buffer?;
+        //            Metric::from_reader(reader, var_header, current_buffer.offset, var_block_size)
+        //        })
+        //    })
+        //    .collect();
+        //let results = join_all(metrics_tasks).await;
+        //let results: Result<Vec<Metric>, from_reader::Error> = results
+        //    .into_iter()
+        //    .map(|result| result.map_err(|e| from_reader::Error::Reading(format!("{e}")))?)
+        //    .collect();
+        //
+        //results.map(|metrics| Self { metrics })
+        
         // Result implements FromIterator, so you can move the Result outside and iterators will
         // take care of the rest (including stopping iteration if an error is found).
         let metrics_result: Result<Vec<Metric>, from_reader::Error> = var_headers
@@ -52,7 +81,6 @@ impl Metrics {
                             "Can't get the buffer with the highest tick_count".to_string(),
                         )
                     })?;
-
                 Metric::from_reader(reader, var_header, current_buffer.offset, var_block_size)
             })
             .collect();

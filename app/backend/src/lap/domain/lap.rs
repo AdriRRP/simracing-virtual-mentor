@@ -18,6 +18,7 @@ pub struct Lap {
     pub circuit: String,
     pub date: DateTime<Utc>,
     pub metrics: Metrics,
+    pub time: f32,
 }
 
 impl Lap {
@@ -32,6 +33,12 @@ impl Lap {
         date: DateTime<Utc>,
         metrics: Metrics,
     ) -> Self {
+        
+        let time = metrics
+            .lap_current_lap_time
+            .iter()
+            .fold(0f32, |a, &b| a.max(b));
+
         Self {
             id,
             file_id,
@@ -42,6 +49,7 @@ impl Lap {
             circuit,
             date,
             metrics,
+            time,
         }
     }
 }

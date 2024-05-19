@@ -1,6 +1,6 @@
 use crate::lap::domain::lap::Lap;
-use std::ops::Deref;
 use serde::{Deserialize, Serialize};
+use std::ops::Deref;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Laps {

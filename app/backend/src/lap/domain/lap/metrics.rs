@@ -16,6 +16,7 @@ pub struct Metrics {
     pub altitude: Vec<f32>,
     pub steering_wheel_angle: Vec<f32>,
     pub fuel_level: Vec<f32>,
+    pub lap_current_lap_time: Vec<f32>,
 }
 
 impl Default for Metrics {
@@ -35,6 +36,7 @@ impl Default for Metrics {
             altitude: Vec::new(),
             steering_wheel_angle: Vec::new(),
             fuel_level: Vec::new(),
+            lap_current_lap_time: Vec::new(),
         }
     }
 }

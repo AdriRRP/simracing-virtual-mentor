@@ -20,7 +20,7 @@ use crate::ibt::domain::file::var_filter::VarFilter;
 use std::fmt::Debug;
 use std::io::{Read, Seek};
 
-pub const ALLOWED_FIELDS: [&str; 15] = [
+pub const ALLOWED_FIELDS: [&str; 16] = [
     "Lap",
     "Speed",
     "Throttle",
@@ -36,6 +36,7 @@ pub const ALLOWED_FIELDS: [&str; 15] = [
     "Alt",
     "SteeringWheelAngle",
     "FuelLevel",
+    "LapCurrentLapTime",
 ];
 
 #[derive(PartialEq, Debug)]

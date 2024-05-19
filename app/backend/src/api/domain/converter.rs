@@ -45,18 +45,18 @@ pub fn ibt_metrics2laps(file_id: String, session_info: &SessionInfo, metrics: &I
     let driver_name = driver
         .clone()
         .and_then(|x| x.user_name)
-        .unwrap_or_else(|| "Unknown".to_string());  // TODO: Log the error
+        .unwrap_or_else(|| "Unknown".to_string()); // TODO: Log the error
 
     let category = session_info
         .weekend_info
         .clone()
         .and_then(|wi| wi.category)
-        .unwrap_or_else(|| "Unknown".to_string());  // TODO: Log the error
+        .unwrap_or_else(|| "Unknown".to_string()); // TODO: Log the error
 
     let car = driver
         .clone()
         .and_then(|x| x.car_screen_name)
-        .unwrap_or_else(|| "Unknown".to_string());  // TODO: Log the error
+        .unwrap_or_else(|| "Unknown".to_string()); // TODO: Log the error
 
     let circuit = session_info
         .weekend_info
@@ -94,7 +94,8 @@ fn get_driver_or_none(session_info: &SessionInfo) -> Option<Driver> {
         .clone()
         .and_then(|di| di.driver_user_id)
         .and_then(|dui| Some(dui))
-        .map_or(None, |driver_id| { // TODO: Log the error
+        .map_or(None, |driver_id| {
+            // TODO: Log the error
             session_info
                 .driver_info
                 .clone()
@@ -123,14 +124,16 @@ fn get_datetime_or_now(session_info: &SessionInfo) -> DateTime<Utc> {
         .and_then(|wo| wo.time_of_day)
         .unwrap_or_else(|| "Unknown".to_string()); // TODO: Log the error
 
-    eprintln!("{date} {}", time.to_uppercase());
-    match NaiveDateTime::parse_from_str(format!("{date} {time}").to_uppercase().as_str(), "%Y-%m-%d %I:%M %p") {
+    match NaiveDateTime::parse_from_str(
+        format!("{date} {time}").to_uppercase().as_str(),
+        "%Y-%m-%d %I:%M %p",
+    ) {
         Ok(datetime) => Some(datetime.and_utc()),
         Err(_e) => {
             // TODO: Log the error
             // eprintln!("{e}");
             None
-        },
+        }
     }
     .unwrap_or_else(|| Utc::now())
 }
@@ -152,6 +155,7 @@ fn group_metrics_by_lap(metrics: &IbtMetrics) -> HashMap<u16, Metrics> {
     let altitude: Vec<f32> = extract_values!(metrics, "Alt", Float);
     let steering_wheel_angle: Vec<f32> = extract_values!(metrics, "SteeringWheelAngle", Float);
     let fuel_level: Vec<f32> = extract_values!(metrics, "FuelLevel", Float);
+    let lap_current_lap_time: Vec<f32> = extract_values!(metrics, "LapCurrentLapTime", Float);
 
     let mut groups = HashMap::new();
 
@@ -173,6 +177,7 @@ fn group_metrics_by_lap(metrics: &IbtMetrics) -> HashMap<u16, Metrics> {
             .steering_wheel_angle
             .push(steering_wheel_angle[i]);
         lap_metrics.fuel_level.push(fuel_level[i]);
+        lap_metrics.lap_current_lap_time.push(lap_current_lap_time[i]);
     });
 
     groups

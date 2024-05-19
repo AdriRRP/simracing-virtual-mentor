@@ -20,9 +20,9 @@ impl Default for InMemory {
 
 #[async_trait]
 impl Repository for InMemory {
-    async fn create(&self, lap: Lap) {
+    async fn create(&self, laps: Laps) {
         let mut laps_guard = self.laps.lock().unwrap();
-        laps_guard.push(lap);
+        laps_guard.extend(laps.clone().into_iter());
         drop(laps_guard);
     }
 

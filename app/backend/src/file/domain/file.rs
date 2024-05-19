@@ -1,12 +1,19 @@
-pub mod status;
+use serde::{Deserialize, Serialize};
 
-use crate::file::domain::file::status::Status;
-
-use uuid::Uuid;
-
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct File {
-    pub id: Uuid,
+    // Sha256 of the source laps
+    pub id: String,
     pub name: String,
-    pub status: Status,
+    pub complete: bool,
+}
+
+impl File {
+    pub fn new(id: String, name: String) -> Self {
+        Self {
+            id,
+            name,
+            complete: false,
+        }
+    }
 }

@@ -2,14 +2,14 @@ pub mod driver;
 
 use crate::ibt::domain::file::session_info::driver_info::driver::Driver;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Deserialize, Debug)]
+#[derive(PartialEq, Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct DriverInfo {
     pub driver_car_idx: Option<i32>,
     #[serde(rename = "DriverUserID")]
-    pub driver_user_id: Option<String>,
+    pub driver_user_id: Option<i32>,
     pub pace_car_idx: Option<String>,
     pub driver_head_pos_x: Option<f32>,
     pub driver_head_pos_y: Option<f32>,

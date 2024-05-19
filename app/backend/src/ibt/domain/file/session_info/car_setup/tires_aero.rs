@@ -8,9 +8,9 @@ use crate::ibt::domain::file::session_info::car_setup::tires_aero::aero_settings
 use crate::ibt::domain::file::session_info::car_setup::tires_aero::left_tire::LeftTire;
 use crate::ibt::domain::file::session_info::car_setup::tires_aero::right_tire::RightTire;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Deserialize, Debug)]
+#[derive(PartialEq, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct TiresAero {
     pub left_front_tire: Option<LeftTire>,

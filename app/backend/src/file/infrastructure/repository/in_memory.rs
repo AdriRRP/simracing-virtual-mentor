@@ -4,7 +4,6 @@ use crate::file::domain::repository::Repository;
 
 use async_trait::async_trait;
 use std::sync::{Arc, Mutex};
-use uuid::Uuid;
 
 pub struct InMemory {
     files: Arc<Mutex<Vec<File>>>,
@@ -26,25 +25,29 @@ impl Repository for InMemory {
         drop(files_guard);
     }
 
-    async fn delete(&self, id: &Uuid) -> Result<(), String> {
+    async fn delete(&self, id: &str) -> Result<(), String> {
         let mut files_guard = self.files.lock().unwrap();
         let i = files_guard
             .iter()
-            .position(|file| file.id == *id)
-            .ok_or(format!("No file with {id} found."))?;
+            .position(|file| file.id == id)
+            .ok_or(format!("No laps with {id} found."))?;
         files_guard.remove(i);
         drop(files_guard);
         Ok(())
     }
 
-    async fn find_by_id(&self, id: &Uuid) -> Result<Option<File>, String> {
+    async fn find_by_id(&self, id: &str) -> Result<Option<File>, String> {
         let files_guard = self.files.lock().unwrap();
-        let result = files_guard.iter().find(|file| file.id == *id).cloned();
+        let result = files_guard.iter().find(|file| file.id == id).cloned();
         drop(files_guard);
         Ok(result)
     }
 
     async fn find_by_criteria(&self, _criteria: &String) -> Result<Option<Files>, String> {
-        todo!()
+        let files_guard = self.files.lock().unwrap();
+        let files: Files = files_guard.clone().into();
+        drop(files_guard);
+        let opt_files: Option<Files> = if files.len() == 0 { None } else { Some(files) };
+        Ok(opt_files)
     }
 }

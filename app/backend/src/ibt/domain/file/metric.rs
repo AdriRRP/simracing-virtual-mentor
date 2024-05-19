@@ -5,7 +5,7 @@ use crate::ibt::domain::file::var_value::VarValue;
 use std::io::{Read, Seek};
 use std::ops::Deref;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Metric {
     pub var_header: VarHeader,
     pub var_values: Vec<VarValue>,

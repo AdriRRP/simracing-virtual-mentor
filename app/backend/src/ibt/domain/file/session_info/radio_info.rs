@@ -2,9 +2,9 @@ pub mod radio;
 
 use crate::ibt::domain::file::session_info::radio_info::radio::Radio;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Eq, Deserialize, Debug)]
+#[derive(PartialEq, Eq, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct RadioInfo {
     pub selected_radio_num: Option<i32>,

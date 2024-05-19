@@ -7,7 +7,7 @@ use crate::ibt::domain::file::var_headers::VarHeaders;
 use std::io::{Read, Seek};
 use std::ops::Deref;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 pub struct Metrics {
     metrics: Vec<Metric>,
 }
@@ -36,7 +36,6 @@ impl Metrics {
         if let Some(var_filter) = filter {
             var_headers.retain(|var_header| var_filter.allow(var_header));
         }
-        
 
         // TODO: Async parsing
         //let metrics_tasks: Vec<JoinHandle<Result<Metric, from_reader::Error>>> = var_headers
@@ -65,7 +64,7 @@ impl Metrics {
         //    .collect();
         //
         //results.map(|metrics| Self { metrics })
-        
+
         // Result implements FromIterator, so you can move the Result outside and iterators will
         // take care of the rest (including stopping iteration if an error is found).
         let metrics_result: Result<Vec<Metric>, from_reader::Error> = var_headers

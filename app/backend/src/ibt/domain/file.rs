@@ -20,6 +20,24 @@ use crate::ibt::domain::file::var_filter::VarFilter;
 use std::fmt::Debug;
 use std::io::{Read, Seek};
 
+pub const ALLOWED_FIELDS: [&str; 15] = [
+    "Lap",
+    "Speed",
+    "Throttle",
+    "Brake",
+    "Clutch",
+    "Gear",
+    "RPM",
+    "LapDist",
+    "LapDistPct",
+    "TrackTempCrew",
+    "Lat",
+    "Lon",
+    "Alt",
+    "SteeringWheelAngle",
+    "FuelLevel",
+];
+
 #[derive(PartialEq, Debug)]
 pub struct File {
     pub header: Header,
@@ -36,7 +54,8 @@ impl File {
     #[allow(clippy::similar_names)]
     pub fn from_reader(
         reader: &mut (impl Read + Seek),
-        filter: &Option<VarFilter>,
+        // At the moment filter is fixed
+        // filter: &Option<VarFilter>,
     ) -> Result<Self, Error> {
         let header = Header::from_reader(reader, 0).map_err(|e| Error::Header(format!("{e}")))?;
 
@@ -50,10 +69,17 @@ impl File {
         )
         .map_err(|e| Error::SessionInfo(format!("{e}")))?;
 
-        let metrics = Metrics::from_reader(reader, &header, filter)
+        let filter = Some(VarFilter::new(
+            ALLOWED_FIELDS
+                .iter()
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>(),
+        ));
+
+        let metrics = Metrics::from_reader(reader, &header, &filter)
             .map_err(|e| Error::Metrics(format!("{e}")))?;
 
-        // Return complete file
+        // Return complete laps
         Ok(Self {
             header,
             disk_header,

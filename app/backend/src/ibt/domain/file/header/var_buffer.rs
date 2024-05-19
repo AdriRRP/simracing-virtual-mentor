@@ -7,7 +7,7 @@ pub struct VarBuffer {
     /// Used to detect changes in data
     /// Original type: i32 (4 byte integer)
     pub tick_count: u32,
-    /// Offset from the beginning of the file
+    /// Offset from the beginning of the laps
     /// Original type: i32 (4 byte integer)
     pub offset: u64,
     // Raw source contains HERE an 8 bytes padding for 16 bytes alignment

@@ -1,113 +1,34 @@
-pub mod analysis {
-    pub mod application {
-        pub mod create {
-            pub mod service;
-        }
-        pub mod delete {
-            pub mod service;
-        }
-        pub mod find {
-            pub mod by_id {
-                pub mod service;
-            }
-            pub mod by_criteria {
-                pub mod service;
-            }
-        }
-    }
-    pub mod domain {
-        pub mod analyses;
-        pub mod analysis;
-        pub mod repository;
-    }
-    pub mod infrastructure {
-        pub mod repository {
-            pub mod in_memory;
-        }
-    }
-}
+extern crate backend_lib;
 
-pub mod lap {
-    pub mod application {
-        pub mod create {
-            pub mod service;
-        }
-        pub mod delete {
-            pub mod service;
-        }
-        pub mod find {
-            pub mod by_id {
-                pub mod service;
-            }
-            pub mod by_criteria {
-                pub mod service;
-            }
-        }
-    }
-    pub mod domain {
-        pub mod lap;
-        pub mod laps;
-        pub mod repository;
-    }
-    pub mod infrastructure {
-        pub mod repository {
-            pub mod in_memory;
-        }
-    }
-}
+use backend_lib::api::infrastructure::app_assembler::AppAssembler;
+use backend_lib::api::infrastructure::controller::file::find_file_by_criteria;
+use backend_lib::api::infrastructure::controller::upload_ibt::upload_ibt;
 
-pub mod file {
-    pub mod application {
-        pub mod create {
-            pub mod service;
-        }
-        pub mod delete {
-            pub mod service;
-        }
-        pub mod find {
-            pub mod by_id {
-                pub mod service;
-            }
-            pub mod by_criteria {
-                pub mod service;
-            }
-        }
-    }
-    pub mod domain {
-        pub mod file;
-        pub mod files;
-        pub mod repository;
-    }
-    pub mod infrastructure {
-        pub mod repository {
-            pub mod in_memory;
-        }
-    }
-}
-
-pub mod ibt {
-    pub mod domain {
-        pub mod file;
-    }
-}
-
-pub mod api {
-    pub mod infrastructure {
-        pub mod controller {
-            pub mod upload_file;
-        }
-    }
-}
-
-use crate::api::infrastructure::controller::upload_file::upload_file;
 use axum::extract::DefaultBodyLimit;
+use axum::routing::{get, post};
+use axum::Router;
+use std::sync::Arc;
 
-use axum::{routing::post, Router};
+pub struct AppState {}
 
 #[tokio::main]
 async fn main() {
+    let app_assembler = AppAssembler::new();
+
     let app = Router::new()
-        .route("/upload", post(upload_file))
+        .route(
+            "/find",
+            get(find_file_by_criteria)
+                .with_state(Arc::clone(&app_assembler.file.by_criteria_finder)),
+        )
+        .route(
+            "/upload",
+            post(upload_ibt).with_state((
+                Arc::clone(&app_assembler.file.creator),
+                Arc::clone(&app_assembler.lap.creator),
+                Arc::clone(&app_assembler.file.by_id_finder),
+            )),
+        )
         .layer(DefaultBodyLimit::disable());
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")

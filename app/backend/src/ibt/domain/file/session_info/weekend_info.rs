@@ -4,9 +4,9 @@ pub mod weekend_options;
 use crate::ibt::domain::file::session_info::weekend_info::telemetry_options::TelemetryOptions;
 use crate::ibt::domain::file::session_info::weekend_info::weekend_options::WeekendOptions;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Eq, Deserialize, Debug)]
+#[derive(PartialEq, Eq, Serialize, Deserialize, Clone, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct WeekendInfo {
     pub track_name: Option<String>,

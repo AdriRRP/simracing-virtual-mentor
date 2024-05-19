@@ -15,10 +15,10 @@ use crate::ibt::domain::file::session_info::sessions::Sessions;
 use crate::ibt::domain::file::session_info::split_time_info::SplitTimeInfo;
 use crate::ibt::domain::file::session_info::weekend_info::WeekendInfo;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::io::{Read, Seek};
 
-#[derive(PartialEq, Deserialize, Debug)]
+#[derive(PartialEq, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct SessionInfo {
     pub weekend_info: Option<WeekendInfo>,

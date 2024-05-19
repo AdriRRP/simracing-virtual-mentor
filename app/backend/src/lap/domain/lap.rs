@@ -1,16 +1,16 @@
-pub mod metric;
 pub mod metrics;
 
 use crate::lap::domain::lap::metrics::Metrics;
 
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Lap {
     pub id: Uuid,
-    // Source file
-    pub file_id: Uuid,
+    // Source laps
+    pub file_id: String,
     pub number: u16,
     pub driver: String,
     pub category: String,
@@ -23,7 +23,7 @@ pub struct Lap {
 impl Lap {
     pub fn new(
         id: Uuid,
-        file_id: Uuid,
+        file_id: String,
         number: u16,
         driver: String,
         category: String,

@@ -11,17 +11,17 @@ use crate::shared::domain::event::bus::Bus as EventBus;
 use std::io::{Read, Seek};
 use std::sync::Arc;
 
-pub struct IbtParser<FR: FileRepository, LR: LapRepository> {
-    event_bus: Arc<dyn EventBus>,
-    file_creator: Arc<FileCreator<FR>>,
+pub struct IbtParser<FR: FileRepository, LR: LapRepository, E: EventBus> {
+    file_creator: Arc<FileCreator<FR, E>>,
     lap_creator: Arc<LapCreator<LR>>,
+    event_bus: Arc<E>,
 }
 
-impl<FR: FileRepository, LR: LapRepository> IbtParser<FR, LR> {
+impl<FR: FileRepository, LR: LapRepository, E: EventBus> IbtParser<FR, LR, E> {
     pub fn new(
-        event_bus: Arc<dyn EventBus>,
-        file_creator: Arc<FileCreator<FR>>,
+        file_creator: Arc<FileCreator<FR, E>>,
         lap_creator: Arc<LapCreator<LR>>,
+        event_bus: Arc<E>,
     ) -> Self {
         Self {
             event_bus,

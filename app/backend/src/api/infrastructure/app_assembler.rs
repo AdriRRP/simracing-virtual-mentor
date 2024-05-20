@@ -20,7 +20,7 @@ pub struct AppAssembler {
 impl AppAssembler {
     #[must_use]
     pub fn new(_config: &str) -> Self {
-        let event_bus: Arc<dyn EventBus> = Arc::new(TokioEventBus::new(200));
+        let event_bus: Arc<TokioEventBus> = Arc::new(TokioEventBus::new(200));
         let file = FileAssembler::new(&Arc::clone(&event_bus));
         let lap = LapAssembler::new(&Arc::clone(&event_bus));
         let ibt = IbtAssembler::new(&Arc::clone(&event_bus));

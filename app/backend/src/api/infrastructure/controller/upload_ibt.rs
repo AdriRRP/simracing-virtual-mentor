@@ -2,6 +2,7 @@ use crate::api::application::parse_ibt::service::IbtParser;
 use crate::file::application::find::by_id::service::Finder as FileFinder;
 use crate::file::infrastructure::repository::in_memory::InMemory as InMemoryFileRepository;
 use crate::lap::infrastructure::repository::in_memory::InMemory as InMemoryLapRepository;
+use crate::shared::infrastructure::event::tokio_bus::TokioBus;
 
 use axum::extract::{Multipart, State};
 use axum::http::StatusCode;
@@ -11,7 +12,7 @@ use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct ControllerState {
-    pub ibt_parser: Arc<IbtParser<InMemoryFileRepository, InMemoryLapRepository>>,
+    pub ibt_parser: Arc<IbtParser<InMemoryFileRepository, InMemoryLapRepository, TokioBus>>,
     pub file_finder: Arc<FileFinder<InMemoryFileRepository>>,
 }
 

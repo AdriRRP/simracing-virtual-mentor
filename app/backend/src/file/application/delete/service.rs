@@ -4,13 +4,13 @@ use crate::shared::domain::event::bus::Bus as EventBus;
 
 use std::sync::Arc;
 
-pub struct Deleter<R: Repository> {
+pub struct Deleter<R: Repository, E: EventBus> {
     repository: Arc<R>,
-    event_bus: Arc<dyn EventBus>,
+    event_bus: Arc<E>,
 }
 
-impl<R: Repository> Deleter<R> {
-    pub fn new(repository: Arc<R>, event_bus: Arc<dyn EventBus>) -> Self {
+impl<R: Repository, E: EventBus> Deleter<R, E> {
+    pub fn new(repository: Arc<R>, event_bus: Arc<E>) -> Self {
         Self {
             repository,
             event_bus,

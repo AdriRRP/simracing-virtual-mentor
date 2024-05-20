@@ -3,19 +3,20 @@ use crate::file::application::delete::service::Deleter as FileDeleter;
 use crate::file::application::find::by_criteria::service::Finder as FileByCriteriaFinder;
 use crate::file::application::find::by_id::service::Finder as FileByIdFinder;
 use crate::file::infrastructure::repository::in_memory::InMemory as InMemoryFileRepository;
-use crate::shared::domain::event::bus::Bus as EventBus;
+use crate::shared::infrastructure::event::tokio_bus::TokioBus;
 
 use std::sync::Arc;
 
 pub struct Assembler {
-    pub creator: Arc<FileCreator<InMemoryFileRepository>>,
-    pub deleter: Arc<FileDeleter<InMemoryFileRepository>>,
+    pub creator: Arc<FileCreator<InMemoryFileRepository, TokioBus>>,
+    pub deleter: Arc<FileDeleter<InMemoryFileRepository, TokioBus>>,
     pub by_id_finder: Arc<FileByIdFinder<InMemoryFileRepository>>,
     pub by_criteria_finder: Arc<FileByCriteriaFinder<InMemoryFileRepository>>,
 }
 
 impl Assembler {
-    pub fn new(event_bus: &Arc<dyn EventBus>) -> Self {
+    #[must_use]
+    pub fn new(event_bus: &Arc<TokioBus>) -> Self {
         let repository = Arc::new(InMemoryFileRepository::default());
         let creator = Arc::new(FileCreator::new(
             Arc::clone(&repository),

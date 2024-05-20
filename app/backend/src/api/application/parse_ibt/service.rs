@@ -24,9 +24,9 @@ impl<FR: FileRepository, LR: LapRepository, E: EventBus> IbtParser<FR, LR, E> {
         event_bus: Arc<E>,
     ) -> Self {
         Self {
-            event_bus,
             file_creator,
             lap_creator,
+            event_bus,
         }
     }
 

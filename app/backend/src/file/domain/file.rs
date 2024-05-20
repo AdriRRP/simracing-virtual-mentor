@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct File {
-    // Sha256 of the source laps
+    // Sha256 of the source bytes
     pub id: String,
     pub name: String,
     pub complete: bool,

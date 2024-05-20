@@ -1,3 +1,4 @@
+use std::any::Any;
 use crate::file::domain::file::File;
 use crate::shared::domain::event::Event;
 
@@ -18,5 +19,9 @@ impl Created {
 impl Event for Created {
     fn id() -> &'static str {
         "file_created_event"
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }

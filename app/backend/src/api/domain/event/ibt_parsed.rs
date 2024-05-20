@@ -1,6 +1,7 @@
 use crate::shared::domain::event::Event;
 
 use std::fmt::Debug;
+use std::any::Any;
 
 #[derive(Debug)]
 pub struct IbtParsed {
@@ -19,5 +20,9 @@ impl IbtParsed {
 impl Event for IbtParsed {
     fn id() -> &'static str {
         "ibt_parsed_event"
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }

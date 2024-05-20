@@ -1,3 +1,4 @@
+use std::any::Any;
 use crate::shared::domain::event::Event;
 
 use std::fmt::Debug;
@@ -17,5 +18,9 @@ impl Deleted {
 impl Event for Deleted {
     fn id() -> &'static str {
         "file_deleted_event"
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }

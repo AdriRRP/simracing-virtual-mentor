@@ -46,9 +46,7 @@ pub mod api {
         }
         pub mod app_assembler;
         pub mod subscriber {
-            pub mod laps {
-                pub mod created;
-            }
+            pub mod on_ibt_parsed;
         }
     }
 }

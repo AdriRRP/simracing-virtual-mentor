@@ -13,8 +13,7 @@ pub struct DummySubscriber {
 
 impl DummySubscriber {
     pub async fn new(event_bus: Arc<Mutex<TokioBus>>) -> Self {
-        let mut tokio_bus_lock = event_bus.lock().await;
-        let receiver = tokio_bus_lock.receiver("test");
+        let receiver = event_bus.lock().await.receiver("test");
         Self { receiver }
     }
 
@@ -28,6 +27,6 @@ impl DummySubscriber {
 #[async_trait]
 impl Subscriber for DummySubscriber {
     async fn receive(&self, event: Arc<dyn Event>) {
-        println!("{:?}", event);
+        println!("{event:?}");
     }
 }

@@ -73,7 +73,7 @@ impl File {
         let filter = Some(VarFilter::new(
             ALLOWED_FIELDS
                 .iter()
-                .map(|s| s.to_string())
+                .map(|s| (*s).to_string())
                 .collect::<Vec<String>>(),
         ));
 

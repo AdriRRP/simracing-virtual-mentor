@@ -47,7 +47,7 @@ impl Repository for InMemory {
         Ok(result)
     }
 
-    async fn find_by_criteria(&self, _criteria: &String) -> Result<Option<Analyses>, String> {
+    async fn find_by_criteria(&self, _criteria: &str) -> Result<Option<Analyses>, String> {
         todo!()
     }
 }

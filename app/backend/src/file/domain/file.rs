@@ -9,7 +9,8 @@ pub struct File {
 }
 
 impl File {
-    pub fn new(id: String, name: String) -> Self {
+    #[must_use]
+    pub const fn new(id: String, name: String) -> Self {
         Self {
             id,
             name,

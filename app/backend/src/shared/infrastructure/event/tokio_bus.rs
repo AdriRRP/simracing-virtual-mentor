@@ -12,6 +12,7 @@ pub struct TokioBus {
 }
 
 impl TokioBus {
+    #[must_use]
     pub fn new(capacity: usize) -> Self {
         Self {
             capacity,

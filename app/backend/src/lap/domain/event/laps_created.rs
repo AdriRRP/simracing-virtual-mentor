@@ -8,6 +8,7 @@ pub struct LapsCreated {
 }
 
 impl LapsCreated {
+    #[must_use]
     pub fn new(file_id: &str) -> Self {
         Self {
             file_id: file_id.to_string(),

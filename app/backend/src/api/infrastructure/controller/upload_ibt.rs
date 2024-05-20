@@ -13,6 +13,9 @@ use futures_util::TryFutureExt;
 use std::io::Cursor;
 use std::sync::Arc;
 
+/// # Errors
+///
+/// Will return `Err` if file upload fails or if a file with same Sha256 exists
 pub async fn upload_ibt(
     State((file_creator, lap_creator, finder)): State<(
         Arc<FileCreator<InMemoryFileRepository>>,
@@ -37,7 +40,7 @@ pub async fn upload_ibt(
     match finder
         .find(&id)
         .await
-        .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()))?
+        .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err))?
     {
         None => {
             let cursor = Cursor::new(body_bytes);
@@ -52,7 +55,7 @@ pub async fn upload_ibt(
         }
         Some(_) => Err((
             StatusCode::CONFLICT,
-            format!("There is already a File in the system with Sha256 `{}`", id),
+            format!("There is already a File in the system with Sha256 `{id}`"),
         )),
     }
 }
@@ -78,13 +81,13 @@ async fn parse_ibt(
 
     match ibt_file {
         Ok(ibt_file) => {
-            let laps = ibt_metrics2laps(id.clone(), &ibt_file.session_info, &ibt_file.metrics);
+            let laps = ibt_metrics2laps(&id, &ibt_file.session_info, &ibt_file.metrics);
             println!("{}", serde_yaml::to_string(&laps).unwrap());
             lap_creator.create(&id, laps).await;
             println!("Laps created");
         }
         Err(e) => {
-            println!("Error parsing file: {e}")
+            println!("Error parsing file: {e}");
         }
     }
 }

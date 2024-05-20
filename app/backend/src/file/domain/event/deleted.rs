@@ -8,6 +8,7 @@ pub struct Deleted {
 }
 
 impl Deleted {
+    #[must_use]
     pub fn new(id: &str) -> Self {
         Self { id: id.to_string() }
     }

@@ -22,7 +22,7 @@ impl Default for InMemory {
 impl Repository for InMemory {
     async fn create(&self, laps: Laps) {
         let mut laps_guard = self.laps.lock().unwrap();
-        laps_guard.extend(laps.clone().into_iter());
+        laps_guard.extend(laps.clone());
         drop(laps_guard);
     }
 
@@ -44,7 +44,7 @@ impl Repository for InMemory {
         Ok(result)
     }
 
-    async fn find_by_criteria(&self, _criteria: &String) -> Result<Option<Laps>, String> {
+    async fn find_by_criteria(&self, _criteria: &str) -> Result<Option<Laps>, String> {
         todo!()
     }
 }

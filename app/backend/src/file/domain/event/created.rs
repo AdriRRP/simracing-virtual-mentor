@@ -9,6 +9,7 @@ pub struct Created {
 }
 
 impl Created {
+    #[must_use]
     pub fn new(file: &File) -> Self {
         Self { file: file.clone() }
     }

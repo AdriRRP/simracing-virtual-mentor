@@ -43,7 +43,7 @@ impl Repository for InMemory {
         Ok(result)
     }
 
-    async fn find_by_criteria(&self, _criteria: &String) -> Result<Option<Files>, String> {
+    async fn find_by_criteria(&self, _criteria: &str) -> Result<Option<Files>, String> {
         let files_guard = self.files.lock().unwrap();
         let files: Files = files_guard.clone().into();
         drop(files_guard);

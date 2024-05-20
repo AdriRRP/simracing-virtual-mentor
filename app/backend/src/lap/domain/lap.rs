@@ -22,6 +22,7 @@ pub struct Lap {
 }
 
 impl Lap {
+    #[must_use]
     pub fn new(
         id: Uuid,
         file_id: String,
@@ -33,7 +34,6 @@ impl Lap {
         date: DateTime<Utc>,
         metrics: Metrics,
     ) -> Self {
-        
         let time = metrics
             .lap_current_lap_time
             .iter()

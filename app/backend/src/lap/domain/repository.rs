@@ -9,5 +9,5 @@ pub trait Repository: Send + Sync {
     async fn create(&self, laps: Laps);
     async fn delete(&self, id: &Uuid) -> Result<(), String>;
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<Lap>, String>;
-    async fn find_by_criteria(&self, criteria: &String) -> Result<Option<Laps>, String>;
+    async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Laps>, String>;
 }

@@ -4,16 +4,16 @@ use crate::shared::domain::event::bus::Bus as EventBus;
 
 use std::sync::Arc;
 
-pub struct LapAssembler {
+pub struct Assembler {
     pub creator: Arc<LapCreator<InMemoryLapRepository>>,
 }
 
-impl LapAssembler {
-    pub fn new(event_bus: Arc<dyn EventBus>) -> Self {
+impl Assembler {
+    pub fn new(event_bus: &Arc<dyn EventBus>) -> Self {
         let repository = Arc::new(InMemoryLapRepository::default());
         let creator = Arc::new(LapCreator::new(
             Arc::clone(&repository),
-            Arc::clone(&event_bus),
+            Arc::clone(event_bus),
         ));
         Self { creator }
     }

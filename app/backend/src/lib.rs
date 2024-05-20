@@ -125,7 +125,7 @@ pub mod shared {
 
     pub mod infrastructure {
         pub mod event {
-            pub mod dummy_event;
+            pub mod dummy;
             pub mod dummy_subscriber;
             pub mod tokio_bus;
         }

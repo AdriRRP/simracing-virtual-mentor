@@ -21,16 +21,13 @@ macro_rules! extract_values {
                     .var_values
                     .iter()
                     .flat_map(|vv| match vv {
-                        VarValue::Single(p) => match p {
-                            Primitive::$primitive_variant(val) => {
+                        VarValue::Single(Primitive::$primitive_variant(val)) => {
                                 let output = Some(*val);
                                 $(
                                     let output = output.map(|original| original as $output_type);
                                 )?
                                 output
                             },
-                            _ => None, // TODO: Log the error
-                        },
                         _ => None, // TODO: Log the error
                     })
                     .collect::<Vec<_>>()
@@ -39,7 +36,8 @@ macro_rules! extract_values {
     }};
 }
 
-pub fn ibt_metrics2laps(file_id: String, session_info: &SessionInfo, metrics: &IbtMetrics) -> Laps {
+#[must_use]
+pub fn ibt_metrics2laps(file_id: &str, session_info: &SessionInfo, metrics: &IbtMetrics) -> Laps {
     let driver = get_driver_or_none(session_info);
 
     let driver_name = driver
@@ -54,7 +52,6 @@ pub fn ibt_metrics2laps(file_id: String, session_info: &SessionInfo, metrics: &I
         .unwrap_or_else(|| "Unknown".to_string()); // TODO: Log the error
 
     let car = driver
-        .clone()
         .and_then(|x| x.car_screen_name)
         .unwrap_or_else(|| "Unknown".to_string()); // TODO: Log the error
 
@@ -73,13 +70,13 @@ pub fn ibt_metrics2laps(file_id: String, session_info: &SessionInfo, metrics: &I
         .map(|(lap_number, metrics)| {
             Lap::new(
                 Uuid::new_v4(),
-                file_id.clone(),
+                file_id.to_string(),
                 *lap_number,
                 driver_name.clone(),
                 category.clone(),
                 car.clone(),
                 circuit.clone(),
-                date.clone(),
+                date,
                 metrics.clone(),
             )
         })
@@ -93,8 +90,7 @@ fn get_driver_or_none(session_info: &SessionInfo) -> Option<Driver> {
         .driver_info
         .clone()
         .and_then(|di| di.driver_user_id)
-        .and_then(|dui| Some(dui))
-        .map_or(None, |driver_id| {
+        .and_then(|driver_id| {
             // TODO: Log the error
             session_info
                 .driver_info
@@ -135,7 +131,7 @@ fn get_datetime_or_now(session_info: &SessionInfo) -> DateTime<Utc> {
             None
         }
     }
-    .unwrap_or_else(|| Utc::now())
+    .unwrap_or_else(Utc::now)
 }
 
 fn group_metrics_by_lap(metrics: &IbtMetrics) -> HashMap<u16, Metrics> {
@@ -160,7 +156,7 @@ fn group_metrics_by_lap(metrics: &IbtMetrics) -> HashMap<u16, Metrics> {
     let mut groups = HashMap::new();
 
     (0..lap.len()).for_each(|i| {
-        let lap_metrics = groups.entry(lap[i]).or_insert(Metrics::default());
+        let lap_metrics = groups.entry(lap[i]).or_insert_with(Metrics::default);
         lap_metrics.speed.push(speed[i]);
         lap_metrics.throttle.push(throttle[i]);
         lap_metrics.brake.push(brake[i]);
@@ -177,7 +173,9 @@ fn group_metrics_by_lap(metrics: &IbtMetrics) -> HashMap<u16, Metrics> {
             .steering_wheel_angle
             .push(steering_wheel_angle[i]);
         lap_metrics.fuel_level.push(fuel_level[i]);
-        lap_metrics.lap_current_lap_time.push(lap_current_lap_time[i]);
+        lap_metrics
+            .lap_current_lap_time
+            .push(lap_current_lap_time[i]);
     });
 
     groups

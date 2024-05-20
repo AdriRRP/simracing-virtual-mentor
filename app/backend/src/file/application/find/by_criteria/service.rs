@@ -15,7 +15,7 @@ impl<R: Repository> Finder<R> {
     /// # Errors
     ///
     /// Will return `Err` if `self.repository` fail finding by criteria
-    pub async fn find(&self, criteria: &String) -> Result<Option<Files>, String> {
+    pub async fn find(&self, criteria: &str) -> Result<Option<Files>, String> {
         self.repository.find_by_criteria(criteria).await
     }
 }

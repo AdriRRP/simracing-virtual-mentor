@@ -8,6 +8,7 @@ pub struct Laps {
 }
 
 impl Laps {
+    #[must_use]
     pub fn new(laps: Vec<Lap>) -> Self {
         Self { laps }
     }

@@ -13,7 +13,7 @@ pub struct AppState {}
 
 #[tokio::main]
 async fn main() {
-    let app_assembler = AppAssembler::new();
+    let app_assembler = AppAssembler::new("Put here config file");
 
     let app = Router::new()
         .route(

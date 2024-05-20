@@ -16,7 +16,7 @@ impl<R: Repository> Creator<R> {
     ///
     /// Will return `Err` if `self.repository` fail creating
     pub async fn create(&self, analysis: Analysis) {
-        self.repository.create(analysis).await
+        self.repository.create(analysis).await;
         // Send domain events
     }
 }

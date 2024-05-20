@@ -7,23 +7,23 @@ use crate::shared::domain::event::bus::Bus as EventBus;
 
 use std::sync::Arc;
 
-pub struct FileAssembler {
+pub struct Assembler {
     pub creator: Arc<FileCreator<InMemoryFileRepository>>,
     pub deleter: Arc<FileDeleter<InMemoryFileRepository>>,
     pub by_id_finder: Arc<FileByIdFinder<InMemoryFileRepository>>,
     pub by_criteria_finder: Arc<FileByCriteriaFinder<InMemoryFileRepository>>,
 }
 
-impl FileAssembler {
-    pub fn new(event_bus: Arc<dyn EventBus>) -> Self {
+impl Assembler {
+    pub fn new(event_bus: &Arc<dyn EventBus>) -> Self {
         let repository = Arc::new(InMemoryFileRepository::default());
         let creator = Arc::new(FileCreator::new(
             Arc::clone(&repository),
-            Arc::clone(&event_bus),
+            Arc::clone(event_bus),
         ));
         let deleter = Arc::new(FileDeleter::new(
             Arc::clone(&repository),
-            Arc::clone(&event_bus),
+            Arc::clone(event_bus),
         ));
         let by_id_finder = Arc::new(FileByIdFinder::new(Arc::clone(&repository)));
         let by_criteria_finder = Arc::new(FileByCriteriaFinder::new(Arc::clone(&repository)));

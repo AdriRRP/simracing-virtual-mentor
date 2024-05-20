@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct Metrics {
     pub speed: Vec<f32>,
     pub throttle: Vec<f32>,
@@ -17,26 +17,4 @@ pub struct Metrics {
     pub steering_wheel_angle: Vec<f32>,
     pub fuel_level: Vec<f32>,
     pub lap_current_lap_time: Vec<f32>,
-}
-
-impl Default for Metrics {
-    fn default() -> Self {
-        Self {
-            speed: Vec::new(),
-            throttle: Vec::new(),
-            brake: Vec::new(),
-            clutch: Vec::new(),
-            gear: Vec::new(),
-            rpm: Vec::new(),
-            distance: Vec::new(),
-            distance_pct: Vec::new(),
-            track_temp: Vec::new(),
-            latitude: Vec::new(),
-            longitude: Vec::new(),
-            altitude: Vec::new(),
-            steering_wheel_angle: Vec::new(),
-            fuel_level: Vec::new(),
-            lap_current_lap_time: Vec::new(),
-        }
-    }
 }

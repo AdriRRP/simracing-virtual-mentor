@@ -22,8 +22,10 @@ pub struct Lap {
 }
 
 impl Lap {
+    #[allow(clippy::too_many_arguments)]
     #[must_use]
     pub fn new(
+        // TODO: this function has too many arguments (9/7)
         id: Uuid,
         file_id: String,
         number: u16,

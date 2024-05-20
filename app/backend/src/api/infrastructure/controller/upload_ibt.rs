@@ -16,7 +16,9 @@ use std::sync::Arc;
 /// # Errors
 ///
 /// Will return `Err` if file upload fails or if a file with same Sha256 exists
+#[allow(clippy::type_complexity)]
 pub async fn upload_ibt(
+    // TODO: very complex type used. Consider factoring parts into `type` definitions
     State((file_creator, lap_creator, finder)): State<(
         Arc<FileCreator<InMemoryFileRepository>>,
         Arc<LapCreator<InMemoryLapRepository>>,

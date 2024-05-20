@@ -27,6 +27,32 @@ pub mod analysis {
     }
 }
 
+pub mod api {
+    pub mod application {
+        pub mod parse_ibt {
+            pub mod service;
+        }
+    }
+    pub mod domain {
+        pub mod event {
+            pub mod ibt_parsed;
+        }
+        pub mod converter;
+    }
+    pub mod infrastructure {
+        pub mod controller {
+            pub mod file;
+            pub mod upload_ibt;
+        }
+        pub mod app_assembler;
+        pub mod subscriber {
+            pub mod laps {
+                pub mod created;
+            }
+        }
+    }
+}
+
 pub mod lap {
     pub mod application {
         pub mod create {
@@ -45,10 +71,6 @@ pub mod lap {
         }
     }
     pub mod domain {
-        pub mod event {
-            pub mod deleted;
-            pub mod laps_created;
-        }
         pub mod lap;
         pub mod laps;
         pub mod repository;
@@ -96,25 +118,6 @@ pub mod file {
 pub mod ibt {
     pub mod domain {
         pub mod file;
-    }
-}
-
-pub mod api {
-
-    pub mod domain {
-        pub mod converter;
-    }
-    pub mod infrastructure {
-        pub mod controller {
-            pub mod file;
-            pub mod upload_ibt;
-        }
-        pub mod app_assembler;
-        pub mod subscriber {
-            pub mod laps {
-                pub mod created;
-            }
-        }
     }
 }
 

@@ -9,12 +9,9 @@ pub struct Assembler {
 }
 
 impl Assembler {
-    pub fn new(event_bus: &Arc<dyn EventBus>) -> Self {
+    pub fn new(_event_bus: &Arc<dyn EventBus>) -> Self {
         let repository = Arc::new(InMemoryLapRepository::default());
-        let creator = Arc::new(LapCreator::new(
-            Arc::clone(&repository),
-            Arc::clone(event_bus),
-        ));
+        let creator = Arc::new(LapCreator::new(Arc::clone(&repository)));
         Self { creator }
     }
 }

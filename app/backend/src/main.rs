@@ -3,6 +3,7 @@ extern crate backend_lib;
 use backend_lib::api::infrastructure::app_assembler::AppAssembler;
 use backend_lib::api::infrastructure::controller::file::find_file_by_criteria;
 use backend_lib::api::infrastructure::controller::upload_ibt::upload_ibt;
+use backend_lib::api::infrastructure::controller::upload_ibt::ControllerState as UploadIbtState;
 
 use axum::extract::DefaultBodyLimit;
 use axum::routing::{get, post};
@@ -23,11 +24,10 @@ async fn main() {
         )
         .route(
             "/upload",
-            post(upload_ibt).with_state((
-                Arc::clone(&app_assembler.file.creator),
-                Arc::clone(&app_assembler.lap.creator),
-                Arc::clone(&app_assembler.file.by_id_finder),
-            )),
+            post(upload_ibt).with_state(UploadIbtState {
+                ibt_parser: Arc::clone(&app_assembler.ibt.parser),
+                file_finder: Arc::clone(&app_assembler.file.by_id_finder),
+            }),
         )
         .layer(DefaultBodyLimit::disable());
 

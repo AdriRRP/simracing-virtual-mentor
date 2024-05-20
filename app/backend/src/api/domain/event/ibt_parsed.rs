@@ -3,11 +3,11 @@ use crate::shared::domain::event::Event;
 use std::fmt::Debug;
 
 #[derive(Debug)]
-pub struct LapsCreated {
+pub struct IbtParsed {
     pub file_id: String,
 }
 
-impl LapsCreated {
+impl IbtParsed {
     #[must_use]
     pub fn new(file_id: &str) -> Self {
         Self {
@@ -16,8 +16,8 @@ impl LapsCreated {
     }
 }
 
-impl Event for LapsCreated {
+impl Event for IbtParsed {
     fn id() -> &'static str {
-        "laps_created_event"
+        "ibt_parsed_event"
     }
 }

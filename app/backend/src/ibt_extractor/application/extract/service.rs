@@ -1,12 +1,11 @@
-
 use crate::file::application::create::service::Creator as FileCreator;
 use crate::file::domain::file::File;
 use crate::file::domain::repository::Repository as FileRepository;
 use crate::ibt::domain::file::File as IbtFile;
-use crate::lap::application::create::service::Creator as LapCreator;
-use crate::lap::domain::repository::Repository as LapRepository;
 use crate::ibt_extractor::domain::converter::ibt_metrics2laps;
 use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
+use crate::lap::application::create::service::Creator as LapCreator;
+use crate::lap::domain::repository::Repository as LapRepository;
 use crate::shared::domain::event::bus::Bus as EventBus;
 
 use std::io::{Read, Seek};

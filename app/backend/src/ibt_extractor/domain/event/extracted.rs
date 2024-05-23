@@ -1,7 +1,7 @@
 use crate::shared::domain::event::Event;
 
-use std::fmt::Debug;
 use std::any::Any;
+use std::fmt::Debug;
 
 #[derive(Debug)]
 pub struct Extracted {

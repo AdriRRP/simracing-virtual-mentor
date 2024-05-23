@@ -35,7 +35,8 @@ pub mod api {
         }
         pub mod app_assembler;
         pub mod subscriber {
-            pub mod on_ibt_parsed;
+            pub mod manager;
+            pub mod on_ibt_extracted;
         }
     }
 }
@@ -129,8 +130,6 @@ pub mod shared {
 
     pub mod infrastructure {
         pub mod event {
-            pub mod dummy;
-            pub mod dummy_subscriber;
             pub mod tokio_bus;
         }
     }

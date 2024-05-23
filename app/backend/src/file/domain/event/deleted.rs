@@ -1,5 +1,5 @@
-use std::any::Any;
 use crate::shared::domain::event::Event;
+use std::any::Any;
 
 use std::fmt::Debug;
 

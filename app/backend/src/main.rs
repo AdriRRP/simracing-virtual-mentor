@@ -4,6 +4,7 @@ use backend_lib::api::infrastructure::app_assembler::AppAssembler;
 use backend_lib::api::infrastructure::controller::file::find_file_by_criteria;
 use backend_lib::api::infrastructure::controller::upload_ibt::upload_ibt;
 use backend_lib::api::infrastructure::controller::upload_ibt::ControllerState as UploadIbtState;
+use backend_lib::api::infrastructure::subscriber::manager::Manager as SubscriberManager;
 
 use axum::extract::DefaultBodyLimit;
 use axum::routing::{get, post};
@@ -14,7 +15,13 @@ pub struct AppState {}
 
 #[tokio::main]
 async fn main() {
-    let app_assembler = AppAssembler::new("Put here config file");
+    let app_assembler = AppAssembler::new("Put here config file").await;
+
+    SubscriberManager::builder()
+        .with_subscriber(app_assembler.subscriber.file_updater)
+        .build()
+        .run()
+        .await;
 
     let app = Router::new()
         .route(

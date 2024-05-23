@@ -1,23 +1,24 @@
-use crate::api::domain::converter::ibt_metrics2laps;
-use crate::api::domain::event::ibt_parsed::IbtParsed;
+
 use crate::file::application::create::service::Creator as FileCreator;
 use crate::file::domain::file::File;
 use crate::file::domain::repository::Repository as FileRepository;
 use crate::ibt::domain::file::File as IbtFile;
 use crate::lap::application::create::service::Creator as LapCreator;
 use crate::lap::domain::repository::Repository as LapRepository;
+use crate::ibt_extractor::domain::converter::ibt_metrics2laps;
+use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
 use crate::shared::domain::event::bus::Bus as EventBus;
 
 use std::io::{Read, Seek};
 use std::sync::Arc;
 
-pub struct IbtParser<FR: FileRepository, LR: LapRepository, E: EventBus> {
+pub struct Extractor<FR: FileRepository, LR: LapRepository, E: EventBus> {
     file_creator: Arc<FileCreator<FR, E>>,
     lap_creator: Arc<LapCreator<LR>>,
     event_bus: Arc<E>,
 }
 
-impl<FR: FileRepository, LR: LapRepository, E: EventBus> IbtParser<FR, LR, E> {
+impl<FR: FileRepository, LR: LapRepository, E: EventBus> Extractor<FR, LR, E> {
     pub fn new(
         file_creator: Arc<FileCreator<FR, E>>,
         lap_creator: Arc<LapCreator<LR>>,
@@ -52,7 +53,7 @@ impl<FR: FileRepository, LR: LapRepository, E: EventBus> IbtParser<FR, LR, E> {
                 let laps = ibt_metrics2laps(&id, &ibt_file.session_info, &ibt_file.metrics);
                 self.lap_creator.create(laps).await;
                 println!("Laps created");
-                let event = Arc::new(IbtParsed::new(&id));
+                let event = Arc::new(IbtExtracted::new(&id));
                 let _ = self.event_bus.dispatch(event).await;
             }
             Err(e) => {

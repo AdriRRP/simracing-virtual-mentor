@@ -4,11 +4,11 @@ use std::fmt::Debug;
 use std::any::Any;
 
 #[derive(Debug)]
-pub struct IbtParsed {
+pub struct Extracted {
     pub file_id: String,
 }
 
-impl IbtParsed {
+impl Extracted {
     #[must_use]
     pub fn new(file_id: &str) -> Self {
         Self {
@@ -17,9 +17,9 @@ impl IbtParsed {
     }
 }
 
-impl Event for IbtParsed {
+impl Event for Extracted {
     fn id() -> &'static str {
-        "ibt_parsed_event"
+        "ibt_extracted_event"
     }
 
     fn as_any(&self) -> &dyn Any {

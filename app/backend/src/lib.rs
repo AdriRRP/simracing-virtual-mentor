@@ -28,17 +28,6 @@ pub mod analysis {
 }
 
 pub mod api {
-    pub mod application {
-        pub mod parse_ibt {
-            pub mod service;
-        }
-    }
-    pub mod domain {
-        pub mod event {
-            pub mod ibt_parsed;
-        }
-        pub mod converter;
-    }
     pub mod infrastructure {
         pub mod controller {
             pub mod file;
@@ -116,6 +105,20 @@ pub mod file {
 pub mod ibt {
     pub mod domain {
         pub mod file;
+    }
+}
+
+pub mod ibt_extractor {
+    pub mod application {
+        pub mod extract {
+            pub mod service;
+        }
+    }
+    pub mod domain {
+        pub mod event {
+            pub mod extracted;
+        }
+        pub mod converter;
     }
 }
 

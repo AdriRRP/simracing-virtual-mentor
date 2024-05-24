@@ -6,9 +6,9 @@ use std::sync::Arc;
 
 #[async_trait]
 pub trait Subscriber: Debug + Send + Sync + 'static {
-    async fn receive(&mut self) -> Result<Arc<dyn Event>, Error>;
+    async fn receive(&self) -> Result<Arc<dyn Event>, Error>;
     async fn process(&self, event: Arc<dyn Event>);
-    async fn run(&mut self) {
+    async fn run(&self) {
         while let Ok(event) = self.receive().await {
             self.process(event).await;
         }

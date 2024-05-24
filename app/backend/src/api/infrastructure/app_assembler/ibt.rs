@@ -13,19 +13,16 @@ pub struct Assembler {
 
 impl Assembler {
     #[must_use]
-    pub fn new(event_bus: &Arc<TokioBus>) -> Self {
-        let file_repository = Arc::new(InMemoryFileRepository::default());
-        let file_creator = Arc::new(FileCreator::new(file_repository, Arc::clone(event_bus)));
-
-        let lap_repository = Arc::new(InMemoryLapRepository::default());
-        let lap_creator = Arc::new(LapCreator::new(lap_repository));
-
+    pub fn new(
+        event_bus: &Arc<TokioBus>,
+        file_creator: &Arc<FileCreator<InMemoryFileRepository, TokioBus>>,
+        lap_creator: &Arc<LapCreator<InMemoryLapRepository>>,
+    ) -> Self {
         let parser = Arc::new(IbtExtractor::new(
-            file_creator,
-            lap_creator,
+            Arc::clone(file_creator),
+            Arc::clone(lap_creator),
             Arc::clone(event_bus),
         ));
-
         Self { parser }
     }
 }

@@ -18,10 +18,6 @@ impl Extracted {
 }
 
 impl Event for Extracted {
-    fn id() -> &'static str {
-        "ibt_extracted_event"
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }

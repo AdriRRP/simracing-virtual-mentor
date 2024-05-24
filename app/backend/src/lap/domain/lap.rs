@@ -8,14 +8,19 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Lap {
+    // Lap completa = en ningún punto estás dentro del pit
     pub id: Uuid,
     // Source laps
     pub file_id: String,
     pub number: u16,
     pub driver: String,
+    // Customer ID
     pub category: String,
+    // En principio da igual
     pub car: String,
     pub circuit: String,
+    // Track id para identificar el circuito
+    // TrackName + TrackConfig
     pub date: DateTime<Utc>,
     pub metrics: Metrics,
     pub time: f32,

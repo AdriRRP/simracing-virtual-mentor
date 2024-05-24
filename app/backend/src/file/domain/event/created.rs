@@ -17,7 +17,7 @@ impl Created {
 }
 
 impl Event for Created {
-    fn id() -> &'static str {
+    fn event_id() -> &'static str {
         "file_created_event"
     }
 

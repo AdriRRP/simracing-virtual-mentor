@@ -29,14 +29,16 @@ pub mod analysis {
 
 pub mod api {
     pub mod infrastructure {
+        pub mod app_assembler;
         pub mod controller {
             pub mod file;
             pub mod upload_ibt;
         }
-        pub mod app_assembler;
         pub mod subscriber {
+            pub mod on_ibt_extracted {
+                pub mod validate_file;
+            }
             pub mod manager;
-            pub mod on_ibt_extracted;
         }
     }
 }

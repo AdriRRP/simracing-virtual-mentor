@@ -3,12 +3,11 @@ use crate::shared::domain::event::subscriber::Subscriber;
 use std::any::Any;
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
 
 pub struct Manager {
-    subscribers: Vec<Arc<Mutex<dyn Subscriber>>>,
-    handlers: Mutex<HashMap<String, JoinHandle<()>>>,
+    subscribers: Vec<Arc<dyn Subscriber>>,
+    handlers: HashMap<String, JoinHandle<()>>,
 }
 
 impl Manager {
@@ -17,22 +16,22 @@ impl Manager {
         Builder::default()
     }
 
-    pub async fn run(&self) {
+    pub fn run(&mut self) {
         for subscriber in &self.subscribers {
-            let subscriber_clone = Arc::clone(subscriber);
+            let id: String = format!("{:?}", subscriber.type_id());
+            let subscriber = Arc::clone(subscriber);
             let handler = tokio::spawn(async move {
-                subscriber_clone.lock().await.run().await;
+                subscriber.run().await;
             });
             // TODO: Add more accurate id
-            let id: String = format!("{:?}", subscriber.type_id());
-            self.handlers.lock().await.insert(id, handler);
+            self.handlers.insert(id, handler);
         }
     }
 }
 
 #[derive(Default)]
 pub struct Builder {
-    subscribers: Vec<Arc<Mutex<dyn Subscriber>>>,
+    subscribers: Vec<Arc<dyn Subscriber>>,
 }
 
 impl Builder {
@@ -40,12 +39,12 @@ impl Builder {
     pub fn build(self) -> Manager {
         Manager {
             subscribers: self.subscribers,
-            handlers: Mutex::new(HashMap::default()),
+            handlers: HashMap::default(),
         }
     }
 
     #[must_use]
-    pub fn with_subscriber(mut self, subscriber: Arc<Mutex<dyn Subscriber>>) -> Self {
+    pub fn with_subscriber(mut self, subscriber: Arc<dyn Subscriber>) -> Self {
         self.subscribers.push(subscriber);
         self
     }

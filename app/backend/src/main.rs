@@ -9,19 +9,19 @@ use backend_lib::api::infrastructure::subscriber::manager::Manager as Subscriber
 use axum::extract::DefaultBodyLimit;
 use axum::routing::{get, post};
 use axum::Router;
+use backend_lib::api::infrastructure::subscriber::on_ibt_extracted::validate_file::FileValidator;
 use std::sync::Arc;
 
 pub struct AppState {}
 
 #[tokio::main]
 async fn main() {
-    let app_assembler = AppAssembler::new("Put here config file").await;
+    let app_assembler = AppAssembler::new("Put here config file");
 
     SubscriberManager::builder()
-        .with_subscriber(app_assembler.subscriber.file_updater)
+        .with_subscriber(Arc::new(FileValidator::new(&app_assembler.event_bus).await))
         .build()
-        .run()
-        .await;
+        .run();
 
     let app = Router::new()
         .route(

@@ -16,7 +16,7 @@ impl Deleted {
 }
 
 impl Event for Deleted {
-    fn id() -> &'static str {
+    fn event_id() -> &'static str {
         "file_deleted_event"
     }
 

@@ -17,4 +17,8 @@ impl File {
             complete: false,
         }
     }
+
+    pub fn validate(&mut self) {
+        self.complete = true;
+    }
 }

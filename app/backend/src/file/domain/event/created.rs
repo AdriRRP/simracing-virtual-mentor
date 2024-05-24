@@ -17,10 +17,6 @@ impl Created {
 }
 
 impl Event for Created {
-    fn event_id() -> &'static str {
-        "file_created_event"
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }

@@ -88,11 +88,15 @@ pub mod file {
                 pub mod service;
             }
         }
+        pub mod validate {
+            pub mod service;
+        }
     }
     pub mod domain {
         pub mod event {
             pub mod created;
             pub mod deleted;
+            pub mod validated;
         }
         pub mod file;
         pub mod files;

@@ -9,4 +9,5 @@ pub trait Repository: Send + Sync {
     async fn delete(&self, id: &str) -> Result<(), String>;
     async fn find_by_id(&self, id: &str) -> Result<Option<File>, String>;
     async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Files>, String>;
+    async fn validate(&self, id: &str) -> Result<(), String>;
 }

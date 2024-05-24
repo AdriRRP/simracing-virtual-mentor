@@ -5,7 +5,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 #[async_trait]
-pub trait Subscriber: Debug + Send + Sync + 'static {
+pub trait Subscriber: Send + Sync + 'static {
     async fn receive(&self) -> Result<Arc<dyn Event>, Error>;
     async fn process(&self, event: Arc<dyn Event>);
     async fn run(&self) {

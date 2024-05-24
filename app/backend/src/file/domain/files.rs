@@ -1,8 +1,9 @@
 use crate::file::domain::file::File;
 
+use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Files {
     files: Vec<File>,
 }

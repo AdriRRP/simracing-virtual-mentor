@@ -5,11 +5,11 @@ use backend_lib::api::infrastructure::controller::file::find_file_by_criteria;
 use backend_lib::api::infrastructure::controller::upload_ibt::upload_ibt;
 use backend_lib::api::infrastructure::controller::upload_ibt::ControllerState as UploadIbtState;
 use backend_lib::api::infrastructure::subscriber::manager::Manager as SubscriberManager;
+use backend_lib::api::infrastructure::subscriber::on_ibt_extracted::validate_file::FileValidator;
 
 use axum::extract::DefaultBodyLimit;
-use axum::routing::{get, post};
+use axum::routing::{delete, get, post};
 use axum::Router;
-use backend_lib::api::infrastructure::subscriber::on_ibt_extracted::validate_file::FileValidator;
 use std::sync::Arc;
 
 pub struct AppState {}
@@ -19,16 +19,26 @@ async fn main() {
     let app_assembler = AppAssembler::new("Put here config file");
 
     SubscriberManager::builder()
-        .with_subscriber(Arc::new(FileValidator::new(&app_assembler.event_bus).await))
+        .with_subscriber(Arc::new(
+            FileValidator::new(&app_assembler.event_bus, &app_assembler.file.validator).await,
+        ))
         .build()
         .run();
 
-    let app = Router::new()
+    //let analysis_routes = Router::new().route("/:id", get(|| async {}));
+    let file_routes = Router::new()
+        .route("/delete/:id", delete(|| async {}))
+        .route("/find/:id", get(|| async {}))
         .route(
             "/find",
             get(find_file_by_criteria)
                 .with_state(Arc::clone(&app_assembler.file.by_criteria_finder)),
-        )
+        );
+    //let ibt_extractor_routes = Router::new().route("/:id", get(|| async {}));
+    //let lap_routes = Router::new().route("/:id", get(|| async {}));
+
+    let app = Router::new()
+        .nest("/file", file_routes)
         .route(
             "/upload",
             post(upload_ibt).with_state(UploadIbtState {

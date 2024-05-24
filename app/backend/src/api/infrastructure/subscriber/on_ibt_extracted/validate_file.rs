@@ -23,7 +23,6 @@ impl FileValidator {
         event_bus: &Arc<TokioBus>,
         validator: &Arc<Validator<InMemory, TokioBus>>,
     ) -> Self {
-        println!("Extracted event name: {}", IbtExtracted::event_id());
         let receiver = event_bus.receiver(IbtExtracted::event_id()).await;
         let receiver = Arc::new(RwLock::new(receiver));
         let validator = Arc::clone(validator);

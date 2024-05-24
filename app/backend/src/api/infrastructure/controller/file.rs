@@ -6,7 +6,6 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use axum::Json;
 use std::sync::Arc;
-use tracing_subscriber::fmt::format;
 
 /// # Errors
 ///

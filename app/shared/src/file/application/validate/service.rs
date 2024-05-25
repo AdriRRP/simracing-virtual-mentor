@@ -1,5 +1,5 @@
 use crate::file::domain::repository::Repository;
-use crate::shared::domain::event::bus::Bus as EventBus;
+use crate::common::domain::event::bus::Bus as EventBus;
 
 use std::sync::Arc;
 

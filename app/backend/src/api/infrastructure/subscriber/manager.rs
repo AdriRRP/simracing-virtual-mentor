@@ -1,4 +1,4 @@
-use crate::shared::domain::event::subscriber::Subscriber;
+use shared::common::domain::event::subscriber::Subscriber;
 
 use std::any::Any;
 use std::collections::HashMap;

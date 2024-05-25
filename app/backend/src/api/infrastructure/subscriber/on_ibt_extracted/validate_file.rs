@@ -1,9 +1,10 @@
-use crate::file::application::validate::service::Validator;
-use crate::file::infrastructure::repository::in_memory::InMemory;
+use shared::file::application::validate::service::Validator;
+use shared::file::infrastructure::repository::in_memory::InMemory;
+use shared::common::domain::event::subscriber::{Error, Subscriber};
+use shared::common::domain::event::Event;
+use shared::common::infrastructure::event::tokio_bus::TokioBus;
+
 use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
-use crate::shared::domain::event::subscriber::{Error, Subscriber};
-use crate::shared::domain::event::Event;
-use crate::shared::infrastructure::event::tokio_bus::TokioBus;
 
 use async_trait::async_trait;
 use std::sync::Arc;

@@ -1,10 +1,10 @@
-use crate::file::application::delete::service::Deleter;
-use crate::file::application::find::by_criteria::service::Finder as ByCriteriaFinder;
-use crate::file::application::find::by_id::service::Finder as ByIdFinder;
-use crate::file::domain::file::File;
-use crate::file::domain::files::Files;
-use crate::file::infrastructure::repository::in_memory::InMemory;
-use crate::shared::infrastructure::event::tokio_bus::TokioBus;
+use shared::file::application::delete::service::Deleter;
+use shared::file::application::find::by_criteria::service::Finder as ByCriteriaFinder;
+use shared::file::application::find::by_id::service::Finder as ByIdFinder;
+use shared::file::domain::file::File;
+use shared::file::domain::files::Files;
+use shared::file::infrastructure::repository::in_memory::InMemory;
+use shared::common::infrastructure::event::tokio_bus::TokioBus;
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;

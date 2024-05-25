@@ -1,5 +1,5 @@
-use crate::shared::domain::event::bus::Bus;
-use crate::shared::domain::event::Event;
+use crate::common::domain::event::bus::Bus;
+use crate::common::domain::event::Event;
 
 use async_trait::async_trait;
 use std::collections::{hash_map, HashMap};

@@ -1,10 +1,10 @@
-use crate::file::domain::event::deleted::Deleted;
-use crate::lap::application::delete::service::Deleter;
-use crate::lap::application::find::by_criteria::service::Finder;
-use crate::lap::infrastructure::repository::in_memory::InMemory;
-use crate::shared::domain::event::subscriber::{Error, Subscriber};
-use crate::shared::domain::event::Event;
-use crate::shared::infrastructure::event::tokio_bus::TokioBus;
+use shared::file::domain::event::deleted::Deleted;
+use shared::lap::application::delete::service::Deleter;
+use shared::lap::application::find::by_criteria::service::Finder;
+use shared::lap::infrastructure::repository::in_memory::InMemory;
+use shared::common::domain::event::subscriber::{Error, Subscriber};
+use shared::common::domain::event::Event;
+use shared::common::infrastructure::event::tokio_bus::TokioBus;
 
 use async_trait::async_trait;
 use std::sync::Arc;

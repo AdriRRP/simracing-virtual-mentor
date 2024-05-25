@@ -1,11 +1,11 @@
-use crate::ibt::domain::file::metrics::Metrics as IbtMetrics;
-use crate::ibt::domain::file::session_info::driver_info::driver::Driver;
-use crate::ibt::domain::file::session_info::SessionInfo;
-use crate::ibt::domain::file::var_value::primitive::Primitive;
-use crate::ibt::domain::file::var_value::VarValue;
-use crate::lap::domain::lap::metrics::Metrics;
-use crate::lap::domain::lap::Lap;
-use crate::lap::domain::laps::Laps;
+use shared::ibt::domain::file::metrics::Metrics as IbtMetrics;
+use shared::ibt::domain::file::session_info::driver_info::driver::Driver;
+use shared::ibt::domain::file::session_info::SessionInfo;
+use shared::ibt::domain::file::var_value::primitive::Primitive;
+use shared::ibt::domain::file::var_value::VarValue;
+use shared::lap::domain::lap::metrics::Metrics;
+use shared::lap::domain::lap::Lap;
+use shared::lap::domain::laps::Laps;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
 use std::collections::HashMap;

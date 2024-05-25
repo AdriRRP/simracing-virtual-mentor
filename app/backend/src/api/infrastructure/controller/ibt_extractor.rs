@@ -1,8 +1,9 @@
-use crate::file::application::find::by_id::service::Finder as FileFinder;
-use crate::file::infrastructure::repository::in_memory::InMemory as InMemoryFileRepository;
+use shared::file::application::find::by_id::service::Finder as FileFinder;
+use shared::file::infrastructure::repository::in_memory::InMemory as InMemoryFileRepository;
+use shared::lap::infrastructure::repository::in_memory::InMemory as InMemoryLapRepository;
+use shared::common::infrastructure::event::tokio_bus::TokioBus;
+
 use crate::ibt_extractor::application::extract::service::Extractor as IbtExtractor;
-use crate::lap::infrastructure::repository::in_memory::InMemory as InMemoryLapRepository;
-use crate::shared::infrastructure::event::tokio_bus::TokioBus;
 
 use axum::extract::{Multipart, Path, State};
 use axum::http::StatusCode;

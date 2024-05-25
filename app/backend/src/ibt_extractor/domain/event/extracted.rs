@@ -1,4 +1,4 @@
-use crate::shared::domain::event::Event;
+use shared::common::domain::event::Event;
 
 use std::any::Any;
 use std::fmt::Debug;

@@ -1,13 +1,13 @@
-use crate::lap::application::delete::service::Deleter;
-use crate::lap::application::find::by_criteria::service::Finder as ByCriteriaFinder;
-use crate::lap::application::find::by_id::service::Finder as ByIdFinder;
-use crate::lap::application::find::header_by_id::service::Finder as ByIdHeaderFinder;
-use crate::lap::application::find::headers_by_criteria::service::Finder as ByCriteriaHeadersFinder;
-use crate::lap::domain::lap::header::Header;
-use crate::lap::domain::lap::headers::Headers;
-use crate::lap::domain::lap::Lap;
-use crate::lap::domain::laps::Laps;
-use crate::lap::infrastructure::repository::in_memory::InMemory;
+use shared::lap::application::delete::service::Deleter;
+use shared::lap::application::find::by_criteria::service::Finder as ByCriteriaFinder;
+use shared::lap::application::find::by_id::service::Finder as ByIdFinder;
+use shared::lap::application::find::header_by_id::service::Finder as ByIdHeaderFinder;
+use shared::lap::application::find::headers_by_criteria::service::Finder as ByCriteriaHeadersFinder;
+use shared::lap::domain::lap::header::Header;
+use shared::lap::domain::lap::headers::Headers;
+use shared::lap::domain::lap::Lap;
+use shared::lap::domain::laps::Laps;
+use shared::lap::infrastructure::repository::in_memory::InMemory;
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;

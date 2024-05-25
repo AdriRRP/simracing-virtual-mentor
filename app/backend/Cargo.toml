@@ -19,7 +19,6 @@ chrono = { version = "0.4.38", features = ["serde"] }
 config = "0.14.0"
 futures-util = "0.3.30"
 serde = { version = "1.0.202", features = ["derive"] }
-serde_yaml = "0.9"
 serde_json = "1.0.117"
 sha256 = "1.5.0"
 thiserror = "1.0.61"
@@ -27,4 +26,4 @@ tokio = { version = "1.37.0", features = ["full", "tracing"] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
-log = "0.4.21"
+shared = {path = "../shared"}

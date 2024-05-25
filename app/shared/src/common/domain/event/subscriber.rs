@@ -1,4 +1,4 @@
-use crate::shared::domain::event::Event;
+use crate::common::domain::event::Event;
 
 use async_trait::async_trait;
 use std::fmt::Debug;

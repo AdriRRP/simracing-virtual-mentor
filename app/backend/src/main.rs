@@ -76,14 +76,6 @@ async fn main() -> io::Result<()> {
             get(find_file_by_criteria)
                 .with_state(Arc::clone(&app_assembler.file.by_criteria_finder)),
         );
-
-    let ibt_extractor_routes = Router::new().route(
-        "/upload",
-        post(upload).with_state(UploadIbtState {
-            ibt_parser: Arc::clone(&app_assembler.ibt.parser),
-            file_finder: Arc::clone(&app_assembler.file.by_id_finder),
-        }),
-    );
     
     let lap_routes = Router::new()
         .route(
@@ -100,6 +92,14 @@ async fn main() -> io::Result<()> {
                 .with_state(Arc::clone(&app_assembler.lap.by_criteria_finder)),
         );
 
+    let ibt_extractor_routes = Router::new().route(
+        "/upload/:name",
+        post(upload).with_state(UploadIbtState {
+            ibt_parser: Arc::clone(&app_assembler.ibt.parser),
+            file_finder: Arc::clone(&app_assembler.file.by_id_finder),
+        }),
+    );
+    
     let app = Router::new()
         .nest("/file", file_routes)
         .nest("/lap", lap_routes)

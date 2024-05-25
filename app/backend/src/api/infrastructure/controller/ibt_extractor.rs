@@ -4,7 +4,7 @@ use crate::ibt_extractor::application::extract::service::Extractor as IbtExtract
 use crate::lap::infrastructure::repository::in_memory::InMemory as InMemoryLapRepository;
 use crate::shared::infrastructure::event::tokio_bus::TokioBus;
 
-use axum::extract::{Multipart, State};
+use axum::extract::{Multipart, Path, State};
 use axum::http::StatusCode;
 use futures_util::TryFutureExt;
 use std::io::Cursor;
@@ -21,11 +21,12 @@ pub struct ControllerState {
 /// Will return `Err` if file upload fails or if a file with same Sha256 exists
 pub async fn upload(
     State(services): State<ControllerState>,
+    Path(name): Path<String>,
     mut multipart: Multipart,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let mut body_bytes = Vec::<u8>::new();
 
-    tracing::debug!("Uploading `.ibt` file");
+    tracing::debug!("Uploading `.ibt` file `{name}`");
 
     while let Ok(Some(field)) = multipart.next_field().await {
         tracing::trace!("Receiving `.ibt` data: {field:?}");
@@ -39,7 +40,6 @@ pub async fn upload(
     }
 
     let id = sha256::digest(&body_bytes);
-    let name = "take it from arguments".to_string();
 
     match services
         .file_finder

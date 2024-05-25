@@ -10,7 +10,7 @@ use futures_util::TryFutureExt;
 use std::io::Cursor;
 use std::sync::Arc;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ControllerState {
     pub ibt_parser: Arc<IbtExtractor<InMemoryFileRepository, InMemoryLapRepository, TokioBus>>,
     pub file_finder: Arc<FileFinder<InMemoryFileRepository>>,
@@ -25,11 +25,16 @@ pub async fn upload_ibt(
 ) -> Result<StatusCode, (StatusCode, String)> {
     let mut body_bytes = Vec::<u8>::new();
 
+    tracing::debug!("Uploading `.ibt` file");
+
     while let Ok(Some(field)) = multipart.next_field().await {
+        tracing::trace!("Receiving `.ibt` data: {field:?}");
+
         let byte_slice = field
             .bytes()
             .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()))
             .await?;
+
         body_bytes.extend_from_slice(&byte_slice);
     }
 

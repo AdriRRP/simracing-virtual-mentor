@@ -3,6 +3,7 @@ use crate::lap::domain::repository::Repository;
 
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub struct Creator<R: Repository> {
     repository: Arc<R>,
 }

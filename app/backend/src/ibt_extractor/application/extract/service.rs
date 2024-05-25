@@ -11,6 +11,7 @@ use crate::shared::domain::event::bus::Bus as EventBus;
 use std::io::{Read, Seek};
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub struct Extractor<FR: FileRepository, LR: LapRepository, E: EventBus> {
     file_creator: Arc<FileCreator<FR, E>>,
     lap_creator: Arc<LapCreator<LR>>,
@@ -36,27 +37,33 @@ impl<FR: FileRepository, LR: LapRepository, E: EventBus> Extractor<FR, LR, E> {
         name: String,
         reader: ReadSeek,
     ) {
-        println!("Creating file");
-        self.file_creator.create(File::new(id.clone(), name)).await;
-        println!("File created");
+        tracing::debug!("Creating file `{}` ({})", name.clone(), id.clone());
+        self.file_creator
+            .create(File::new(id.clone(), name.clone()))
+            .await;
 
-        println!("Parsing ibt file");
+        tracing::debug!("Reading file `{}` ({})", name.clone(), id.clone());
         let mut reader = reader;
         let ibt_file = IbtFile::from_reader(&mut reader);
-        println!("Ibt file parsed");
 
-        println!("Creating laps");
+        tracing::debug!("Creating laps for file `{}` ({})", name.clone(), id.clone());
 
         match ibt_file {
             Ok(ibt_file) => {
                 let laps = ibt_metrics2laps(&id, &ibt_file.session_info, &ibt_file.metrics);
                 self.lap_creator.create(laps).await;
-                println!("Laps created");
+
+                tracing::debug!("Laps for file `{}` ({}) created", name.clone(), id.clone());
+
                 let event = Arc::new(IbtExtracted::new(&id));
                 let _ = self.event_bus.dispatch(event).await;
             }
             Err(e) => {
-                println!("Error parsing file: {e}");
+                tracing::error!(
+                    "Error Extracting file `{}` ({}): {e}",
+                    name.clone(),
+                    id.clone()
+                );
             }
         }
     }

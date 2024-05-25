@@ -1,5 +1,6 @@
 use config::{Config, ConfigError, Environment, File};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Formatter};
 
 const BACKEND_CONFIG_PATH_ENV: &str = "BACKEND_CONFIG_PATH";
 const BACKEND_DEFAULT_CONFIG_FILE_PATH: &str = "backend-config";
@@ -20,13 +21,25 @@ pub struct Server {
 pub struct EventBus {
     pub capacity: usize,
 }
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum LogLevel {
     Trace,
     Debug,
     Info,
     Warn,
     Error,
+}
+
+impl Display for LogLevel {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Trace => write!(f, "trace"),
+            Self::Debug => write!(f, "debug"),
+            Self::Info => write!(f, "info"),
+            Self::Warn => write!(f, "warn"),
+            Self::Error => write!(f, "error"),
+        }
+    }
 }
 
 impl Settings {

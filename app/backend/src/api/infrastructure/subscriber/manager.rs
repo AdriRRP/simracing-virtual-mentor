@@ -17,13 +17,20 @@ impl Manager {
     }
 
     pub fn run(&mut self) {
+        tracing::trace!("Starting {} subscribers...", self.subscribers.len());
+
         for subscriber in &self.subscribers {
             let id: String = format!("{:?}", subscriber.type_id());
+
+            tracing::trace!("Starting subscriber {id}");
+
             let subscriber = Arc::clone(subscriber);
             let handler = tokio::spawn(async move {
                 subscriber.run().await;
             });
-            // TODO: Add more accurate id
+
+            tracing::trace!("Storing join handle for subscriber {id}");
+
             self.handlers.insert(id, handler);
         }
     }

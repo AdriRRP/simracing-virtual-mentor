@@ -1,4 +1,5 @@
 use crate::lap::domain::lap::Lap;
+
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 
@@ -10,6 +11,12 @@ pub struct Laps {
 impl Laps {
     #[must_use]
     pub fn new(laps: Vec<Lap>) -> Self {
+        Self { laps }
+    }
+}
+
+impl From<Vec<Lap>> for Laps {
+    fn from(laps: Vec<Lap>) -> Self {
         Self { laps }
     }
 }

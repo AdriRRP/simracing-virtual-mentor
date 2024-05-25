@@ -5,6 +5,7 @@ use crate::file::domain::repository::Repository;
 use async_trait::async_trait;
 use std::sync::{Arc, Mutex};
 
+#[derive(Debug)]
 pub struct InMemory {
     files: Arc<Mutex<Vec<File>>>,
 }

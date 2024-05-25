@@ -13,18 +13,21 @@ name = "backend_lib"
 path = "src/lib.rs"
 
 [dependencies]
-axum = { version =  "0.7.5", features = ["multipart"] }
-tokio = { version = "1.37.0", features = ["full"] }
-serde = { version = "1.0.201", features = ["derive"] }
-serde_yaml = "0.9"
-thiserror = "1.0.60"
-futures = "0.3.30"
-tokio-util = { version = "0.7.11", features = ["io"] }
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-tracing = "0.1.40"
-uuid = { version = "1.8.0", features = ["v4", "serde"] }
-chrono = { version = "0.4.38", features = ["serde"] }
 async-trait = "0.1.80"
-futures-util = "0.3.30"
-sha256 = "1.5.0"
+axum = { version =  "0.7.5", features = ["multipart", "tracing"] }
+chrono = { version = "0.4.38", features = ["serde"] }
 config = "0.14.0"
+futures = "0.3.30"
+futures-util = "0.3.30"
+serde = { version = "1.0.202", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1.0.117"
+sha256 = "1.5.0"
+thiserror = "1.0.61"
+tokio = { version = "1.37.0", features = ["full", "tracing"] }
+tokio-util = { version = "0.7.11", features = ["io"] }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+console-subscriber = "0.2.0"
+uuid = { version = "1.8.0", features = ["v4", "serde"] }
+log = "0.4.21"

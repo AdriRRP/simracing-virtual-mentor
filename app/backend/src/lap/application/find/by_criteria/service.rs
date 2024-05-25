@@ -1,8 +1,7 @@
-use crate::lap::domain::lap::Lap;
+use crate::lap::domain::laps::Laps;
 use crate::lap::domain::repository::Repository;
 
 use std::sync::Arc;
-use uuid::Uuid;
 
 pub struct Finder<R: Repository> {
     repository: Arc<R>,
@@ -15,9 +14,9 @@ impl<R: Repository> Finder<R> {
 
     /// # Errors
     ///
-    /// Will return `Err` if `self.repository` fail finding by id
-    pub async fn find(&self, id: Uuid) -> Result<Option<Lap>, String> {
-        self.repository.find_by_id(&id).await
+    /// Will return `Err` if `self.repository` fail finding by criteria
+    pub async fn find(&self, criteria: &str) -> Result<Option<Laps>, String> {
+        self.repository.find_by_criteria(criteria).await
         // Send domain events
     }
 }

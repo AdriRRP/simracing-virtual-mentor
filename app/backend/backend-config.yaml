@@ -3,4 +3,4 @@ server:
   port: 6666
 event_bus:
   capacity: 200
-log_level: warn
+log_level: trace

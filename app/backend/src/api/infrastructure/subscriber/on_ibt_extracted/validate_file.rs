@@ -23,6 +23,8 @@ impl FileValidator {
         event_bus: &Arc<TokioBus>,
         validator: &Arc<Validator<InMemory, TokioBus>>,
     ) -> Self {
+        tracing::debug!("Creating subscriber");
+
         let receiver = event_bus.receiver(IbtExtracted::event_id()).await;
         let receiver = Arc::new(RwLock::new(receiver));
         let validator = Arc::clone(validator);
@@ -36,8 +38,8 @@ impl FileValidator {
 #[async_trait]
 impl Subscriber for FileValidator {
     async fn receive(&self) -> Result<Arc<dyn Event>, Error> {
+        tracing::trace!("Waiting for next event");
         let mut receiver = self.receiver.write().await;
-
         receiver
             .recv()
             .await
@@ -45,19 +47,21 @@ impl Subscriber for FileValidator {
     }
 
     async fn process(&self, event: Arc<dyn Event>) {
-        match event.as_any().downcast_ref::<IbtExtracted>() {
-            Some(ibt_parsed) => {
-                let validated = self.validator.validate(&ibt_parsed.file_id).await;
-                match validated {
-                    Ok(()) => println!("File `{}` validated", ibt_parsed.file_id),
-                    Err(e) => println!("Cannot validate file `{}`: {}", ibt_parsed.file_id, e),
+        tracing::debug!("Processing new event {}", event.id());
+        if let Some(ibt_parsed) = event.as_any().downcast_ref::<IbtExtracted>() {
+            let validated = self.validator.validate(&ibt_parsed.file_id).await;
+            match validated {
+                Ok(()) => tracing::info!("File `{}` validated", ibt_parsed.file_id),
+                Err(e) => {
+                    tracing::error!("Cannot validate file `{}`: {}", ibt_parsed.file_id, e);
                 }
             }
-            None => println!(
+        } else {
+            tracing::error!(
                 "Can't downcast {} to {}",
                 event.id(),
                 IbtExtracted::event_id()
-            ),
+            );
         }
     }
 }

@@ -3,6 +3,7 @@ use crate::file::domain::repository::Repository;
 
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub struct Finder<R: Repository> {
     repository: Arc<R>,
 }

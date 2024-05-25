@@ -6,6 +6,7 @@ use async_trait::async_trait;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
+#[derive(Debug)]
 pub struct InMemory {
     laps: Arc<Mutex<Vec<Lap>>>,
 }
@@ -45,6 +46,10 @@ impl Repository for InMemory {
     }
 
     async fn find_by_criteria(&self, _criteria: &str) -> Result<Option<Laps>, String> {
-        todo!()
+        let laps_guard = self.laps.lock().unwrap();
+        let laps: Laps = laps_guard.clone().into();
+        drop(laps_guard);
+        let opt_laps: Option<Laps> = if laps.len() == 0 { None } else { Some(laps) };
+        Ok(opt_laps)
     }
 }

@@ -32,9 +32,13 @@ pub mod api {
         pub mod app_assembler;
         pub mod controller {
             pub mod file;
-            pub mod upload_ibt;
+            pub mod ibt_extractor;
+            pub mod lap;
         }
         pub mod subscriber {
+            pub mod on_file_deleted {
+                pub mod delete_laps;
+            }
             pub mod on_ibt_extracted {
                 pub mod validate_file;
             }

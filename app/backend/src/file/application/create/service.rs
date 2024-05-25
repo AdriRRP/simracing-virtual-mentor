@@ -5,6 +5,7 @@ use crate::shared::domain::event::bus::Bus as EventBus;
 
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub struct Creator<R: Repository, E: EventBus> {
     repository: Arc<R>,
     event_bus: Arc<E>,

@@ -23,7 +23,6 @@ use std::sync::Arc;
 use tokio::io;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-pub struct AppState {}
 
 #[tokio::main]
 async fn main() -> io::Result<()> {

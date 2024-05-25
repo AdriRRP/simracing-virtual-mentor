@@ -1,13 +1,13 @@
+use shared::common::domain::event::bus::Bus as EventBus;
 use shared::file::application::create::service::Creator as FileCreator;
 use shared::file::domain::file::File;
 use shared::file::domain::repository::Repository as FileRepository;
+use shared::ibt::domain::file::File as IbtFile;
 use shared::lap::application::create::service::Creator as LapCreator;
 use shared::lap::domain::repository::Repository as LapRepository;
-use shared::ibt::domain::file::File as IbtFile;
-use shared::common::domain::event::bus::Bus as EventBus;
 
-use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
 use crate::ibt_extractor::domain::converter::ibt_metrics2laps;
+use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
 
 use std::io::{Read, Seek};
 use std::sync::Arc;

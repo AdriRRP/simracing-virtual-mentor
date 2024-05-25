@@ -1,8 +1,8 @@
-use shared::file::application::validate::service::Validator;
-use shared::file::infrastructure::repository::in_memory::InMemory;
 use shared::common::domain::event::subscriber::{Error, Subscriber};
 use shared::common::domain::event::Event;
 use shared::common::infrastructure::event::tokio_bus::TokioBus;
+use shared::file::application::validate::service::Validator;
+use shared::file::infrastructure::repository::in_memory::InMemory;
 
 use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
 

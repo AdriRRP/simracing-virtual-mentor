@@ -1,3 +1,4 @@
+use shared::common::infrastructure::event::tokio_bus::TokioBus;
 use shared::lap::application::create::service::Creator as LapCreator;
 use shared::lap::application::delete::service::Deleter as LapDeleter;
 use shared::lap::application::find::by_criteria::service::Finder as ByCriteriaLapFinder;
@@ -5,7 +6,6 @@ use shared::lap::application::find::by_id::service::Finder as ByIdLapFinder;
 use shared::lap::application::find::header_by_id::service::Finder as ByIdLapHeaderFinder;
 use shared::lap::application::find::headers_by_criteria::service::Finder as ByCriteriaLapHeaderFinder;
 use shared::lap::infrastructure::repository::in_memory::InMemory as InMemoryLapRepository;
-use shared::common::infrastructure::event::tokio_bus::TokioBus;
 
 use std::sync::Arc;
 

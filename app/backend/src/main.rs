@@ -4,25 +4,26 @@ use backend_lib::api::infrastructure::app_assembler::AppAssembler;
 use backend_lib::api::infrastructure::controller::file::{
     delete as delete_file, find_by_criteria as find_file_by_criteria, find_by_id as find_file_by_id,
 };
-use backend_lib::api::infrastructure::controller::ibt_extractor::upload;
-use backend_lib::api::infrastructure::controller::ibt_extractor::ControllerState as UploadIbtState;
+use backend_lib::api::infrastructure::controller::ibt_extractor::{
+    upload, ControllerState as UploadIbtState,
+};
 use backend_lib::api::infrastructure::controller::lap::{
     delete as delete_lap, find_by_criteria as find_lap_by_criteria, find_by_id as find_lap_by_id,
     find_header_by_id as find_lap_header_by_id,
     find_headers_by_criteria as find_lap_headers_by_criteria,
 };
 use backend_lib::api::infrastructure::settings::Settings;
-use backend_lib::api::infrastructure::subscriber::manager::Manager as SubscriberManager;
-use backend_lib::api::infrastructure::subscriber::on_ibt_extracted::validate_file::FileValidator;
+use backend_lib::api::infrastructure::subscriber::{
+    manager::Manager as SubscriberManager, on_file_deleted::delete_laps::LapDeleter,
+    on_ibt_extracted::validate_file::FileValidator,
+};
 
 use axum::extract::DefaultBodyLimit;
 use axum::routing::{delete, get, post};
 use axum::Router;
-use backend_lib::api::infrastructure::subscriber::on_file_deleted::delete_laps::LapDeleter;
 use std::sync::Arc;
 use tokio::io;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-
 
 #[tokio::main]
 async fn main() -> io::Result<()> {

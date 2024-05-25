@@ -1,10 +1,10 @@
+use shared::common::infrastructure::event::tokio_bus::TokioBus;
 use shared::file::application::create::service::Creator as FileCreator;
 use shared::file::application::delete::service::Deleter as FileDeleter;
 use shared::file::application::find::by_criteria::service::Finder as FileByCriteriaFinder;
 use shared::file::application::find::by_id::service::Finder as FileByIdFinder;
 use shared::file::application::validate::service::Validator as FileValidator;
 use shared::file::infrastructure::repository::in_memory::InMemory as InMemoryFileRepository;
-use shared::common::infrastructure::event::tokio_bus::TokioBus;
 
 use std::sync::Arc;
 

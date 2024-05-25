@@ -2,6 +2,8 @@ use crate::lap::application::create::service::Creator as LapCreator;
 use crate::lap::application::delete::service::Deleter as LapDeleter;
 use crate::lap::application::find::by_criteria::service::Finder as ByCriteriaLapFinder;
 use crate::lap::application::find::by_id::service::Finder as ByIdLapFinder;
+use crate::lap::application::find::header_by_id::service::Finder as ByIdLapHeaderFinder;
+use crate::lap::application::find::headers_by_criteria::service::Finder as ByCriteriaLapHeaderFinder;
 use crate::lap::infrastructure::repository::in_memory::InMemory as InMemoryLapRepository;
 use crate::shared::infrastructure::event::tokio_bus::TokioBus;
 
@@ -11,6 +13,8 @@ pub struct Assembler {
     pub creator: Arc<LapCreator<InMemoryLapRepository>>,
     pub by_id_finder: Arc<ByIdLapFinder<InMemoryLapRepository>>,
     pub by_criteria_finder: Arc<ByCriteriaLapFinder<InMemoryLapRepository>>,
+    pub by_id_header_finder: Arc<ByIdLapHeaderFinder<InMemoryLapRepository>>,
+    pub by_criteria_header_finder: Arc<ByCriteriaLapHeaderFinder<InMemoryLapRepository>>,
     pub deleter: Arc<LapDeleter<InMemoryLapRepository>>,
 }
 
@@ -21,11 +25,16 @@ impl Assembler {
         let creator = Arc::new(LapCreator::new(Arc::clone(&repository)));
         let by_id_finder = Arc::new(ByIdLapFinder::new(Arc::clone(&repository)));
         let by_criteria_finder = Arc::new(ByCriteriaLapFinder::new(Arc::clone(&repository)));
+        let by_id_header_finder = Arc::new(ByIdLapHeaderFinder::new(Arc::clone(&repository)));
+        let by_criteria_header_finder =
+            Arc::new(ByCriteriaLapHeaderFinder::new(Arc::clone(&repository)));
         let deleter = Arc::new(LapDeleter::new(Arc::clone(&repository)));
         Self {
             creator,
             by_id_finder,
             by_criteria_finder,
+            by_id_header_finder,
+            by_criteria_header_finder,
             deleter,
         }
     }

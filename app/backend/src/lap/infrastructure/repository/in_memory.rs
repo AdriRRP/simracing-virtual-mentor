@@ -2,6 +2,8 @@ use crate::lap::domain::lap::Lap;
 use crate::lap::domain::laps::Laps;
 use crate::lap::domain::repository::Repository;
 
+use crate::lap::domain::lap::header::Header;
+use crate::lap::domain::lap::headers::Headers;
 use async_trait::async_trait;
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
@@ -31,7 +33,7 @@ impl Repository for InMemory {
         let mut laps_guard = self.laps.lock().unwrap();
         let i = laps_guard
             .iter()
-            .position(|lap| lap.id == *id)
+            .position(|lap| lap.header.id == *id)
             .ok_or(format!("No lap with {id} found."))?;
         laps_guard.remove(i);
         drop(laps_guard);
@@ -40,7 +42,7 @@ impl Repository for InMemory {
 
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<Lap>, String> {
         let laps_guard = self.laps.lock().unwrap();
-        let result = laps_guard.iter().find(|lap| lap.id == *id).cloned();
+        let result = laps_guard.iter().find(|lap| lap.header.id == *id).cloned();
         drop(laps_guard);
         Ok(result)
     }
@@ -51,5 +53,17 @@ impl Repository for InMemory {
         drop(laps_guard);
         let opt_laps: Option<Laps> = if laps.len() == 0 { None } else { Some(laps) };
         Ok(opt_laps)
+    }
+
+    async fn find_header_by_id(&self, id: &Uuid) -> Result<Option<Header>, String> {
+        self.find_by_id(id)
+            .await
+            .map(|opt_lap| opt_lap.map(|lap| lap.header))
+    }
+
+    async fn find_header_by_criteria(&self, criteria: &str) -> Result<Option<Headers>, String> {
+        self.find_by_criteria(criteria).await.map(|opt_laps| {
+            opt_laps.map(|laps| laps.clone().into_iter().map(|lap| lap.header).collect())
+        })
     }
 }

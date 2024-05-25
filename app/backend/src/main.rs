@@ -4,11 +4,13 @@ use backend_lib::api::infrastructure::app_assembler::AppAssembler;
 use backend_lib::api::infrastructure::controller::file::{
     delete as delete_file, find_by_criteria as find_file_by_criteria, find_by_id as find_file_by_id,
 };
-use backend_lib::api::infrastructure::controller::lap::{
-    delete as delete_lap, find_by_criteria as find_lap_by_criteria, find_by_id as find_lap_by_id,
-};
 use backend_lib::api::infrastructure::controller::ibt_extractor::upload;
 use backend_lib::api::infrastructure::controller::ibt_extractor::ControllerState as UploadIbtState;
+use backend_lib::api::infrastructure::controller::lap::{
+    delete as delete_lap, find_by_criteria as find_lap_by_criteria, find_by_id as find_lap_by_id,
+    find_header_by_id as find_lap_header_by_id,
+    find_headers_by_criteria as find_lap_headers_by_criteria,
+};
 use backend_lib::api::infrastructure::settings::Settings;
 use backend_lib::api::infrastructure::subscriber::manager::Manager as SubscriberManager;
 use backend_lib::api::infrastructure::subscriber::on_ibt_extracted::validate_file::FileValidator;
@@ -76,7 +78,7 @@ async fn main() -> io::Result<()> {
             get(find_file_by_criteria)
                 .with_state(Arc::clone(&app_assembler.file.by_criteria_finder)),
         );
-    
+
     let lap_routes = Router::new()
         .route(
             "/delete/:id",
@@ -88,8 +90,17 @@ async fn main() -> io::Result<()> {
         )
         .route(
             "/find",
-            get(find_lap_by_criteria)
-                .with_state(Arc::clone(&app_assembler.lap.by_criteria_finder)),
+            get(find_lap_by_criteria).with_state(Arc::clone(&app_assembler.lap.by_criteria_finder)),
+        )
+        .route(
+            "/find/header/:id",
+            get(find_lap_header_by_id)
+                .with_state(Arc::clone(&app_assembler.lap.by_id_header_finder)),
+        )
+        .route(
+            "/find/header",
+            get(find_lap_headers_by_criteria)
+                .with_state(Arc::clone(&app_assembler.lap.by_criteria_header_finder)),
         );
 
     let ibt_extractor_routes = Router::new().route(
@@ -99,7 +110,7 @@ async fn main() -> io::Result<()> {
             file_finder: Arc::clone(&app_assembler.file.by_id_finder),
         }),
     );
-    
+
     let app = Router::new()
         .nest("/file", file_routes)
         .nest("/lap", lap_routes)

@@ -69,9 +69,9 @@ impl Subscriber for LapDeleter {
                 }
             };
             for lap in laps.iter() {
-                match self.deleter.delete(&lap.id).await {
-                    Ok(()) => tracing::trace!("Lap with id {} deleted", lap.id),
-                    Err(e) => tracing::error!("Can't delete lap with id `{}`: {e}", lap.id),
+                match self.deleter.delete(&lap.header.id).await {
+                    Ok(()) => tracing::trace!("Lap with id {} deleted", lap.header.id),
+                    Err(e) => tracing::error!("Can't delete lap with id `{}`: {e}", lap.header.id),
                 }
             }
             // Delete all

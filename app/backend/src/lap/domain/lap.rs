@@ -1,5 +1,8 @@
+pub mod header;
+pub mod headers;
 pub mod metrics;
 
+use crate::lap::domain::lap::header::Header;
 use crate::lap::domain::lap::metrics::Metrics;
 
 use chrono::{DateTime, Utc};
@@ -8,22 +11,8 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Lap {
-    // Lap completa = en ningún punto estás dentro del pit
-    pub id: Uuid,
-    // Source laps
-    pub file_id: String,
-    pub number: u16,
-    pub driver: String,
-    // Customer ID
-    pub category: String,
-    // En principio da igual
-    pub car: String,
-    pub circuit: String,
-    // Track id para identificar el circuito
-    // TrackName + TrackConfig
-    pub date: DateTime<Utc>,
+    pub header: Header,
     pub metrics: Metrics,
-    pub time: f32,
 }
 
 impl Lap {
@@ -41,22 +30,11 @@ impl Lap {
         date: DateTime<Utc>,
         metrics: Metrics,
     ) -> Self {
-        let time = metrics
-            .lap_current_lap_time
-            .iter()
-            .fold(0f32, |a, &b| a.max(b));
+        let time = *metrics.lap_current_lap_time.last().unwrap_or(&0f32);
+        let header = Header::new(
+            id, file_id, number, driver, category, car, circuit, date, time,
+        );
 
-        Self {
-            id,
-            file_id,
-            number,
-            driver,
-            category,
-            car,
-            circuit,
-            date,
-            metrics,
-            time,
-        }
+        Self { header, metrics }
     }
 }

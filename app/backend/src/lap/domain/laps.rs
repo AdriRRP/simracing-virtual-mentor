@@ -8,16 +8,16 @@ pub struct Laps {
     laps: Vec<Lap>,
 }
 
-impl Laps {
-    #[must_use]
-    pub fn new(laps: Vec<Lap>) -> Self {
+impl From<Vec<Lap>> for Laps {
+    fn from(laps: Vec<Lap>) -> Self {
         Self { laps }
     }
 }
 
-impl From<Vec<Lap>> for Laps {
-    fn from(laps: Vec<Lap>) -> Self {
-        Self { laps }
+impl FromIterator<Lap> for Laps {
+    fn from_iter<T: IntoIterator<Item = Lap>>(iter: T) -> Self {
+        let laps_vec: Vec<Lap> = Vec::from_iter(iter);
+        Self::from(laps_vec)
     }
 }
 

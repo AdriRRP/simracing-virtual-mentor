@@ -82,7 +82,7 @@ pub fn ibt_metrics2laps(file_id: &str, session_info: &SessionInfo, metrics: &Ibt
         })
         .collect();
 
-    Laps::new(laps_vec)
+    Laps::from(laps_vec)
 }
 
 fn get_driver_or_none(session_info: &SessionInfo) -> Option<Driver> {

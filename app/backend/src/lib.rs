@@ -63,6 +63,12 @@ pub mod lap {
             pub mod by_criteria {
                 pub mod service;
             }
+            pub mod header_by_id {
+                pub mod service;
+            }
+            pub mod headers_by_criteria {
+                pub mod service;
+            }
         }
     }
     pub mod domain {

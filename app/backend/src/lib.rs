@@ -1,3 +1,4 @@
+extern crate symracing_virtual_mentor_shared as shared;
 pub mod api {
     pub mod infrastructure {
         pub mod app_assembler;

@@ -1,4 +1,4 @@
-extern crate backend_lib;
+extern crate symracing_virtual_mentor_backend_lib as backend_lib;
 
 use backend_lib::api::infrastructure::app_assembler::AppAssembler;
 use backend_lib::api::infrastructure::controller::file::{
@@ -37,7 +37,7 @@ async fn main() -> io::Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| format!("backend={}", settings.log_level).into()),
+                .unwrap_or_else(|_| format!("symracing_virtual_mentor_backend={}", settings.log_level).into()),
         )
         .with(
             tracing_subscriber::fmt::layer()

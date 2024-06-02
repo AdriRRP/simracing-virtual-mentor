@@ -2,6 +2,7 @@ extern crate symracing_virtual_mentor_shared as shared;
 pub mod infrastructure {
     pub mod components {
         pub mod app;
+        pub mod laps;
         //pub mod scatter_plot;
     }
     pub mod repository {

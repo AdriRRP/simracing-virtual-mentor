@@ -1,52 +1,11 @@
 use crate::infrastructure::repository::lap::http::Http as LapHttpRepository;
 use crate::infrastructure::settings::Settings;
+use crate::infrastructure::components::laps::LapHeadersHtml;
 
 use shared::lap::domain::lap::header::Header as LapHeader;
 
 use log::{error, info};
 use yew::prelude::*;
-
-#[derive(Properties, PartialEq)]
-struct LapHeadersProps {
-    lap_headers: Vec<LapHeader>,
-}
-
-#[function_component(LapHeadersHtml)]
-fn lap_headers(LapHeadersProps { lap_headers }: &LapHeadersProps) -> Html {
-    let rows = lap_headers
-        .iter()
-        .map(|lap_header| {
-            html! {
-                <tr>
-                    <td>{ format!("{}", lap_header.number) }</td>
-                    <td>{ format!("{}", lap_header.time) }</td>
-                    <td>{ format!("{}", lap_header.driver) }</td>
-                    <td>{ format!("{}", lap_header.car) }</td>
-                    <td>{ format!("{}", lap_header.circuit) }</td>
-                </tr>
-            }
-        })
-        .collect::<Html>();
-
-    html! {
-        <>
-            <table class="styled-table">
-                <thead>
-                    <tr>
-                        <th>{"Lap"}</th>
-                        <th>{"Time"}</th>
-                        <th>{"Player"}</th>
-                        <th>{"Car"}</th>
-                        <th>{"Circuit"}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    { rows }
-                </tbody>
-            </table>
-        </>
-    }
-}
 
 #[function_component(App)]
 pub fn app() -> Html {
@@ -74,10 +33,7 @@ pub fn app() -> Html {
 
     html! {
         <main>
-
             <LapHeadersHtml lap_headers={(*lap_headers).clone()} />
-            //<ScatterPlot session={repository.find_by_id(String::from("00000"))}/>
-            //<ScatterPlot session={None}/>
         </main>
     }
 }

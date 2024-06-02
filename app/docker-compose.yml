@@ -5,3 +5,8 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - 6666:6666
+    environment:
+      BACKEND__SERVER__HOST: 0.0.0.0
+      BACKEND__SERVER__PORT: 6666
+      BACKEND__EVENT_BUS_CAPACITY: 200
+      BACKEND__LOG_LEVEL: DEBUG

@@ -20,10 +20,11 @@ impl Default for InMemory {
 
 #[async_trait]
 impl Repository for InMemory {
-    async fn create(&self, analysis: Analysis) {
+    async fn create(&self, analysis: Analysis) -> Result<(), String> {
         let mut analyses_guard = self.analyses.lock().unwrap();
         analyses_guard.push(analysis);
         drop(analyses_guard);
+        Ok(())
     }
 
     async fn delete(&self, id: &Uuid) -> Result<(), String> {

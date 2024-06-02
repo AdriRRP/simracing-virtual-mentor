@@ -1,14 +1,9 @@
-//mod application;
-//mod domain;
-pub mod infrastructure {
-    pub mod components {
-        pub mod app;
-        pub mod scatter_plot;
-    }
-}
+extern crate symracing_virtual_mentor_frontend_lib as frontend_lib;
 
-use crate::infrastructure::components::app::App;
+use frontend_lib::infrastructure::components::app::App;
+use frontend_lib::infrastructure::settings::Settings;
 
 fn main() {
+    let settings = Settings::load().unwrap(); // TODO: Revisar
     yew::Renderer::<App>::new().render();
 }

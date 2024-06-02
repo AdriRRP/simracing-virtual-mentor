@@ -1,12 +1,10 @@
 use yew::prelude::*;
-use shared::telemetry::domain::repository::Repository;
-use crate::infrastructure::components::scatter_plot::ScatterPlot;
-use shared::telemetry::infrastructure::repository::in_memory::InMemory;
-
+//use crate::infrastructure::components::scatter_plot::ScatterPlot;
+//use crate::infrastructure::repository::lap::http::Http;
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let repository = InMemory::default();
+    //let repository = Http::default();
     //let use_state_handle: UseStateHandle<Option<Session>> = use_state(|| None);
     //use_effect(move || {
     //    use_state_handle.set(
@@ -16,7 +14,7 @@ pub fn app() -> Html {
 
     html! {
         <main>
-            <ScatterPlot session={repository.find_by_id(String::from("00000"))}/>
+            //<ScatterPlot session={repository.find_by_id(String::from("00000"))}/>
             //<ScatterPlot session={None}/>
         </main>
     }

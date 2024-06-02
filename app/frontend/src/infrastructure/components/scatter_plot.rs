@@ -4,12 +4,12 @@ use plotly::common::{Anchor, AxisSide, DashType, Font, Label, Orientation, Title
 use plotly::layout::{Axis, HoverMode, Legend};
 use plotly::layout::update_menu::{Button, ButtonMethod, UpdateMenu, UpdateMenuDirection};
 use yew::prelude::*;
-use shared::telemetry::domain::session::Session;
+use shared::lap::domain::laps::Laps;
 
 #[derive(Properties, Clone, PartialEq)]
 pub struct Props {
     #[prop_or(None)]
-    pub session: Option<Session>
+    pub session: Option<Laps>
 }
 
 #[function_component(ScatterPlot)]
@@ -39,7 +39,7 @@ pub fn plot_component(props: &Props) -> Html {
     html! { <div id={session.id}></div> }
 }
 
-fn create_plot(session: Session) -> Plot {
+fn create_plot(laps: Laps) -> Plot {
     // Color Palette
     let background_color = Rgb::new(18, 18, 18);
     let surface_color = Rgb::new(53, 54, 58);

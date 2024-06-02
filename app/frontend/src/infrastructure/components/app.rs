@@ -1,23 +1,39 @@
-use yew::prelude::*;
-use shared::telemetry::domain::repository::Repository;
-use crate::infrastructure::components::scatter_plot::ScatterPlot;
-use shared::telemetry::infrastructure::repository::in_memory::InMemory;
+use crate::infrastructure::repository::lap::http::Http as LapHttpRepository;
+use crate::infrastructure::settings::Settings;
+use crate::infrastructure::components::laps::LapHeadersHtml;
 
+use shared::lap::domain::lap::header::Header as LapHeader;
+
+use log::{error, info};
+use yew::prelude::*;
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let repository = InMemory::default();
-    //let use_state_handle: UseStateHandle<Option<Session>> = use_state(|| None);
-    //use_effect(move || {
-    //    use_state_handle.set(
-    //        repository.find_by_id(String::from("00000"))
-    //    );
-    //});
+    let settings = Settings::default();
+    let lap_repo = LapHttpRepository::new(&settings);
+    let lap_headers: UseStateHandle<Vec<LapHeader>> = use_state(Vec::new);
+    {
+        let lap_headers = lap_headers.clone();
+        let lap_repo = lap_repo.clone();
+        use_effect_with((), move |_| {
+            let lap_headers = lap_headers.clone();
+            wasm_bindgen_futures::spawn_local(async move {
+                let fetched_lap_headers = lap_repo.find_header_by_criteria("").await;
+                info!("{:?}", fetched_lap_headers);
+                let fetched_lap_headers = fetched_lap_headers.unwrap();
+                info!("{:?}", fetched_lap_headers);
+                let fetched_lap_headers = fetched_lap_headers.unwrap();
+                info!("{:?}", fetched_lap_headers);
+
+                lap_headers.set(fetched_lap_headers.to_vec());
+            });
+            || ()
+        });
+    }
 
     html! {
         <main>
-            <ScatterPlot session={repository.find_by_id(String::from("00000"))}/>
-            //<ScatterPlot session={None}/>
+            <LapHeadersHtml lap_headers={(*lap_headers).clone()} />
         </main>
     }
 }

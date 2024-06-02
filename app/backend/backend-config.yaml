@@ -1,0 +1,6 @@
+server:
+  host: 0.0.0.0
+  port: 16666
+event_bus:
+  capacity: 200
+log_level: trace

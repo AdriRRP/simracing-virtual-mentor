@@ -27,3 +27,4 @@ tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
 symracing_virtual_mentor_shared = {path = "../shared"}
+tower-http = { version = "0.5.2", features = ["cors"] }

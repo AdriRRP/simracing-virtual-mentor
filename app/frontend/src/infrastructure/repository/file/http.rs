@@ -1,15 +1,12 @@
 use shared::file::domain::file::File;
 use shared::file::domain::files::Files;
-use shared::file::domain::repository::Repository;
 
 use crate::infrastructure::settings::Settings;
 
-use async_trait::async_trait;
-use reqwest::Client;
+use gloo_net::http::Request;
 
 #[derive(Debug)]
 pub struct Http {
-    pub(crate) client: Client,
     pub(crate) delete: String,
     pub(crate) find_by_id: String,
     pub(crate) find_by_criteria: String,
@@ -19,7 +16,6 @@ impl Http {
     #[must_use]
     pub fn new(settings: &Settings) -> Self {
         Self {
-            client: Client::new(),
             delete: format!(
                 "{}{}",
                 settings.endpoints.file.server, settings.endpoints.file.delete
@@ -36,55 +32,47 @@ impl Http {
     }
 }
 
-#[async_trait]
-impl Repository for Http {
-    async fn create(&self, _file: File) {
-        unimplemented!()
-    }
-
-    async fn delete(&self, id: &str) -> Result<(), String> {
+impl Http {
+    pub(crate) async fn delete(&self, id: &str) -> Result<(), String> {
         let endpoint = format!("{}/{id}", self.delete);
-        let response = &self
-            .client
-            .delete(endpoint)
+        let response = Request::delete(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             Ok(())
         } else {
             Err(response.status().to_string())
         }
     }
 
-    async fn find_by_id(&self, id: &str) -> Result<Option<File>, String> {
+    pub(crate) async fn find_by_id(&self, id: &str) -> Result<Option<File>, String> {
         let endpoint = format!("{}/{id}", self.find_by_id);
-        let response = self
-            .client
-            .get(endpoint)
+        let response = Request::get(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             let file: File = response.json().await.map_err(|e| format!("{e}"))?;
             Ok(Some(file))
+        } else if response.status() == 404 {
+            Ok(None)
         } else {
             Err(response.status().to_string())
         }
     }
 
-    async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Files>, String> {
-        let response = self
-            .client
-            .get(&self.find_by_criteria)
+    pub(crate) async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Files>, String> {
+        let response = Request::post(&self.find_by_criteria)
             .json(criteria)
+            .map_err(|e| format!("{e}"))?
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             let files: Files = response.json().await.map_err(|e| format!("{e}"))?;
             if files.is_empty() {
                 Ok(None)
@@ -94,9 +82,5 @@ impl Repository for Http {
         } else {
             Err(response.status().to_string())
         }
-    }
-
-    async fn validate(&self, _id: &str) -> Result<(), String> {
-        unimplemented!()
     }
 }

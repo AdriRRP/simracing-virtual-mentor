@@ -7,7 +7,7 @@ use crate::api::infrastructure::app_assembler::ibt::Assembler as IbtAssembler;
 use crate::api::infrastructure::app_assembler::lap::Assembler as LapAssembler;
 use crate::api::infrastructure::settings::Settings;
 
-use shared::common::infrastructure::event::tokio_bus::TokioBus as TokioEventBus;
+use crate::api::infrastructure::event::tokio_bus::TokioBus as TokioEventBus;
 
 use std::sync::Arc;
 

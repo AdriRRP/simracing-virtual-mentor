@@ -31,11 +31,6 @@ pub mod common {
     pub mod domain {
         pub mod event;
     }
-    pub mod infrastructure {
-        pub mod event {
-            pub mod tokio_bus;
-        }
-    }
 }
 
 pub mod file {

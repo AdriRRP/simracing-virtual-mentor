@@ -1,8 +1,9 @@
 use crate::analysis::domain::analysis::Analysis;
 
-use std::ops::Deref;
 use serde::{Deserialize, Serialize};
+use std::ops::Deref;
 
+/// A wrapper struct for a vector of analysis objects.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Analyses {
     analyses: Vec<Analysis>,
@@ -11,6 +12,11 @@ pub struct Analyses {
 impl Deref for Analyses {
     type Target = Vec<Analysis>;
 
+    /// Returns a reference to the inner vector of analysis objects.
+    ///
+    /// # Returns
+    ///
+    /// A reference to the inner vector of analysis objects.
     fn deref(&self) -> &Self::Target {
         &self.analyses
     }

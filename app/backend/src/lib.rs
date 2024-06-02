@@ -7,6 +7,9 @@ pub mod api {
             pub mod ibt_extractor;
             pub mod lap;
         }
+        pub mod event {
+            pub mod tokio_bus;
+        }
         pub mod subscriber {
             pub mod on_file_deleted {
                 pub mod delete_laps;

@@ -1,4 +1,4 @@
-use shared::common::infrastructure::event::tokio_bus::TokioBus;
+use crate::api::infrastructure::event::tokio_bus::TokioBus;
 use shared::file::application::delete::service::Deleter;
 use shared::file::application::find::by_criteria::service::Finder as ByCriteriaFinder;
 use shared::file::application::find::by_id::service::Finder as ByIdFinder;

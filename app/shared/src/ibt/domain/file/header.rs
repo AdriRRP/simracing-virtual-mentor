@@ -37,11 +37,11 @@ pub struct Header {
 
     /// State data, output at tickRate
 
-    /// length of array pointed to by var_header_offset
+    /// length of array pointed to by `var_header_offset`
     /// Original type: i32 (4 byte integer)
     pub num_vars: usize,
-    /// Offset to [VarHeader; num_vars] array
-    /// describes the variables received in VarBuffer
+    /// Offset to [`VarHeader`; `num_vars`] array
+    /// describes the variables received in `VarBuffer`
     /// Original type: i32 (4 byte integer)
     pub var_header_offset: u64,
 

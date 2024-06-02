@@ -1,16 +1,13 @@
-use shared::analysis::domain::analyses::Analyses;
-use shared::analysis::domain::analysis::Analysis;
-use shared::analysis::domain::repository::Repository;
-
 use crate::infrastructure::settings::Settings;
 
-use async_trait::async_trait;
-use reqwest::Client;
+use shared::analysis::domain::analyses::Analyses;
+use shared::analysis::domain::analysis::Analysis;
+
+use gloo_net::http::Request;
 use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct Http {
-    pub(crate) client: Client,
     pub(crate) create: String,
     pub(crate) delete: String,
     pub(crate) find_by_id: String,
@@ -21,7 +18,6 @@ impl Http {
     #[must_use]
     pub fn new(settings: &Settings) -> Self {
         Self {
-            client: Client::new(),
             create: format!(
                 "{}{}",
                 settings.endpoints.analysis.server, settings.endpoints.analysis.create
@@ -42,66 +38,65 @@ impl Http {
     }
 }
 
-#[async_trait]
-impl Repository for Http {
-    async fn create(&self, analysis: Analysis) -> Result<(), String> {
-        let response = &self
-            .client
-            .put(&self.create)
+impl Http {
+    pub(crate) async fn create(&self, analysis: Analysis) -> Result<(), String> {
+        let response = Request::put(&self.create)
             .json(&analysis)
+            .map_err(|e| format!("{e}"))?
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
-        if response.status().is_success() {
+
+        if response.ok() {
             Ok(())
         } else {
             Err(response.status().to_string())
         }
     }
 
-    async fn delete(&self, id: &Uuid) -> Result<(), String> {
+    pub(crate) async fn delete(&self, id: &Uuid) -> Result<(), String> {
         let endpoint = format!("{}/{id}", self.delete);
-        let response = &self
-            .client
-            .delete(endpoint)
+        let response = Request::delete(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             Ok(())
         } else {
             Err(response.status().to_string())
         }
     }
 
-    async fn find_by_id(&self, id: &Uuid) -> Result<Option<Analysis>, String> {
+    pub(crate) async fn find_by_id(&self, id: &Uuid) -> Result<Option<Analysis>, String> {
         let endpoint = format!("{}/{id}", self.find_by_id);
-        let response = self
-            .client
-            .get(endpoint)
+        let response = Request::get(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             let analysis: Analysis = response.json().await.map_err(|e| format!("{e}"))?;
             Ok(Some(analysis))
+        } else if response.status() == 404 {
+            Ok(None)
         } else {
             Err(response.status().to_string())
         }
     }
 
-    async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Analyses>, String> {
-        let response = self
-            .client
-            .get(&self.find_by_criteria)
+    pub(crate) async fn find_by_criteria(
+        &self,
+        criteria: &str,
+    ) -> Result<Option<Analyses>, String> {
+        let response = Request::post(&self.find_by_criteria)
             .json(criteria)
+            .map_err(|e| format!("{e}"))?
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             let analyses: Analyses = response.json().await.map_err(|e| format!("{e}"))?;
             if analyses.is_empty() {
                 Ok(None)

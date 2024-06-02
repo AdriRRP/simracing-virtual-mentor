@@ -20,6 +20,7 @@ use crate::ibt::domain::file::var_filter::VarFilter;
 use std::fmt::Debug;
 use std::io::{Read, Seek};
 
+/// The allowed fields in the file.
 pub const ALLOWED_FIELDS: [&str; 16] = [
     "Lap",
     "Speed",
@@ -39,6 +40,7 @@ pub const ALLOWED_FIELDS: [&str; 16] = [
     "LapCurrentLapTime",
 ];
 
+/// Represents an IBT file.
 #[derive(PartialEq, Debug)]
 pub struct File {
     pub header: Header,
@@ -48,11 +50,11 @@ pub struct File {
 }
 
 impl File {
+    /// Constructs a new `File` instance from the given reader.
+    ///
     /// # Errors
     ///
-    /// Will return `Err` if `Header::from_reader`, `DiskHeader::from_reader`,
-    /// `SessionInfo::from_reader` or `Metrics::from_reader` fails
-    #[allow(clippy::similar_names)]
+    /// Returns an error if any of the underlying file components fail to be read.
     pub fn from_reader(
         reader: &mut (impl Read + Seek),
         // At the moment filter is fixed
@@ -61,7 +63,7 @@ impl File {
         let header = Header::from_reader(reader, 0).map_err(|e| Error::Header(format!("{e}")))?;
 
         let disk_header = DiskHeader::from_reader(reader, HEADER_BYTES_SIZE as u64)
-            .map_err(|e| Error::Header(format!("{e}")))?;
+            .map_err(|e| Error::DiskHeader(format!("{e}")))?;
 
         let session_info = SessionInfo::from_reader(
             reader,
@@ -90,7 +92,7 @@ impl File {
     }
 }
 
-/// Errors that can be returned from [`Header::try_from`].
+/// Errors that can occur while reading the IBT file.
 #[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("File error extracting `header`: {0}")]

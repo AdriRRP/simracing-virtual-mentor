@@ -2,30 +2,34 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+/// Represents the header of a lap.
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Header {
-    // Lap completa = en ningún punto estás dentro del pit
+    /// The unique identifier of the lap.
     pub id: Uuid,
-    // Source laps
+    /// The identifier of the source file containing the lap data.
     pub file_id: String,
+    /// The lap number.
     pub number: u16,
+    /// The driver's name.
     pub driver: String,
-    // Customer ID
+    /// The category of the lap.
     pub category: String,
-    // En principio da igual
+    /// The car associated with the lap.
     pub car: String,
+    /// The circuit where the lap was recorded.
     pub circuit: String,
-    // Track id para identificar el circuito
-    // TrackName + TrackConfig
+    /// The date and time when the lap was recorded (in UTC).
     pub date: DateTime<Utc>,
+    /// The time taken to complete the lap (in seconds).
     pub time: f32,
 }
 
 impl Header {
+    /// Creates a new instance of `Header`.
     #[allow(clippy::too_many_arguments)]
     #[must_use]
     pub const fn new(
-        // TODO: this function has too many arguments (9/7)
         id: Uuid,
         file_id: String,
         number: u16,

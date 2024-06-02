@@ -1,6 +1,6 @@
+use crate::api::infrastructure::event::tokio_bus::TokioBus;
 use shared::common::domain::event::subscriber::{Error, Subscriber};
 use shared::common::domain::event::Event;
-use shared::common::infrastructure::event::tokio_bus::TokioBus;
 use shared::file::domain::event::deleted::Deleted;
 use shared::lap::application::delete::service::Deleter;
 use shared::lap::application::find::by_criteria::service::Finder;

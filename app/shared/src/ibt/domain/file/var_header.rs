@@ -6,59 +6,57 @@ use crate::ibt::domain::file::var_header::var_type::VarType;
 
 use std::io::{Read, Seek};
 
+/// Size of a variable header in bytes.
 pub const VAR_HEADER_BYTES_SIZE: usize = 144;
+/// Maximum size of a string in bytes.
 pub const MAX_STRING_BYTES_SIZE: usize = 32;
+/// Maximum size of a description in bytes.
 pub const MAX_DESCRIPTION_BYTES_SIZE: usize = 64;
 
+/// Represents a variable header in the IBT file format.
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct VarHeader {
-    /// Data type of the variable value
-    /// Original type: i32 (4 byte integer)
+    /// Data type of the variable value.
     pub var_type: VarType,
-    /// Offset from start of buffer row
-    /// Original type: i32 (4 byte integer)
+    /// Offset from start of buffer row.
     pub offset: u64,
-    /// Number of samples containing this variable
-    /// In case it is greater than 1, it will be an array
-    /// Therefore the size in bytes of the variable will be Count * varType.byte_size()
-    /// Original type: i32 (4 byte integer)
+    /// Number of samples containing this variable.
     pub count: usize,
-
-    /// 1 byte
+    /// Indicates whether the count should be treated as time.
     pub count_as_time: i8,
-
-    // Raw source contains HERE an 3 bytes padding for 16 bytes alignment
-    /// 32 x 1 bytes
+    /// Name of the variable.
     pub(crate) name: [char; MAX_STRING_BYTES_SIZE],
-    /// 64 x 1 bytes
+    /// Description of the variable.
     pub(crate) description: [char; MAX_DESCRIPTION_BYTES_SIZE],
-    /// Something like "kg/m^2"
-    /// 32 x 1 bytes
+    /// Unit of measurement for the variable.
     pub(crate) unit: [char; MAX_STRING_BYTES_SIZE],
 }
 
 impl VarHeader {
+    /// Returns the name of the variable as a `String`.
     #[must_use]
     pub fn name(&self) -> String {
         self.name
-            .into_iter()
-            .filter(|c| c.ne(&char::from(0)))
+            .iter()
+            .filter(|c| **c != char::from(0))
             .collect::<String>()
     }
 
+    /// Returns the description of the variable as a `String`.
     #[must_use]
     pub fn description(&self) -> String {
         self.description
-            .into_iter()
-            .filter(|c| c.ne(&char::from(0)))
+            .iter()
+            .filter(|c| **c != char::from(0))
             .collect::<String>()
     }
 
+    /// Returns the unit of measurement for the variable as a `String`.
     #[must_use]
     pub fn unit(&self) -> String {
         self.unit
-            .into_iter()
-            .filter(|c| c.ne(&char::from(0)))
+            .iter()
+            .filter(|c| **c != char::from(0))
             .collect::<String>()
     }
 }
@@ -72,7 +70,6 @@ impl TryFrom<&[u8; VAR_HEADER_BYTES_SIZE]> for VarHeader {
             offset: num_from_le!(&bytes, 4, 8, i32, Error, Offset, u64),
             count: num_from_le!(&bytes, 8, 12, i32, Error, Count, usize),
             count_as_time: num_from_le!(&bytes, 12, 13, i8, Error, CountAsTime),
-            // padding here, 16 byte align (3 bytes)
             name: str_from_le!(&bytes, 16, MAX_STRING_BYTES_SIZE, Error, Name),
             description: str_from_le!(&bytes, 48, MAX_DESCRIPTION_BYTES_SIZE, Error, Description),
             unit: str_from_le!(&bytes, 112, MAX_STRING_BYTES_SIZE, Error, Unit),
@@ -88,19 +85,19 @@ impl<ReadSeek> FixedSize<ReadSeek, Error, VAR_HEADER_BYTES_SIZE> for VarHeader w
 /// Errors that can be returned from [`VarHeader::try_from`].
 #[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Disk Header error extracting `var_type_extract`: {0}")]
+    #[error("Error extracting `var_type_extract`: {0}")]
     VarTypeExtract(String),
-    #[error("Disk Header error extracting `offset`: {0}")]
+    #[error("Error extracting `offset`: {0}")]
     Offset(String),
-    #[error("Disk Header error extracting `count`: {0}")]
+    #[error("Error extracting `count`: {0}")]
     Count(String),
-    #[error("Disk Header error extracting `count_as_time`: {0}")]
+    #[error("Error extracting `count_as_time`: {0}")]
     CountAsTime(String),
-    #[error("Disk Header error extracting `name`: {0}")]
+    #[error("Error extracting `name`: {0}")]
     Name(String),
-    #[error("Disk Header error extracting `description`: {0}")]
+    #[error("Error extracting `description`: {0}")]
     Description(String),
-    #[error("Disk Header error extracting `unit`: {0}")]
+    #[error("Error extracting `unit`: {0}")]
     Unit(String),
     #[error("Error trying to load VarHeader from Stream: {0}")]
     FromStream(String),

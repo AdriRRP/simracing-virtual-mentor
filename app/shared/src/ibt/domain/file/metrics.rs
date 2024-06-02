@@ -7,16 +7,19 @@ use crate::ibt::domain::file::var_headers::VarHeaders;
 use std::io::{Read, Seek};
 use std::ops::Deref;
 
+/// Represents a collection of metrics.
 #[derive(PartialEq, Clone, Debug)]
 pub struct Metrics {
     metrics: Vec<Metric>,
 }
 
 impl Metrics {
+    /// Constructs a `Metrics` instance from a reader, given the header information and an optional variable filter.
+    ///
     /// # Errors
     ///
-    /// Will return `Err` if max by tick count `header.var_buffers` can't be retrieved,
-    /// or if `Metric::from_reader` fails
+    /// Returns an error if the maximum by tick count `header.var_buffers` can't be retrieved,
+    /// or if constructing individual metrics using `Metric::from_reader` fails.
     #[allow(clippy::similar_names)]
     pub fn from_reader<ReadSeek: Read + Seek>(
         reader: &mut ReadSeek,
@@ -37,36 +40,7 @@ impl Metrics {
             var_headers.retain(|var_header| var_filter.allow(var_header));
         }
 
-        // TODO: Async parsing
-        //let metrics_tasks: Vec<JoinHandle<Result<Metric, from_reader::Error>>> = var_headers
-        //    .iter()
-        //    .map(|var_header| {
-        //        // Pick the buffer with the highest tick_count
-        //        let current_buffer = header
-        //            .var_buffers
-        //            .iter()
-        //            .max_by_key(|b| b.tick_count)
-        //            .ok_or_else(|| {
-        //                from_reader::Error::Reading(
-        //                    "Can't get the buffer with the highest tick_count".to_string(),
-        //                )
-        //            });
-        //        task::spawn(async move {
-        //            let current_buffer = current_buffer?;
-        //            Metric::from_reader(reader, var_header, current_buffer.offset, var_block_size)
-        //        })
-        //    })
-        //    .collect();
-        //let results = join_all(metrics_tasks).await;
-        //let results: Result<Vec<Metric>, from_reader::Error> = results
-        //    .into_iter()
-        //    .map(|result| result.map_err(|e| from_reader::Error::Reading(format!("{e}")))?)
-        //    .collect();
-        //
-        //results.map(|metrics| Self { metrics })
-
-        // Result implements FromIterator, so you can move the Result outside and iterators will
-        // take care of the rest (including stopping iteration if an error is found).
+        // Collect metrics from var headers
         let metrics_result: Result<Vec<Metric>, from_reader::Error> = var_headers
             .iter()
             .map(|var_header| {

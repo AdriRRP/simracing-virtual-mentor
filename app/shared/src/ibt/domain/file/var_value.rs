@@ -6,16 +6,21 @@ use crate::ibt::domain::file::var_value::primitive::Primitive;
 
 use std::io::{Read, Seek, SeekFrom};
 
+/// Represents a value associated with a variable in the IBT file format.
 #[derive(PartialEq, Debug, Clone)]
 pub enum VarValue {
+    /// Single value.
     Single(Primitive),
+    /// Array of values.
     Array(Vec<Primitive>),
 }
 
 impl VarValue {
+    /// Tries to read the next variable value from the provided reader.
+    ///
     /// # Errors
     ///
-    /// Will return `Err` if `reader` can't seek or read exact, or if `Primitive::try_from` fails
+    /// Returns an error if the reader cannot seek or read exact, or if `Primitive::try_from` fails.
     pub fn try_read_next<ReadSeek: Read + Seek>(
         reader: &mut ReadSeek,
         var_type: &VarType,

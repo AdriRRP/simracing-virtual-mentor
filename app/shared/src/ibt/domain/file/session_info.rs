@@ -18,6 +18,7 @@ use crate::ibt::domain::file::session_info::weekend_info::WeekendInfo;
 use serde::{Deserialize, Serialize};
 use std::io::{Read, Seek};
 
+/// Represents session information including weekend, session, camera, radio, driver, split time, and car setup details.
 #[derive(PartialEq, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct SessionInfo {
@@ -33,11 +34,16 @@ pub struct SessionInfo {
 impl TryFrom<&Vec<u8>> for SessionInfo {
     type Error = Error;
 
+    /// Tries to convert a vector of bytes into a `SessionInfo` struct.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if parsing YAML from the byte vector fails.
     fn try_from(value: &Vec<u8>) -> Result<Self, Self::Error> {
         // Fix session info to String replacing invalid utf-8 characters with �
         let session_info_str = String::from_utf8_lossy(value);
 
-        // Parse str with yaml
+        // Parse string with YAML
         serde_yaml::from_str(session_info_str.as_ref())
             .map_err(|e| Error::ParseYaml(format!("{e}")))
     }

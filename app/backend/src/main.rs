@@ -24,6 +24,7 @@ use axum::Router;
 use std::sync::Arc;
 use tokio::io;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tower_http::cors::CorsLayer;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -76,7 +77,7 @@ async fn main() -> io::Result<()> {
         )
         .route(
             "/find",
-            get(find_file_by_criteria)
+            post(find_file_by_criteria)
                 .with_state(Arc::clone(&app_assembler.file.by_criteria_finder)),
         );
 
@@ -91,7 +92,7 @@ async fn main() -> io::Result<()> {
         )
         .route(
             "/find",
-            get(find_lap_by_criteria).with_state(Arc::clone(&app_assembler.lap.by_criteria_finder)),
+            post(find_lap_by_criteria).with_state(Arc::clone(&app_assembler.lap.by_criteria_finder)),
         )
         .route(
             "/find/header/:id",
@@ -100,7 +101,7 @@ async fn main() -> io::Result<()> {
         )
         .route(
             "/find/header",
-            get(find_lap_headers_by_criteria)
+            post(find_lap_headers_by_criteria)
                 .with_state(Arc::clone(&app_assembler.lap.by_criteria_header_finder)),
         );
 
@@ -116,7 +117,8 @@ async fn main() -> io::Result<()> {
         .nest("/file", file_routes)
         .nest("/lap", lap_routes)
         .nest("/ibt_extractor", ibt_extractor_routes)
-        .layer(DefaultBodyLimit::disable());
+        .layer(DefaultBodyLimit::disable())
+        .layer(CorsLayer::permissive());
 
     let listener =
         tokio::net::TcpListener::bind(format!("{}:{}", settings.server.host, settings.server.port))

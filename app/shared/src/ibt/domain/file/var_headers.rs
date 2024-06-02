@@ -6,27 +6,29 @@ use crate::ibt::domain::file::var_header::{VarHeader, VAR_HEADER_BYTES_SIZE};
 use std::io::{Read, Seek};
 use std::ops::{Deref, DerefMut};
 
+/// Represents a collection of variable headers in the IBT file format.
 #[derive(PartialEq, Eq, Debug)]
 pub struct VarHeaders {
     var_headers: Vec<VarHeader>,
 }
 
 impl VarHeaders {
+    /// Creates a new instance of `VarHeaders` by reading variable headers from the provided reader.
+    ///
     /// # Errors
     ///
-    /// Will return `Err` if `VarHeader::from_reader` fails
-    #[allow(clippy::similar_names)]
+    /// Will return `Err` if `VarHeader::from_reader` fails.
     pub fn from_reader(reader: &mut (impl Read + Seek), header: &Header) -> Result<Self, Error> {
-        // Result implements FromIterator, so you can move the Result outside and iterators will
-        // take care of the rest (including stopping iteration if an error is found).
+        // Collect var headers using `VarHeader::from_reader`
         let var_headers_result: Result<Vec<VarHeader>, Error> = (0..header.num_vars)
-            .map(|i| -> Result<VarHeader, Error> {
+            .map(|i| {
                 let current_offset: u64 =
                     header.var_header_offset + ((i * VAR_HEADER_BYTES_SIZE) as u64);
                 VarHeader::from_reader(reader, current_offset)
             })
             .collect();
 
+        // Map the result to a `VarHeaders` instance
         var_headers_result.map(|var_headers| Self { var_headers })
     }
 }

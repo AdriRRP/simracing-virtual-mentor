@@ -1,19 +1,22 @@
 use crate::ibt::domain::file::from_reader::FixedSize;
 use crate::ibt::domain::file::macros::num_from_le;
-
 use std::io::{Read, Seek};
 
+/// The size of the disk header in bytes.
 pub const DISK_HEADER_BYTES_SIZE: usize = 32;
 
+/// Represents the disk header of an IBT file.
 #[derive(PartialEq, Debug)]
 pub struct DiskHeader {
-    /// Original type: i64 (8 byte integer)
-    pub start_date: u64, // Unix Time
+    /// The start date of the recording in Unix time.
+    pub start_date: u64,
+    /// The start time of the recording.
     pub start_time: f64,
+    /// The end time of the recording.
     pub end_time: f64,
-    /// Original type: i32 (4 byte integer)
+    /// The number of laps recorded.
     pub lap_count: u32,
-    /// Original type: i32 (4 byte integer)
+    /// The total number of records in the file.
     pub record_count: u32,
 }
 
@@ -36,7 +39,7 @@ impl TryFrom<&[u8; DISK_HEADER_BYTES_SIZE]> for DiskHeader {
     }
 }
 
-/// Errors that can be returned from [`DiskHeader::try_from`].
+/// Errors that can occur while parsing the disk header.
 #[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Disk Header error extracting `start_date`: {0}")]

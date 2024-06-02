@@ -5,16 +5,21 @@ use crate::ibt::domain::file::var_value::VarValue;
 use std::io::{Read, Seek};
 use std::ops::Deref;
 
+/// Represents a metric composed of variable values.
 #[derive(PartialEq, Clone, Debug)]
 pub struct Metric {
+    /// Header information for the metric.
     pub var_header: VarHeader,
+    /// Variable values contained in the metric.
     pub var_values: Vec<VarValue>,
 }
 
 impl Metric {
+    /// Constructs a `Metric` instance from a reader, given the header information and offsets.
+    ///
     /// # Errors
     ///
-    /// Will return `Err` if `VarValue::try_read_next` fails
+    /// Returns an error if reading or parsing the variable values fails.
     pub fn from_reader<ReadSeek: Read + Seek>(
         reader: &mut ReadSeek,
         var_header: &VarHeader,

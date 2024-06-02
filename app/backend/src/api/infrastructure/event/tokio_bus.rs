@@ -1,5 +1,5 @@
-use crate::common::domain::event::bus::Bus;
-use crate::common::domain::event::Event;
+use symracing_virtual_mentor_shared::common::domain::event::bus::Bus;
+use symracing_virtual_mentor_shared::common::domain::event::Event;
 
 use async_trait::async_trait;
 use std::collections::{hash_map, HashMap};

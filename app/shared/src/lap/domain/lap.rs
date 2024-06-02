@@ -1,5 +1,10 @@
+/// Module for lap headers.
 pub mod header;
+
+/// Module for lap headers (plural form).
 pub mod headers;
+
+/// Module for lap metrics.
 pub mod metrics;
 
 use crate::lap::domain::lap::header::Header;
@@ -9,17 +14,37 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+/// Represents a lap with associated header and metrics.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Lap {
+    /// Header information for the lap.
     pub header: Header,
+
+    /// Metrics data for the lap.
     pub metrics: Metrics,
 }
 
 impl Lap {
+    /// Constructs a new Lap instance.
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - Unique identifier for the lap.
+    /// * `file_id` - Identifier of the file associated with the lap.
+    /// * `number` - Lap number.
+    /// * `driver` - Name of the driver.
+    /// * `category` - Category of the race (e.g., GT, Formula 1).
+    /// * `car` - Name or model of the car.
+    /// * `circuit` - Name of the circuit where the lap was performed.
+    /// * `date` - Date and time when the lap was performed (in UTC).
+    /// * `metrics` - Metrics data associated with the lap.
+    ///
+    /// # Returns
+    ///
+    /// A new `Lap` instance.
     #[allow(clippy::too_many_arguments)]
     #[must_use]
     pub fn new(
-        // TODO: this function has too many arguments (9/7)
         id: Uuid,
         file_id: String,
         number: u16,

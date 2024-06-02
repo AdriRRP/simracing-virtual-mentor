@@ -2,16 +2,14 @@ use shared::lap::domain::lap::header::Header;
 use shared::lap::domain::lap::headers::Headers;
 use shared::lap::domain::lap::Lap;
 use shared::lap::domain::laps::Laps;
-use shared::lap::domain::repository::Repository;
 
 use crate::infrastructure::settings::Settings;
 
-use async_trait::async_trait;
-use reqwest::Client;
+use gloo_net::http::Request;
+use log::info;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Http {
-    pub(crate) client: Client,
     pub(crate) delete: String,
     pub(crate) find_by_id: String,
     pub(crate) find_by_criteria: String,
@@ -23,7 +21,6 @@ impl Http {
     #[must_use]
     pub fn new(settings: &Settings) -> Self {
         Self {
-            client: Client::new(),
             delete: format!(
                 "{}{}",
                 settings.endpoints.lap.server, settings.endpoints.lap.delete
@@ -46,40 +43,29 @@ impl Http {
             ),
         }
     }
-}
 
-#[async_trait]
-impl Repository for Http {
-    async fn create(&self, _laps: Laps) {
-        unimplemented!()
-    }
-
-    async fn delete(&self, id: &uuid::Uuid) -> Result<(), String> {
+    pub(crate) async fn delete(&self, id: &uuid::Uuid) -> Result<(), String> {
         let endpoint = format!("{}/{id}", self.delete);
-        let response = &self
-            .client
-            .delete(endpoint)
+        let response = &Request::delete(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             Ok(())
         } else {
             Err(response.status().to_string())
         }
     }
 
-    async fn find_by_id(&self, id: &uuid::Uuid) -> Result<Option<Lap>, String> {
+    pub(crate) async fn find_by_id(&self, id: &uuid::Uuid) -> Result<Option<Lap>, String> {
         let endpoint = format!("{}/{id}", self.find_by_id);
-        let response = self
-            .client
-            .get(endpoint)
+        let response = Request::get(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             let lap: Lap = response.json().await.map_err(|e| format!("{e}"))?;
             Ok(Some(lap))
         } else {
@@ -87,16 +73,15 @@ impl Repository for Http {
         }
     }
 
-    async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Laps>, String> {
-        let response = self
-            .client
-            .get(&self.find_by_criteria)
+    pub(crate) async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Laps>, String> {
+        let response = Request::post(&self.find_by_criteria)
             .json(criteria)
+            .map_err(|e| format!("{e}"))?
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             let laps: Laps = response.json().await.map_err(|e| format!("{e}"))?;
             if laps.is_empty() {
                 Ok(None)
@@ -108,16 +93,17 @@ impl Repository for Http {
         }
     }
 
-    async fn find_header_by_id(&self, id: &uuid::Uuid) -> Result<Option<Header>, String> {
+    pub(crate) async fn find_header_by_id(
+        &self,
+        id: &uuid::Uuid,
+    ) -> Result<Option<Header>, String> {
         let endpoint = format!("{}/{id}", self.find_header_by_id);
-        let response = self
-            .client
-            .get(endpoint)
+        let response = Request::get(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        if response.ok() {
             let header: Header = response.json().await.map_err(|e| format!("{e}"))?;
             Ok(Some(header))
         } else {
@@ -125,16 +111,23 @@ impl Repository for Http {
         }
     }
 
-    async fn find_header_by_criteria(&self, criteria: &str) -> Result<Option<Headers>, String> {
-        let response = self
-            .client
-            .get(&self.find_header_by_criteria)
-            .json(criteria)
+    pub(crate) async fn find_header_by_criteria(
+        &self,
+        criteria: &str,
+    ) -> Result<Option<Headers>, String> {
+        let response = Request::post(&self.find_header_by_criteria)
+            //.json(criteria)
+            //.map_err(|e| format!("{e}"))?
             .send()
-            .await
-            .map_err(|e| format!("{e}"))?;
+            .await;
+        info!("{:?}", response);
+        let response = response.map_err(|e| format!("{e}"))?;
 
-        if response.status().is_success() {
+        info!("{:?}", response);
+
+        info!("{:?}", &self.find_header_by_criteria);
+
+        if response.ok() {
             let headers: Headers = response.json().await.map_err(|e| format!("{e}"))?;
             if headers.is_empty() {
                 Ok(None)

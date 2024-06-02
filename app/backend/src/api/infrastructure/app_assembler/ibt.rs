@@ -1,6 +1,6 @@
+use crate::api::infrastructure::event::tokio_bus::TokioBus;
 use crate::ibt_extractor::application::extract::service::Extractor as IbtExtractor;
 
-use shared::common::infrastructure::event::tokio_bus::TokioBus;
 use shared::file::application::create::service::Creator as FileCreator;
 use shared::file::infrastructure::repository::in_memory::InMemory as InMemoryFileRepository;
 use shared::lap::application::create::service::Creator as LapCreator;

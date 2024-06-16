@@ -1,17 +1,17 @@
 use crate::infrastructure::settings::Settings;
+use reqwest::Client;
 
 use shared::analysis::domain::analyses::Analyses;
 use shared::analysis::domain::analysis::Analysis;
 
-use gloo_net::http::Request;
 use uuid::Uuid;
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Http {
-    pub(crate) create: String,
-    pub(crate) delete: String,
-    pub(crate) find_by_id: String,
-    pub(crate) find_by_criteria: String,
+    pub create: String,
+    pub delete: String,
+    pub find_by_id: String,
+    pub find_by_criteria: String,
 }
 
 impl Http {
@@ -39,43 +39,45 @@ impl Http {
 }
 
 impl Http {
-    pub(crate) async fn create(&self, analysis: Analysis) -> Result<(), String> {
-        let response = Request::put(&self.create)
+    pub async fn create(&self, analysis: Analysis) -> Result<(), String> {
+        let response = Client::new()
+            .put(&self.create)
             .json(&analysis)
-            .map_err(|e| format!("{e}"))?
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.ok() {
+        if response.status().is_success() {
             Ok(())
         } else {
             Err(response.status().to_string())
         }
     }
 
-    pub(crate) async fn delete(&self, id: &Uuid) -> Result<(), String> {
+    pub async fn delete(&self, id: &Uuid) -> Result<(), String> {
         let endpoint = format!("{}/{id}", self.delete);
-        let response = Request::delete(&endpoint)
+        let response = Client::new()
+            .delete(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.ok() {
+        if response.status().is_success() {
             Ok(())
         } else {
             Err(response.status().to_string())
         }
     }
 
-    pub(crate) async fn find_by_id(&self, id: &Uuid) -> Result<Option<Analysis>, String> {
+    pub async fn find_by_id(&self, id: &Uuid) -> Result<Option<Analysis>, String> {
         let endpoint = format!("{}/{id}", self.find_by_id);
-        let response = Request::get(&endpoint)
+        let response = Client::new()
+            .get(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.ok() {
+        if response.status().is_success() {
             let analysis: Analysis = response.json().await.map_err(|e| format!("{e}"))?;
             Ok(Some(analysis))
         } else if response.status() == 404 {
@@ -85,18 +87,15 @@ impl Http {
         }
     }
 
-    pub(crate) async fn find_by_criteria(
-        &self,
-        criteria: &str,
-    ) -> Result<Option<Analyses>, String> {
-        let response = Request::post(&self.find_by_criteria)
+    pub async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Analyses>, String> {
+        let response = Client::new()
+            .post(&self.find_by_criteria)
             .json(criteria)
-            .map_err(|e| format!("{e}"))?
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.ok() {
+        if response.status().is_success() {
             let analyses: Analyses = response.json().await.map_err(|e| format!("{e}"))?;
             if analyses.is_empty() {
                 Ok(None)

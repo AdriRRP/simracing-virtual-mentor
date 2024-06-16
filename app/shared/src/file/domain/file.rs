@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents a file.
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct File {
     /// The SHA256 hash of the source bytes.
     pub id: String,

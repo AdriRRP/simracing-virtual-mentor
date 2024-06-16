@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 
 /// Represents a collection of lap headers.
-#[derive(Serialize, Deserialize, Default, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, Default, PartialEq, Clone, Debug)]
 pub struct Headers {
     /// The vector containing lap headers.
     headers: Vec<Header>,

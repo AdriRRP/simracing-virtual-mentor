@@ -75,8 +75,8 @@ impl Default for Settings {
                     find_header_by_criteria: "/lap/find/header".to_string(),
                 },
                 ibt_extractor: IbtExtractor {
-                    server: "".to_string(),
-                    upload: "".to_string(),
+                    server: "http://127.0.0.1:16666".to_string(),
+                    upload: "/ibt_extractor/upload".to_string(),
                 },
             },
         }

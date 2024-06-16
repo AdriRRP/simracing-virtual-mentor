@@ -1,15 +1,15 @@
+use crate::infrastructure::settings::Settings;
+
 use shared::file::domain::file::File;
 use shared::file::domain::files::Files;
 
-use crate::infrastructure::settings::Settings;
+use reqwest::Client;
 
-use gloo_net::http::Request;
-
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Http {
-    pub(crate) delete: String,
-    pub(crate) find_by_id: String,
-    pub(crate) find_by_criteria: String,
+    pub delete: String,
+    pub find_by_id: String,
+    pub find_by_criteria: String,
 }
 
 impl Http {
@@ -33,28 +33,30 @@ impl Http {
 }
 
 impl Http {
-    pub(crate) async fn delete(&self, id: &str) -> Result<(), String> {
+    pub async fn delete(&self, id: &str) -> Result<(), String> {
         let endpoint = format!("{}/{id}", self.delete);
-        let response = Request::delete(&endpoint)
+        let response = Client::new()
+            .delete(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.ok() {
+        if response.status().is_success() {
             Ok(())
         } else {
             Err(response.status().to_string())
         }
     }
 
-    pub(crate) async fn find_by_id(&self, id: &str) -> Result<Option<File>, String> {
+    pub async fn find_by_id(&self, id: &str) -> Result<Option<File>, String> {
         let endpoint = format!("{}/{id}", self.find_by_id);
-        let response = Request::get(&endpoint)
+        let response = Client::new()
+            .get(&endpoint)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.ok() {
+        if response.status().is_success() {
             let file: File = response.json().await.map_err(|e| format!("{e}"))?;
             Ok(Some(file))
         } else if response.status() == 404 {
@@ -64,21 +66,23 @@ impl Http {
         }
     }
 
-    pub(crate) async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Files>, String> {
-        let response = Request::post(&self.find_by_criteria)
+    pub async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Files>, String> {
+        let response = Client::new()
+            .post(&self.find_by_criteria)
             .json(criteria)
-            .map_err(|e| format!("{e}"))?
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
-        if response.ok() {
+        if response.status().is_success() {
             let files: Files = response.json().await.map_err(|e| format!("{e}"))?;
             if files.is_empty() {
                 Ok(None)
             } else {
                 Ok(Some(files))
             }
+        } else if response.status().as_u16() == 404 {
+            Ok(None)
         } else {
             Err(response.status().to_string())
         }

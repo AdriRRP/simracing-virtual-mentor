@@ -4,7 +4,7 @@ use std::iter::FromIterator;
 use std::ops::Deref;
 
 /// Represents a collection of laps.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Default, Clone, Debug)]
 pub struct Laps {
     laps: Vec<Lap>,
 }

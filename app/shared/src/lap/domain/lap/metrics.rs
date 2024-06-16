@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents a collection of telemetry metrics.
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Default, Clone, Debug)]
 pub struct Metrics {
     /// Speed measurements obtained from GPS (m/s).
     pub speed: Vec<f32>, // X

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 
 /// Represents a collection of files.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Default, PartialEq, Clone, Debug)]
 pub struct Files {
     /// The files in the collection.
     files: Vec<File>,

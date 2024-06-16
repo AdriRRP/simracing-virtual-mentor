@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use crate::lap::domain::lap::header::Header;
 use crate::lap::domain::lap::headers::Headers;
 use crate::lap::domain::lap::Lap;
@@ -28,7 +29,7 @@ impl Repository for InMemory {
     /// Asynchronously creates laps in memory.
     async fn create(&self, laps: Laps) -> Result<(), String> {
         let mut laps_guard = self.laps.lock().map_err(|e| format!("{e}"))?;
-        laps_guard.extend(laps.clone());
+        laps_guard.extend(laps.deref().clone());
         drop(laps_guard);
         Ok(())
     }
@@ -72,7 +73,7 @@ impl Repository for InMemory {
     /// Asynchronously finds headers of laps by criteria.
     async fn find_header_by_criteria(&self, criteria: &str) -> Result<Option<Headers>, String> {
         self.find_by_criteria(criteria).await.map(|opt_laps| {
-            opt_laps.map(|laps| laps.clone().into_iter().map(|lap| lap.header).collect())
+            opt_laps.map(|laps| laps.deref().into_iter().map(|lap| lap.header.clone()).collect())
         })
     }
 }

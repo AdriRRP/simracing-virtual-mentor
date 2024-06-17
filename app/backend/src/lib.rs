@@ -3,6 +3,7 @@ pub mod api {
     pub mod infrastructure {
         pub mod app_assembler;
         pub mod controller {
+            pub mod analysis;
             pub mod file;
             pub mod ibt_extractor;
             pub mod lap;

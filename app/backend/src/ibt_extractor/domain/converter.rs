@@ -141,7 +141,7 @@ fn group_metrics_by_lap(metrics: &IbtMetrics) -> HashMap<u16, Metrics> {
     let throttle: Vec<f32> = extract_values!(metrics, "Throttle", Float);
     let brake: Vec<f32> = extract_values!(metrics, "Brake", Float);
     let clutch: Vec<f32> = extract_values!(metrics, "Clutch", Float);
-    let gear: Vec<u8> = extract_values!(metrics, "Gear", Int, u8);
+    let gear: Vec<i8> = extract_values!(metrics, "Gear", Int, i8);
     let rpm: Vec<f32> = extract_values!(metrics, "RPM", Float);
     let distance: Vec<f32> = extract_values!(metrics, "LapDist", Float);
     let distance_pct: Vec<f32> = extract_values!(metrics, "LapDistPct", Float);

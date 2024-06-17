@@ -11,6 +11,7 @@ use crate::api::infrastructure::event::tokio_bus::TokioBus;
 use std::sync::Arc;
 
 pub struct Assembler {
+    pub repository: Arc<InMemoryLapRepository>,
     pub creator: Arc<LapCreator<InMemoryLapRepository>>,
     pub by_id_finder: Arc<ByIdLapFinder<InMemoryLapRepository>>,
     pub by_criteria_finder: Arc<ByCriteriaLapFinder<InMemoryLapRepository>>,
@@ -31,6 +32,7 @@ impl Assembler {
             Arc::new(ByCriteriaLapHeaderFinder::new(Arc::clone(&repository)));
         let deleter = Arc::new(LapDeleter::new(Arc::clone(&repository)));
         Self {
+            repository,
             creator,
             by_id_finder,
             by_criteria_finder,

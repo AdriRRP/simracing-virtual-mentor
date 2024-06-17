@@ -1,18 +1,19 @@
+use shared::analysis::domain::analysis::Analysis;
+
 use log::info;
 use plotly::color::{Color, NamedColor, Rgb};
 use plotly::common::{AxisSide, DashType, Font, HoverInfo, Label, Line, Mode, Reference, Title};
 use plotly::layout::{Axis, HoverMode};
 use plotly::{Layout, Plot, Scatter};
-use shared::lap::domain::laps::Laps;
+use shared::lap::domain::lap::metrics::Metrics;
 
-pub fn create_plot(laps: Laps) -> Plot {
+pub fn create_plot(analysis: Analysis) -> Plot {
     info!("Entering create_plot()");
-    info!("Number of laps: {}", laps.len());
 
     let mut colors = vec![
-        NamedColor::Orange,
         NamedColor::Red,
         NamedColor::Green,
+        NamedColor::Orange,
         NamedColor::Olive,
         NamedColor::Lime,
         NamedColor::Aqua,
@@ -39,55 +40,28 @@ pub fn create_plot(laps: Laps) -> Plot {
 
     let mut current_color = NamedColor::Red;
 
-    laps.iter().for_each(|lap| {
-        let lap_name = format!("{} [{}]", lap.header.driver.clone(), lap.header.number);
+    colors.next().iter().for_each(|c| current_color = c.clone());
+    let ref_name = format!("{} [{}]", analysis.ref_lap_driver, analysis.ref_lap_number);
+    add_trace(&mut plot, ref_name, current_color, analysis.ref_lap_metrics.clone());
 
-        colors.next().iter().for_each(|c| current_color = c.clone());
+    colors.next().iter().for_each(|c| current_color = c.clone());
+    let target_name = format!("{} [{}]", analysis.target_lap_driver, analysis.target_lap_number);
+    add_trace(&mut plot, target_name, current_color, analysis.target_lap_metrics.clone());
 
-        add_speed_trace(
-            &mut plot,
-            &lap_name,
-            lap.metrics.speed.clone(),
-            lap.metrics.distance.clone(),
-            current_color,
-        );
-        add_throttle_trace(
-            &mut plot,
-            &lap_name,
-            lap.metrics.throttle.clone(),
-            lap.metrics.distance.clone(),
-            current_color,
-        );
-        add_brake_trace(
-            &mut plot,
-            &lap_name,
-            lap.metrics.brake.clone(),
-            lap.metrics.distance.clone(),
-            current_color,
-        );
-        add_gear_trace(
-            &mut plot,
-            &lap_name,
-            lap.metrics.gear.clone(),
-            lap.metrics.distance.clone(),
-            current_color,
-        );
-        add_swa_trace(
-            &mut plot,
-            &lap_name,
-            lap.metrics.steering_wheel_angle.clone(),
-            lap.metrics.distance.clone(),
-            current_color,
-        );
-        add_map_trace(
-            &mut plot,
-            &lap_name,
-            lap.metrics.latitude.clone(),
-            lap.metrics.longitude.clone(),
-            lap.metrics.distance.clone(),
-            current_color,
-        )
-    });
+    current_color = NamedColor::Cyan;
+    let name = "difference".to_string();
+    add_diff_speed_trace(&mut plot, &name, analysis.difference_metrics.speed, analysis.union_distance.clone(), current_color);
+    add_diff_throttle_trace(&mut plot, &name, analysis.difference_metrics.throttle, analysis.union_distance.clone(), current_color);
+
+    add_map_trace(
+        &mut plot,
+        &name,
+        analysis.ref_lap_metrics.latitude.clone(),
+        analysis.ref_lap_metrics.longitude.clone(),
+        analysis.union_distance,
+        NamedColor::Gray,
+    );
+
 
     let x_base = Axis::new()
         .show_spikes(true)
@@ -234,6 +208,19 @@ pub fn create_plot(laps: Laps) -> Plot {
                 .show_spikes(false)
                 .show_grid(false),
         )
+        // TODO:  Esto son las diferencias
+        .y_axis7(
+            y_base
+                .clone()
+                .anchor("x")
+                .domain(&[0.8, 1.])
+                .tick_suffix(" km/h")
+                .side(AxisSide::Left),
+        )
+        .y_axis8(
+            y_base.clone().anchor("x2").domain(&[0.6, 0.75]).side(AxisSide::Left), //
+        )
+        // TODO: Hasta aquí
         .height(1280)
         .width(1520);
     plot.set_layout(layout);
@@ -259,6 +246,24 @@ fn add_speed_trace(
     );
 }
 
+fn add_diff_speed_trace(
+    plot: &mut Plot,
+    lap_name: &str,
+    speed: Vec<f32>,
+    distance: Vec<f32>,
+    color: impl Color,
+) {
+    plot.add_trace(
+        Scatter::new(distance, speed)
+            .name(lap_name)
+            .line(Line::new().width(1.0).color(color))
+            .y_axis("y7")
+            .web_gl_mode(true)
+            .show_legend(false)
+            .hover_template("%{y:.0f} km/h"),
+    );
+}
+
 fn add_throttle_trace(
     plot: &mut Plot,
     lap_name: &str,
@@ -273,6 +278,26 @@ fn add_throttle_trace(
             .line(Line::new().width(1.0).color(color))
             .x_axis("x2")
             .y_axis("y2")
+            .web_gl_mode(true)
+            .show_legend(false)
+            .hover_template("Throttle %{customdata:.1f}%"),
+    );
+}
+
+fn add_diff_throttle_trace(
+    plot: &mut Plot,
+    lap_name: &str,
+    throttle: Vec<f32>,
+    distance: Vec<f32>,
+    color: impl Color,
+) {
+    plot.add_trace(
+        Scatter::new(distance, throttle.clone())
+            .name(lap_name)
+            .custom_data(throttle.iter().map(|t| *t * 100.).collect())
+            .line(Line::new().width(1.0).color(color))
+            .x_axis("x2")
+            .y_axis("y8")
             .web_gl_mode(true)
             .show_legend(false)
             .hover_template("Throttle %{customdata:.1f}%"),
@@ -300,7 +325,7 @@ fn add_brake_trace(
 fn add_gear_trace(
     plot: &mut Plot,
     lap_name: &str,
-    gear: Vec<u8>,
+    gear: Vec<i8>,
     distance: Vec<f32>,
     color: impl Color,
 ) {
@@ -355,4 +380,51 @@ fn add_map_trace(
             //.hover_template("%{customdata:.0f}m ")
             .mode(Mode::LinesMarkers),
     );
+}
+
+fn add_trace(plot: &mut Plot, name: String, current_color: NamedColor, metrics: Metrics) {
+
+    add_speed_trace(
+        plot,
+        &name,
+        metrics.speed.clone(),
+        metrics.distance.clone(),
+        current_color,
+    );
+    add_throttle_trace(
+        plot,
+        &name,
+        metrics.throttle.clone(),
+        metrics.distance.clone(),
+        current_color,
+    );
+    add_brake_trace(
+        plot,
+        &name,
+        metrics.brake.clone(),
+        metrics.distance.clone(),
+        current_color,
+    );
+    add_gear_trace(
+        plot,
+        &name,
+        metrics.gear.clone(),
+        metrics.distance.clone(),
+        current_color,
+    );
+    add_swa_trace(
+        plot,
+        &name,
+        metrics.steering_wheel_angle.clone(),
+        metrics.distance.clone(),
+        current_color,
+    );
+    //add_map_trace(
+    //    plot,
+    //    &name,
+    //    metrics.latitude.clone(),
+    //    metrics.longitude.clone(),
+    //    metrics.distance.clone(),
+    //    current_color,
+    //)
 }

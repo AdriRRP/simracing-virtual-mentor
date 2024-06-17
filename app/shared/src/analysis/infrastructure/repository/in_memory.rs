@@ -73,6 +73,10 @@ impl Repository for InMemory {
     ///
     /// Returns an error if the analysis retrieval fails.
     async fn find_by_criteria(&self, _criteria: &str) -> Result<Option<Analyses>, String> {
-        todo!("Implement find_by_criteria")
+        let analyses_guard = self.analyses.lock().map_err(|e| format!("{e}"))?;
+        let analyses: Analyses = analyses_guard.clone().into();
+        drop(analyses_guard);
+        let opt_analyses: Option<Analyses> = if analyses.len() == 0 { None } else { Some(analyses) };
+        Ok(opt_analyses)
     }
 }

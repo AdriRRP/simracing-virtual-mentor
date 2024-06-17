@@ -1,8 +1,7 @@
-use crate::analysis::domain::analysis::Analysis;
+use crate::analysis::domain::analyses::Analyses;
 use crate::analysis::domain::repository::Repository;
 
 use std::sync::Arc;
-use uuid::Uuid;
 
 /// A struct responsible for finding data asynchronously.
 pub struct Finder<R: Repository> {
@@ -23,17 +22,17 @@ impl<R: Repository> Finder<R> {
         Self { repository }
     }
 
-    /// Asynchronously finds data by ID using the repository.
+    /// Asynchronously finds data based on the provided criteria using the repository.
     ///
     /// # Parameters
     ///
-    /// - `id`: The identifier of the data to be found.
+    /// - `criteria`: The criteria used for finding the data.
     ///
     /// # Errors
     ///
     /// Returns an `Err` if the underlying repository fails during the find operation.
-    pub async fn find(&self, id: Uuid) -> Result<Option<Analysis>, String> {
-        self.repository.find_by_id(&id).await
+    pub async fn find(&self, criteria: &str) -> Result<Option<Analyses>, String> {
+        self.repository.find_by_criteria(criteria).await
         // Send domain events
     }
 }

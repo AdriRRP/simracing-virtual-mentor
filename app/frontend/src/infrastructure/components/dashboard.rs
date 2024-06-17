@@ -1,9 +1,9 @@
 mod hook;
 mod plot;
 
-use crate::infrastructure::components::dashboard::hook::{use_laps, use_plotly_draw};
+use crate::infrastructure::components::dashboard::hook::{use_analyses, use_plotly_draw};
 use crate::infrastructure::components::dashboard::plot::create_plot;
-use crate::infrastructure::repository::lap::http::Http as LapHttpRepository;
+use crate::infrastructure::repository::analysis::http::Http as AnalysisHttpRepository;
 use crate::infrastructure::settings::Settings;
 use std::ops::{Deref, Div};
 use std::rc::Rc;
@@ -33,6 +33,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::js_sys::Object;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{EventTarget, HtmlElement, MouseEvent};
+use shared::analysis::domain::analysis::Analysis;
 
 // components/fx
 
@@ -51,13 +52,13 @@ extern "C" {
 #[derive(Properties, Clone, PartialEq)]
 pub struct Props {
     #[prop_or(None)]
-    pub laps: Option<Laps>,
+    pub analysis: Option<Analysis>,
 }
 
 #[derive(Properties, Clone, PartialEq)]
 pub struct PlotlyDrawerProps {
     #[prop_or(None)]
-    pub laps: Option<Laps>,
+    pub analysis: Option<Analysis>,
 }
 
 pub struct PlotlyDrawer {
@@ -95,15 +96,15 @@ impl Component for PlotlyDrawer {
     fn view(&self, ctx: &Context<Self>) -> Html {
         info!("Entering PlotlyDrawer");
 
-        let laps = ctx.props().laps.clone();
+        let analysis = ctx.props().analysis.clone();
         let div_id = "plotly_dashboard".to_string();
 
-        let Some(laps) = laps else {
-            return html! {<div>{"Oooops! No Laps found..."}</div>};
+        let Some(analysis) = analysis else {
+            return html! {<div>{"Oooops! No Analysis found..."}</div>};
         };
 
         ctx.link().send_future({
-            let plot = create_plot(laps.clone());
+            let plot = create_plot(analysis.clone());
             let div_id = div_id.clone();
             async move {
                 info!("Starting plotly binding");
@@ -134,13 +135,13 @@ impl Component for PlotlyDrawer {
 }
 
 #[function_component(PlotlyLoader)]
-pub fn plotly_loader(Props { laps }: &Props) -> Html {
+pub fn plotly_loader(Props { analysis }: &Props) -> Html {
     info!("Entering PlotlyLoader");
     let fallback = html! {<div>{"Drawing dashboard..."}</div>};
 
     html! {
         <Suspense {fallback}>
-            <PlotlyDrawer laps={laps.clone()}/>
+            <PlotlyDrawer analysis={analysis.clone()}/>
         </Suspense>
     }
 }
@@ -150,11 +151,11 @@ pub fn dashboard_data_fetcher() -> HtmlResult {
     info!("Entering DashboardDataFetcher");
 
     let settings = Settings::default();
-    let lap_repo = LapHttpRepository::new(&settings);
+    let analysis_repo = AnalysisHttpRepository::new(&settings);
 
-    let laps = use_laps("", lap_repo)?;
+    let analysis = use_analyses("", analysis_repo)?;
 
-    Ok(html! { <PlotlyDrawer laps={laps.clone()} /> })
+    Ok(html! { <PlotlyDrawer analysis={analysis.clone()} /> })
 }
 
 #[function_component(Dashboard)]

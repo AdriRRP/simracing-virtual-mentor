@@ -1,5 +1,6 @@
-use crate::infrastructure::repository::lap::http::Http as LapsHttpRepository;
+use crate::infrastructure::repository::analysis::http::Http as AnalysisHttpRepository;
 use crate::infrastructure::settings::Settings;
+use symracing_virtual_mentor_shared::analysis::domain::analysis::Analysis;
 
 use log::{error, info};
 use plotly::Plot;
@@ -12,7 +13,7 @@ use yew::prelude::*;
 use yew::suspense::{Suspension, SuspensionResult};
 
 #[hook]
-pub fn use_laps(criteria: &str, repo: LapsHttpRepository) -> SuspensionResult<Option<Laps>> {
+pub fn use_analyses(criteria: &str, repo: AnalysisHttpRepository) -> SuspensionResult<Option<Analysis>> {
     let result_handle = use_state(|| None);
     let result = (*result_handle).clone();
 
@@ -20,14 +21,9 @@ pub fn use_laps(criteria: &str, repo: LapsHttpRepository) -> SuspensionResult<Op
         let criteria = criteria.to_owned();
         Suspension::from_future(async move {
             match repo.find_by_criteria(&criteria).await {
-                Ok(Some(found_laps)) => {
-                    let selection = &found_laps[3..6];
-                    let mut selected_laps = Vec::new();
-                    for lap in selection {
-                        selected_laps.push(lap.clone())
-                    }
-                    let selected_laps = Laps::from(selected_laps);
-                    result_handle.set(Some(selected_laps))
+                Ok(Some(found_analyses)) => {
+                    let selection = found_analyses.first().unwrap().clone();
+                    result_handle.set(Some(selection))
                 }
                 Ok(None) => {
                     error!("No laps found");

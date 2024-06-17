@@ -19,7 +19,7 @@ pub struct Metrics {
     pub clutch: Vec<f32>, // X
 
     /// Position of the gear (-1 for reverse, 0 for neutral, and 1..n for current gear).
-    pub gear: Vec<u8>,
+    pub gear: Vec<i8>,
 
     /// Revolutions per minute of the engine (rpm).
     pub rpm: Vec<f32>,

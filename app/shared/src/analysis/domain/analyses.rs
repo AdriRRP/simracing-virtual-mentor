@@ -9,6 +9,21 @@ pub struct Analyses {
     analyses: Vec<Analysis>,
 }
 
+impl From<Vec<Analysis>> for Analyses {
+    /// Converts a vector of laps into `Laps`.
+    fn from(analyses: Vec<Analysis>) -> Self {
+        Self { analyses }
+    }
+}
+
+impl FromIterator<Analysis> for Analyses {
+    /// Constructs `Analyses` from an iterator over analyses.
+    fn from_iter<T: IntoIterator<Item = Analysis>>(iter: T) -> Self {
+        let analyses_vec: Vec<Analysis> = Vec::from_iter(iter);
+        Self::from(analyses_vec)
+    }
+}
+
 impl Deref for Analyses {
     type Target = Vec<Analysis>;
 

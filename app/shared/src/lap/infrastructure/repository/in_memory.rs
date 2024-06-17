@@ -1,9 +1,9 @@
-use std::ops::Deref;
 use crate::lap::domain::lap::header::Header;
 use crate::lap::domain::lap::headers::Headers;
 use crate::lap::domain::lap::Lap;
 use crate::lap::domain::laps::Laps;
 use crate::lap::domain::repository::Repository;
+use std::ops::Deref;
 
 use async_trait::async_trait;
 use std::sync::{Arc, Mutex};
@@ -73,7 +73,7 @@ impl Repository for InMemory {
     /// Asynchronously finds headers of laps by criteria.
     async fn find_header_by_criteria(&self, criteria: &str) -> Result<Option<Headers>, String> {
         self.find_by_criteria(criteria).await.map(|opt_laps| {
-            opt_laps.map(|laps| laps.deref().into_iter().map(|lap| lap.header.clone()).collect())
+            opt_laps.map(|laps| laps.deref().iter().map(|lap| lap.header.clone()).collect())
         })
     }
 }

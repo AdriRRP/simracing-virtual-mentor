@@ -1,6 +1,9 @@
 extern crate symracing_virtual_mentor_backend_lib as backend_lib;
 
 use backend_lib::api::infrastructure::app_assembler::AppAssembler;
+use backend_lib::api::infrastructure::controller::analysis::{
+    creator as create_analysis, delete as delete_analysis, find_by_criteria as find_analysis_by_criteria, find_by_id as find_analysis_by_id,
+};
 use backend_lib::api::infrastructure::controller::file::{
     delete as delete_file, find_by_criteria as find_file_by_criteria, find_by_id as find_file_by_id,
 };
@@ -19,7 +22,7 @@ use backend_lib::api::infrastructure::subscriber::{
 };
 
 use axum::extract::DefaultBodyLimit;
-use axum::routing::{delete, get, post};
+use axum::routing::{delete, get, post, put};
 use axum::Router;
 use std::sync::Arc;
 use tokio::io;
@@ -65,7 +68,40 @@ async fn main() -> io::Result<()> {
         .build()
         .run();
 
-    //let analysis_routes = Router::new().route("/:id", get(|| async {}));
+
+    let router = configure_router(&app_assembler);
+
+    let listener =
+        tokio::net::TcpListener::bind(format!("{}:{}", settings.server.host, settings.server.port))
+            .await?;
+
+    tracing::info!("listening on {}", listener.local_addr().unwrap());
+
+    axum::serve(listener, router).await?;
+
+    Ok(())
+}
+
+fn configure_router(app_assembler: &AppAssembler) -> Router {
+
+    let analysis_routes = Router::new()
+        .route(
+            "/create",
+            put(create_analysis).with_state(Arc::clone(&app_assembler.analysis.creator)),
+        )
+        .route(
+            "/delete/:id",
+            delete(delete_analysis).with_state(Arc::clone(&app_assembler.analysis.deleter)),
+        )
+        .route(
+            "/find/:id",
+            get(find_analysis_by_id).with_state(Arc::clone(&app_assembler.analysis.by_id_finder)),
+        )
+        .route(
+            "/find",
+            post(find_analysis_by_criteria).with_state(Arc::clone(&app_assembler.analysis.by_criteria_finder)),
+        );
+
     let file_routes = Router::new()
         .route(
             "/delete/:id",
@@ -113,20 +149,11 @@ async fn main() -> io::Result<()> {
         }),
     );
 
-    let app = Router::new()
+    Router::new()
+        .nest("/analysis", analysis_routes)
         .nest("/file", file_routes)
         .nest("/lap", lap_routes)
         .nest("/ibt_extractor", ibt_extractor_routes)
         .layer(DefaultBodyLimit::disable())
-        .layer(CorsLayer::permissive());
-
-    let listener =
-        tokio::net::TcpListener::bind(format!("{}:{}", settings.server.host, settings.server.port))
-            .await?;
-
-    tracing::info!("listening on {}", listener.local_addr().unwrap());
-
-    axum::serve(listener, app).await?;
-
-    Ok(())
+        .layer(CorsLayer::permissive())
 }

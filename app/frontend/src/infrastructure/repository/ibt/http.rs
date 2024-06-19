@@ -20,7 +20,12 @@ impl Http {
 }
 
 impl Http {
-    pub async fn upload(&self, name: String, file_name: String, data: Vec<u8>) -> Result<(), String> {
+    pub async fn upload(
+        &self,
+        name: String,
+        file_name: String,
+        data: Vec<u8>,
+    ) -> Result<(), String> {
         let name = encode(name.as_ref()).to_string();
         let endpoint = format!("{}/{}", self.upload, name);
 

@@ -2,9 +2,9 @@ use crate::infrastructure::components::repository_context::Repositories;
 
 use shared::file::domain::files::Files;
 
-use std::future::Future;
 use log::info;
-use yew::{Callback, Component, Context, Html, html, classes};
+use std::future::Future;
+use yew::{classes, html, Callback, Component, Context, Html};
 
 pub enum Msg {
     Fetch,
@@ -115,12 +115,11 @@ impl Component for FileLister {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-
         if self.fetching {
             ctx.link().send_message(Msg::Fetch)
         };
 
-        html!{
+        html! {
             <div class="box mt-4">
                 if let Some(msg) = &self.error {
                     <div class="block mx-2">
@@ -204,7 +203,7 @@ impl FileLister {
                                                 "Are you sure you want to delete the `{}` file?",
                                                 file.name.clone()
                                             )
-                                        }      
+                                        }
                                     </section>
                                     <footer class="modal-card-foot">
                                         <div class="buttons">

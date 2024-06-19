@@ -1,54 +1,47 @@
-export function sync_plotly_hover(div_id) {
+//export function sync_plotly_hover(div_id) {
+//    var dashboardPlot = document.getElementById(div_id);
+//    var plotsNames = [...Object.keys(dashboardPlot._fullLayout._plots)];
+//    dashboardPlot.on('plotly_hover', function (event) {
+//        Plotly.Fx.hover(
+//            dashboardPlot,
+//            { xval: event.xvals[0] },
+//            plotsNames
+//        );
+//    });
+//}
+
+export function sync_plotly_hover(div_id, sync_div_ids) {
     var dashboardPlot = document.getElementById(div_id);
     var plotsNames = [...Object.keys(dashboardPlot._fullLayout._plots)];
     dashboardPlot.on('plotly_hover', function (event) {
-        Plotly.Fx.hover(
-            dashboardPlot,
-            { xval: event.xvals[0] },
-            plotsNames
-        );
+        sync_div_ids.forEach(sync_div_id => {
+            var syncPlot = document.getElementById(sync_div_id);
+            Plotly.Fx.hover(
+                syncPlot,
+                { xval: event.xvals[0] },
+                plotsNames
+            );
+        });
     });
+
+    dashboardPlot.on('plotly_unhover', function (event) {
+        sync_div_ids.forEach(sync_div_id => {
+            var syncPlot = document.getElementById(sync_div_id);
+            Plotly.Fx.unhover(syncPlot, {});
+        });
+    });
+
+    dashboardPlot.on("plotly_relayout", function(ed) {
+        sync_div_ids.forEach((div_id, i) => {
+            let div = document.getElementById(div_id);
+            let x = div.layout.xaxis;
+            if (ed["xaxis.autorange"] && x.autorange) return;
+            if (
+                x.range[0] != ed["xaxis.range[0]"] ||
+                x.range[1] != ed["xaxis.range[1]"]
+            )
+                Plotly.relayout(div, ed);
+        });
+    });
+
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Functions to open and close a modal
-    function openModal($el) {
-        $el.classList.add('is-active');
-    }
-
-    function closeModal($el) {
-        $el.classList.remove('is-active');
-    }
-
-    function closeAllModals() {
-        (document.querySelectorAll('.modal') || []).forEach(($modal) => {
-            closeModal($modal);
-        });
-    }
-
-    // Add a click event on buttons to open a specific modal
-    (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
-        const modal = $trigger.dataset.target;
-        const $target = document.getElementById(modal);
-
-        $trigger.addEventListener('click', () => {
-            openModal($target);
-        });
-    });
-
-    // Add a click event on various child elements to close the parent modal
-    (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
-        const $target = $close.closest('.modal');
-
-        $close.addEventListener('click', () => {
-            closeModal($target);
-        });
-    });
-
-    // Add a keyboard event to close all modals
-    document.addEventListener('keydown', (event) => {
-        if(event.key === "Escape") {
-            closeAllModals();
-        }
-    });
-});

@@ -13,7 +13,10 @@ use yew::prelude::*;
 use yew::suspense::{Suspension, SuspensionResult};
 
 #[hook]
-pub fn use_analyses(criteria: &str, repo: AnalysisHttpRepository) -> SuspensionResult<Option<Analysis>> {
+pub fn use_analyses(
+    criteria: &str,
+    repo: AnalysisHttpRepository,
+) -> SuspensionResult<Option<Analysis>> {
     let result_handle = use_state(|| None);
     let result = (*result_handle).clone();
 

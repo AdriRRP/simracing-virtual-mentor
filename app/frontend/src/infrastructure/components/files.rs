@@ -1,9 +1,9 @@
 pub mod file_lister;
 pub mod file_uploader;
 
-use gloo::console::info;
-use crate::infrastructure::components::files::file_uploader::FileUploader;
 use crate::infrastructure::components::files::file_lister::FileLister;
+use crate::infrastructure::components::files::file_uploader::FileUploader;
+use gloo::console::info;
 
 use yew::prelude::*;
 
@@ -14,7 +14,7 @@ pub struct Files {}
 
 impl Default for Files {
     fn default() -> Self {
-        Self { }
+        Self {}
     }
 }
 
@@ -27,7 +27,7 @@ impl Component for Files {
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
-        match msg { 
+        match msg {
             Msg::Reload => true,
         }
     }
@@ -48,7 +48,7 @@ impl Component for Files {
 //pub fn files() -> Html {
 //    let trigger = use_force_update();
 //
-//    let reload = 
+//    let reload =
 //        Callback::from(move |()| {
 //            info!("Trying to update");
 //            trigger.force_update()

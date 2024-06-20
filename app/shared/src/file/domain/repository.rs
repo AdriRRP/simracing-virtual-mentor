@@ -1,3 +1,4 @@
+use crate::common::domain::criteria::Criteria;
 use crate::file::domain::file::File;
 use crate::file::domain::files::Files;
 
@@ -32,7 +33,7 @@ pub trait Repository: Send + Sync {
     /// # Errors
     ///
     /// This asynchronous function will return an `Err` if there is an error while attempting to find the files.
-    async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Files>, String>;
+    async fn find_by_criteria(&self, criteria: &Criteria) -> Result<Option<Files>, String>;
 
     /// Validates a file asynchronously given its ID.
     ///
@@ -40,4 +41,11 @@ pub trait Repository: Send + Sync {
     ///
     /// This asynchronous function will return an `Err` if there is an error while attempting to validate the file.
     async fn validate(&self, id: &str) -> Result<(), String>;
+
+    /// Marks an object identified by its ID as erroneous asynchronously.
+    ///
+    /// # Errors
+    ///
+    /// This asynchronous function will return an `Err` if there is an error while attempting to mark as error the file.
+    async fn mark_as_error(&self, id: &str, msg: &str) -> Result<(), String>;
 }

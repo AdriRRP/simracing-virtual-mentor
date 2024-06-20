@@ -48,7 +48,7 @@ impl Bus for TokioBus {
     async fn dispatch(&self, event: Arc<dyn Event>) -> Result<(), String> {
         let event_id = event.id();
 
-        tracing::trace!("Dispatching event `{event_id}`");
+        tracing::trace!("Dispatching file `{event_id}`");
 
         let senders_lock = self.senders.read().await;
 
@@ -57,7 +57,7 @@ impl Bus for TokioBus {
 
             Ok(())
         } else {
-            let msg = format!("No receivers found for event `{event_id}`");
+            let msg = format!("No receivers found for file `{event_id}`");
 
             tracing::warn!(msg);
 

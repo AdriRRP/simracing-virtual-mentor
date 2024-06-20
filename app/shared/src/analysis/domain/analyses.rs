@@ -1,7 +1,7 @@
 use crate::analysis::domain::analysis::Analysis;
 
 use serde::{Deserialize, Serialize};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 /// A wrapper struct for a vector of analysis objects.
 #[derive(Serialize, Deserialize, Clone)]
@@ -34,5 +34,16 @@ impl Deref for Analyses {
     /// A reference to the inner vector of analysis objects.
     fn deref(&self) -> &Self::Target {
         &self.analyses
+    }
+}
+
+impl DerefMut for Analyses {
+    /// Allows accessing the analyses in the collection via mutable dereferencing.
+    ///
+    /// # Returns
+    ///
+    /// A mutable reference to the vector of analyses.
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.analyses
     }
 }

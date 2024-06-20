@@ -2,6 +2,7 @@ use crate::analysis::domain::analysis::Analysis;
 use crate::analysis::domain::repository::Repository;
 use crate::lap::domain::repository::Repository as LapRepository;
 
+use chrono::{DateTime, Utc};
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -50,6 +51,7 @@ impl<R: Repository, LR: LapRepository> Creator<R, LR> {
         &self,
         id: Uuid,
         name: String,
+        date: DateTime<Utc>,
         ref_lap_id: Uuid,
         target_lap_id: Uuid,
     ) -> Result<(), String> {
@@ -65,7 +67,7 @@ impl<R: Repository, LR: LapRepository> Creator<R, LR> {
             .ok_or(format!("Target Lap with id {target_lap_id} not found"))?;
 
         let analysis =
-            Analysis::analyze(id, name, ref_lap, target_lap).map_err(|e| e.to_string())?;
+            Analysis::analyze(id, name, date, ref_lap, target_lap).map_err(|e| e.to_string())?;
 
         self.repository.create(analysis).await
         // Optionally, you might want to trigger domain events here.

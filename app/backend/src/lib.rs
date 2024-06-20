@@ -11,6 +11,11 @@ pub mod api {
         pub mod event {
             pub mod tokio_bus;
         }
+        pub mod repository {
+            pub mod mongo_analysis;
+            pub mod mongo_lap;
+            pub mod mongo_file;
+        }
         pub mod subscriber {
             pub mod on_file_deleted {
                 pub mod delete_laps;

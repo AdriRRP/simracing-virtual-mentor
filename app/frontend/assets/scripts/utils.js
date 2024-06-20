@@ -1,10 +1,10 @@
 //export function sync_plotly_hover(div_id) {
 //    var dashboardPlot = document.getElementById(div_id);
 //    var plotsNames = [...Object.keys(dashboardPlot._fullLayout._plots)];
-//    dashboardPlot.on('plotly_hover', function (event) {
+//    dashboardPlot.on('plotly_hover', function (file) {
 //        Plotly.Fx.hover(
 //            dashboardPlot,
-//            { xval: event.xvals[0] },
+//            { xval: file.xvals[0] },
 //            plotsNames
 //        );
 //    });

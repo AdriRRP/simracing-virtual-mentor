@@ -22,7 +22,7 @@ impl<R: Repository> Finder<R> {
     pub fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
-    
+
     /// Asynchronously finds data by ID using the repository.
     ///
     /// # Parameters

@@ -1,6 +1,7 @@
 use crate::file::domain::files::Files;
 use crate::file::domain::repository::Repository;
 
+use crate::common::domain::criteria::Criteria;
 use std::sync::Arc;
 
 /// Represents a finder for files.
@@ -19,7 +20,7 @@ impl<R: Repository> Finder<R> {
     /// # Errors
     ///
     /// Returns `Err` if the repository fails to find files by criteria.
-    pub async fn find(&self, criteria: &str) -> Result<Option<Files>, String> {
+    pub async fn find(&self, criteria: &Criteria) -> Result<Option<Files>, String> {
         self.repository.find_by_criteria(criteria).await
     }
 }

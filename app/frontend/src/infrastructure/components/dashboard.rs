@@ -170,7 +170,7 @@ impl Component for PlotlyDrawer {
 
                 let lat = &analysis.target_lap_metrics.latitude[..];
                 let lon = &analysis.target_lap_metrics.longitude[..];
-                let dist = &analysis.union_distance[..];
+                let dist = &analysis.union_distances[..];
                 match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
                     Ok(_) => Self::Message::SyncCanvas(div_id),
                     Err(e) => Self::Message::Error(format!("{e:?}")),
@@ -187,7 +187,7 @@ impl Component for PlotlyDrawer {
                 let analysis = Rc::clone(&analysis);
                 let lat = &analysis.target_lap_metrics.latitude[..];
                 let lon = &analysis.target_lap_metrics.longitude[..];
-                let dist = &analysis.union_distance[..];
+                let dist = &analysis.union_distances[..];
                 match create_pointer_layer(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
                     Ok(_) => {
                         let _ = add_mouse_move_event(div_id.clone(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await;

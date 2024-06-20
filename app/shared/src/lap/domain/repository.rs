@@ -1,3 +1,4 @@
+use crate::common::domain::criteria::Criteria;
 use crate::lap::domain::lap::header::Header;
 use crate::lap::domain::lap::headers::Headers;
 use crate::lap::domain::lap::Lap;
@@ -35,7 +36,7 @@ pub trait Repository: Send + Sync {
     /// # Errors
     ///
     /// This asynchronous function will return an `Err` if there is an error while attempting to find the laps data.
-    async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Laps>, String>;
+    async fn find_by_criteria(&self, criteria: &Criteria) -> Result<Option<Laps>, String>;
 
     /// Finds the header data asynchronously by its ID.
     ///
@@ -49,5 +50,6 @@ pub trait Repository: Send + Sync {
     /// # Errors
     ///
     /// This asynchronous function will return an `Err` if there is an error while attempting to find the header data.
-    async fn find_header_by_criteria(&self, criteria: &str) -> Result<Option<Headers>, String>;
+    async fn find_header_by_criteria(&self, criteria: &Criteria)
+        -> Result<Option<Headers>, String>;
 }

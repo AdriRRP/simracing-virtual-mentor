@@ -43,7 +43,7 @@ impl LapDeleter {
 #[async_trait]
 impl Subscriber for LapDeleter {
     async fn receive(&self) -> Result<Arc<dyn Event>, Error> {
-        tracing::trace!("Waiting for next event");
+        tracing::trace!("Waiting for next file");
         let mut receiver = self.receiver.write().await;
         receiver
             .recv()
@@ -52,7 +52,7 @@ impl Subscriber for LapDeleter {
     }
 
     async fn process(&self, event: Arc<dyn Event>) {
-        tracing::debug!("Processing new event {}", event.id());
+        tracing::debug!("Processing new file {}", event.id());
         if let Some(file_deleted) = event.as_any().downcast_ref::<Deleted>() {
             let file_id = file_deleted.id.clone();
             // Find all laps with given id

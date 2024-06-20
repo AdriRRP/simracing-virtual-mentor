@@ -21,7 +21,7 @@ impl<R: Repository, E: EventBus> Creator<R, E> {
         }
     }
 
-    /// Creates a file and dispatches a corresponding event.
+    /// Creates a file and dispatches a corresponding file.
     ///
     /// # Errors
     ///
@@ -33,7 +33,7 @@ impl<R: Repository, E: EventBus> Creator<R, E> {
             return;
         }
         if let Err(_err) = self.event_bus.dispatch(event.clone()).await {
-            // TODO: Log error dispatching event
+            // TODO: Log error dispatching file
         }
     }
 }

@@ -26,7 +26,7 @@ impl<R: Repository, E: EventBus> Validator<R, E> {
     /// Returns `Err` if the repository fails to validate the operation.
     pub async fn validate(&self, id: &str) -> Result<(), String> {
         self.repository.validate(id).await
-        // self.event_bus.dispatch(event).await
-        // TODO: Log error dispatching event
+        // self.event_bus.dispatch(file).await
+        // TODO: Log error dispatching file
     }
 }

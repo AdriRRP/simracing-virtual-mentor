@@ -1,6 +1,7 @@
 use crate::analysis::domain::analyses::Analyses;
 use crate::analysis::domain::repository::Repository;
 
+use crate::common::domain::criteria::Criteria;
 use std::sync::Arc;
 
 /// A struct responsible for finding data asynchronously.
@@ -31,7 +32,7 @@ impl<R: Repository> Finder<R> {
     /// # Errors
     ///
     /// Returns an `Err` if the underlying repository fails during the find operation.
-    pub async fn find(&self, criteria: &str) -> Result<Option<Analyses>, String> {
+    pub async fn find(&self, criteria: &Criteria) -> Result<Option<Analyses>, String> {
         self.repository.find_by_criteria(criteria).await
         // Send domain events
     }

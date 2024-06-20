@@ -1,7 +1,7 @@
 use crate::file::domain::file::File;
 
 use serde::{Deserialize, Serialize};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 /// Represents a collection of files.
 #[derive(Serialize, Deserialize, Default, Eq, PartialEq, Clone, Debug)]
@@ -35,5 +35,16 @@ impl Deref for Files {
     /// A reference to the vector of files.
     fn deref(&self) -> &Self::Target {
         &self.files
+    }
+}
+
+impl DerefMut for Files {
+    /// Allows accessing the files in the collection via mutable dereferencing.
+    ///
+    /// # Returns
+    ///
+    /// A mutable reference to the vector of files.
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.files
     }
 }

@@ -19,11 +19,11 @@ impl<R: Repository, E: EventBus> Deleter<R, E> {
         }
     }
 
-    /// Deletes a file and dispatches a corresponding event.
+    /// Deletes a file and dispatches a corresponding file.
     ///
     /// # Errors
     ///
-    /// Returns `Err` if the repository fails to delete the file or if an error occurs while dispatching the event.
+    /// Returns `Err` if the repository fails to delete the file or if an error occurs while dispatching the file.
     pub async fn delete(&self, id: &str) -> Result<(), String> {
         let event = Arc::new(Deleted::new(id));
         self.repository.delete(id).await?;

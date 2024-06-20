@@ -91,7 +91,7 @@ fn base_layout() -> Layout {
 
 fn select_metrics(plot_type: &PlotType, analysis: &Analysis) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, &'static str)
 {
-    let distance = analysis.union_distance.clone();
+    let distance = analysis.union_distances.clone();
     match plot_type {
         PlotType::Speed => (
             distance,
@@ -252,14 +252,14 @@ pub fn create_plot2(plot_type: &PlotType, analysis: Analysis) -> Plot {
         &mut plot,
         &name,
         analysis.difference_metrics.speed,
-        analysis.union_distance.clone(),
+        analysis.union_distances.clone(),
         current_color,
     );
     add_diff_throttle_trace(
         &mut plot,
         &name,
         analysis.difference_metrics.throttle,
-        analysis.union_distance.clone(),
+        analysis.union_distances.clone(),
         current_color,
     );
 
@@ -268,7 +268,7 @@ pub fn create_plot2(plot_type: &PlotType, analysis: Analysis) -> Plot {
         &name,
         analysis.ref_lap_metrics.latitude.clone(),
         analysis.ref_lap_metrics.longitude.clone(),
-        analysis.union_distance,
+        analysis.union_distances,
         NamedColor::Gray,
     );
 

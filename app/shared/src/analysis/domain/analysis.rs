@@ -1,46 +1,68 @@
+pub mod header;
+pub mod headers;
+pub mod reference_lap;
+
+use crate::analysis::domain::analysis::header::Header;
+use crate::analysis::domain::analysis::reference_lap::ReferenceLap;
 use crate::lap::domain::lap::metrics::Metrics;
 use crate::lap::domain::lap::Lap;
 
-use std::ops::Sub;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::ops::Sub;
 use uuid::Uuid;
 
 /// Represents an analysis entity, containing an identifier, name, and a list of laps.
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub struct Analysis {
-    /// The unique identifier for the analysis.
-    pub id: Uuid,
-    /// The name of the analysis.
-    pub name: String,
-    /// Date on which the analysis was created
-    pub date: DateTime<Utc>,
-    /// The circuit on which the analysis is performed
-    pub circuit: String,
+    /// Information about analysis
+    pub header: Header,
+
+    /// Laps to compare each other
+    pub reference: ReferenceLap,
+    pub target: ReferenceLap,
 
     /// Interpolated common distance
-    pub union_distance: Vec<f32>,
+    pub union_distances: Vec<f32>,
 
-    /// Reference lap
-    pub ref_lap_number: u16,
-    pub ref_lap_driver: String,
-    pub ref_lap_category: String,
-    pub ref_lap_car: String,
-    pub ref_lap_metrics: Metrics,
-
-    /// Reference lap
-    pub target_lap_number: u16,
-    pub target_lap_driver: String,
-    pub target_lap_category: String,
-    pub target_lap_car: String,
-    pub target_lap_metrics: Metrics,
-
-    /// Difference
-    pub difference_metrics: Metrics,
+    /// Difference metrics: reference - target
+    pub differences: Metrics,
 }
 
 impl Analysis {
-    pub fn analyze(id: Uuid, name: String, ref_lap: Lap, target_lap: Lap) -> Result<Self, Error> {
+    /// Analyzes the difference between a reference lap and a target lap, generating various metrics.
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - A `Uuid` representing the unique identifier for the analysis.
+    /// * `name` - A `String` representing the name of the analysis.
+    /// * `ref_lap` - A `Lap` representing the reference lap.
+    /// * `target_lap` - A `Lap` representing the target lap.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing `Self` on success, or an `Error` on failure.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an error if:
+    ///
+    /// * The reference lap and the target lap are from different circuits. In this case,
+    ///   an `Error::DifferentCircuits` is returned with the circuit information of both laps.
+    /// * Any error occurs during the interpolation of metrics. This might be due to issues
+    ///   with the data points not aligning properly between the reference and target laps.
+    ///
+    /// # Note
+    ///
+    /// Ensure that both `ref_lap` and `target_lap` are from the same circuit to avoid the `DifferentCircuits` error.
+    ///
+    pub fn analyze(
+        id: Uuid,
+        name: String,
+        date: DateTime<Utc>,
+        ref_lap: Lap,
+        target_lap: Lap,
+    ) -> Result<Self, Error> {
         if ref_lap.header.circuit != target_lap.header.circuit {
             return Err(Error::DifferentCircuits(
                 ref_lap.header.circuit,
@@ -48,28 +70,30 @@ impl Analysis {
             ));
         }
 
+        let circuit = ref_lap.header.circuit.clone();
         let union_distances = Self::generate_union_distances(&ref_lap, &target_lap);
         let ref_metrics = Self::interpolate_metrics(&ref_lap.metrics, &union_distances)?;
         let target_metrics = Self::interpolate_metrics(&target_lap.metrics, &union_distances)?;
-        let difference_metrics = Self::calculate_differences(&ref_metrics, &target_metrics);
+        let differences = Self::calculate_differences(&ref_metrics, &target_metrics);
 
         Ok(Self {
-            id,
-            name,
-            date: Utc::now(),
-            circuit: ref_lap.header.circuit.clone(),
-            union_distance: union_distances,
-            ref_lap_number: ref_lap.header.number,
-            ref_lap_driver: ref_lap.header.driver.clone(),
-            ref_lap_category: ref_lap.header.category.clone(),
-            ref_lap_car: ref_lap.header.car.clone(),
-            ref_lap_metrics: ref_metrics,
-            target_lap_number: target_lap.header.number,
-            target_lap_driver: target_lap.header.driver.clone(),
-            target_lap_category: target_lap.header.category.clone(),
-            target_lap_car: target_lap.header.car.clone(),
-            target_lap_metrics: target_metrics,
-            difference_metrics,
+            header: Header::new(id, name, date, circuit),
+            reference: ReferenceLap::new(
+                ref_lap.header.number,
+                ref_lap.header.driver.clone(),
+                ref_lap.header.category.clone(),
+                ref_lap.header.car,
+                ref_metrics,
+            ),
+            target: ReferenceLap::new(
+                target_lap.header.number,
+                target_lap.header.driver.clone(),
+                target_lap.header.category.clone(),
+                target_lap.header.car,
+                target_metrics,
+            ),
+            union_distances,
+            differences,
         })
     }
 
@@ -79,15 +103,15 @@ impl Analysis {
             .distance
             .iter()
             .chain(lap2.metrics.distance.iter())
-            .cloned()
+            .copied()
             .collect();
         distances.sort_by(|a, b| a.partial_cmp(b).unwrap()); // TODO: Posible error!
         distances.dedup();
         distances
     }
 
-    fn interpolate_metrics(metrics: &Metrics, distances: &Vec<f32>) -> Result<Metrics, Error> {
-        let distances_f64 = distances.iter().map(|&x| f64::from(x)).collect();
+    fn interpolate_metrics(metrics: &Metrics, distances: &[f32]) -> Result<Metrics, Error> {
+        let distances_f64: Vec<f64> = distances.iter().map(|&x| f64::from(x)).collect();
 
         Ok(Metrics {
             speed: Self::try_f32_interpolation(
@@ -126,7 +150,7 @@ impl Analysis {
                 &distances_f64,
                 false,
             )?,
-            distance: distances.clone(),
+            distance: distances.to_owned(),
             distance_pct: Self::try_f32_interpolation(
                 &metrics.distance_pct,
                 &metrics.distance,
@@ -141,13 +165,21 @@ impl Analysis {
             )?,
             latitude: Self::interpolate_vector(
                 &metrics.latitude,
-                &metrics.distance.iter().map(|&d| f64::from(d)).collect(),
+                &metrics
+                    .distance
+                    .iter()
+                    .map(|&d| f64::from(d))
+                    .collect::<Vec<f64>>(),
                 &distances_f64,
                 false,
             ),
             longitude: Self::interpolate_vector(
                 &metrics.longitude,
-                &metrics.distance.iter().map(|&d| f64::from(d)).collect(),
+                &metrics
+                    .distance
+                    .iter()
+                    .map(|&d| f64::from(d))
+                    .collect::<Vec<f64>>(),
                 &distances_f64,
                 false,
             ),
@@ -179,54 +211,50 @@ impl Analysis {
     }
 
     fn try_f32_interpolation(
-        target: &Vec<f32>,
-        original_distances: &Vec<f32>,
-        distances: &Vec<f64>,
+        target: &[f32],
+        original_distances: &[f32],
+        distances: &[f64],
         is_discrete: bool,
     ) -> Result<Vec<f32>, Error> {
-        let target = target.iter().map(|&x| f64::from(x)).collect();
-        let original_distances = original_distances.iter().map(|&x| f64::from(x)).collect();
-        Self::interpolate_vector(
-            &target,
-            &original_distances,
-            distances,
-            is_discrete,
-        )
-        .iter()
-        .map(|&x| Ok(x as f32)) // TODO: Revisar
-        //.map(|&x| f32::try_from(x).map_err(|e| Error::InterpolatingMetrics(e.to_string())))
-        .collect()
+        let target = target.iter().map(|&x| f64::from(x)).collect::<Vec<f64>>();
+        let original_distances = original_distances
+            .iter()
+            .map(|&x| f64::from(x))
+            .collect::<Vec<f64>>();
+        Self::interpolate_vector(&target, &original_distances, distances, is_discrete)
+            .iter()
+            .map(|&x| Ok(x as f32)) // TODO: Revisar
+            //.map(|&x| f32::try_from(x).map_err(|e| Error::InterpolatingMetrics(format!("{e}"))))
+            .collect()
     }
 
     fn try_i8_interpolation(
-        target: &Vec<i8>,
-        original_distances: &Vec<f32>,
-        distances: &Vec<f64>,
+        target: &[i8],
+        original_distances: &[f32],
+        distances: &[f64],
         is_discrete: bool,
     ) -> Result<Vec<i8>, Error> {
-        let target = target.iter().map(|&x| f64::from(x)).collect();
-        let original_distances = original_distances.iter().map(|&x| f64::from(x)).collect();
-        Self::interpolate_vector(
-            &target,
-            &original_distances,
-            distances,
-            is_discrete,
-        )
-        .iter()
+        let target = target.iter().map(|&x| f64::from(x)).collect::<Vec<f64>>();
+        let original_distances = original_distances
+            .iter()
+            .map(|&x| f64::from(x))
+            .collect::<Vec<f64>>();
+        Self::interpolate_vector(&target, &original_distances, distances, is_discrete)
+            .iter()
             .map(|&x| Ok(x as i8)) // TODO: Revisar
-        //.map(|x| u8::try_from(x).map_err(|e| Error::InterpolatingMetrics(e.to_string())))
-        .collect()
+            //.map(|x| i8::try_from(x).map_err(|e| Error::InterpolatingMetrics(format!("{e}"))))
+            .collect()
     }
 
     fn interpolate_vector(
-        values: &Vec<f64>,
-        distances: &Vec<f64>,
-        new_distances: &Vec<f64>,
+        values: &[f64],
+        distances: &[f64],
+        new_distances: &[f64],
         is_discrete: bool,
     ) -> Vec<f64> {
         let mut interpolated_values = Vec::new();
 
-        for &new_distance in new_distances.iter() {
+        for &new_distance in new_distances {
             let value = match distances.iter().position(|&d| d >= new_distance) {
                 Some(0) => values[0],
                 Some(pos) if pos == distances.len() => values[values.len() - 1],
@@ -235,7 +263,10 @@ impl Analysis {
                     let d1 = distances[pos];
                     let v0 = values[pos - 1];
                     let v1 = values[pos];
-                    let interpolated = v0 + (new_distance - d0) / (d1 - d0) * (v1 - v0);
+
+                    // More efficient than: v0 + (new_distance - d0) / (d1 - d0) * (v1 - v0)
+                    let interpolated = ((new_distance - d0) / (d1 - d0)).mul_add(v1 - v0, v0);
+
                     if is_discrete {
                         interpolated.round()
                     } else {
@@ -289,8 +320,8 @@ impl Analysis {
     }
 
     fn calculate_difference<T>(vec1: &[T], vec2: &[T]) -> Vec<T::Output>
-        where
-            T: Sub<Output = T>  + Copy,
+    where
+        T: Sub<Output = T> + Copy,
     {
         vec1.iter().zip(vec2).map(|(&v1, &v2)| v1 - v2).collect()
     }

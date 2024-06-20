@@ -4,3 +4,12 @@ server:
 event_bus:
   capacity: 200
 log_level: trace
+mongo:
+  uri: mongodb://localhost:27017
+  database: symracing_virtual_mentor
+  collections:
+    analysis: analysis
+    file: file
+    lap: lap
+  user: mongo_admin
+  pass: 1234

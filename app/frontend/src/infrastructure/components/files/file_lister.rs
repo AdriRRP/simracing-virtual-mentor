@@ -170,7 +170,7 @@ impl FileLister {
                                 <p>
                                     <strong>{file.name.clone()}</strong>
                                     <br />
-                                    <small>{file.complete}</small>
+                                    <small>{file.status}</small>
                                     <br />
                                     <small>{"25/09/2023"}</small>
                                 </p>

@@ -1,6 +1,7 @@
 use crate::lap::domain::laps::Laps;
 use crate::lap::domain::repository::Repository;
 
+use crate::common::domain::criteria::Criteria;
 use std::sync::Arc;
 
 /// Finder is responsible for finding laps based on criteria from a repository asynchronously.
@@ -19,7 +20,7 @@ impl<R: Repository> Finder<R> {
     /// # Errors
     ///
     /// Returns an error if the operation fails.
-    pub async fn find(&self, criteria: &str) -> Result<Option<Laps>, String> {
+    pub async fn find(&self, criteria: &Criteria) -> Result<Option<Laps>, String> {
         self.repository.find_by_criteria(criteria).await
         // Send domain events
     }

@@ -39,7 +39,7 @@ impl FileValidator {
 #[async_trait]
 impl Subscriber for FileValidator {
     async fn receive(&self) -> Result<Arc<dyn Event>, Error> {
-        tracing::trace!("Waiting for next event");
+        tracing::trace!("Waiting for next file");
         let mut receiver = self.receiver.write().await;
         receiver
             .recv()
@@ -48,7 +48,7 @@ impl Subscriber for FileValidator {
     }
 
     async fn process(&self, event: Arc<dyn Event>) {
-        tracing::debug!("Processing new event {}", event.id());
+        tracing::debug!("Processing new file {}", event.id());
         if let Some(ibt_parsed) = event.as_any().downcast_ref::<IbtExtracted>() {
             let validated = self.validator.validate(&ibt_parsed.file_id).await;
             match validated {

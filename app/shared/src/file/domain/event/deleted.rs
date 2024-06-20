@@ -3,7 +3,7 @@ use crate::common::domain::event::Event;
 use std::any::Any;
 use std::fmt::Debug;
 
-/// Represents the "deleted" event for a file.
+/// Represents the "deleted" file for a file.
 #[derive(Debug)]
 pub struct Deleted {
     /// The ID of the deleted file.
@@ -11,7 +11,7 @@ pub struct Deleted {
 }
 
 impl Deleted {
-    /// Creates a new `Deleted` event with the given ID.
+    /// Creates a new `Deleted` file with the given ID.
     ///
     /// # Arguments
     ///
@@ -19,7 +19,7 @@ impl Deleted {
     ///
     /// # Returns
     ///
-    /// A new `Deleted` event.
+    /// A new `Deleted` file.
     #[must_use]
     pub fn new(id: &str) -> Self {
         Self { id: id.to_string() }

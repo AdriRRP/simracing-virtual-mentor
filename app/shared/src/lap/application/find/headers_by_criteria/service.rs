@@ -1,3 +1,4 @@
+use crate::common::domain::criteria::Criteria;
 use crate::lap::domain::lap::headers::Headers;
 use crate::lap::domain::repository::Repository;
 use std::sync::Arc;
@@ -18,7 +19,7 @@ impl<R: Repository> Finder<R> {
     /// # Errors
     ///
     /// Returns an error if the operation fails.
-    pub async fn find(&self, criteria: &str) -> Result<Option<Headers>, String> {
+    pub async fn find(&self, criteria: &Criteria) -> Result<Option<Headers>, String> {
         self.repository.find_header_by_criteria(criteria).await
         // Send domain events
     }

@@ -9,6 +9,7 @@ pub struct Settings {
     pub server: Server,
     pub event_bus: EventBus,
     pub log_level: LogLevel,
+    pub mongo: Mongo,
 }
 
 #[derive(Debug, Deserialize)]
@@ -28,6 +29,22 @@ pub enum LogLevel {
     Info,
     Warn,
     Error,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Mongo {
+    pub uri: String,
+    pub database: String,
+    pub collections: MongoCollections,
+    pub user: String,
+    pub pass: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MongoCollections {
+    analysis: String,
+    file: String,
+    lap: String,
 }
 
 impl Display for LogLevel {

@@ -29,6 +29,7 @@ pub mod analysis {
 
 pub mod common {
     pub mod domain {
+        pub mod criteria;
         pub mod event;
     }
 }
@@ -48,6 +49,9 @@ pub mod file {
             pub mod by_criteria {
                 pub mod service;
             }
+        }
+        pub mod mark_as_error {
+            pub mod service;
         }
         pub mod validate {
             pub mod service;

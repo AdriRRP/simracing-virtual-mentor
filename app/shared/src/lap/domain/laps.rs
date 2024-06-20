@@ -1,7 +1,8 @@
 use crate::lap::domain::lap::Lap;
+
 use serde::{Deserialize, Serialize};
 use std::iter::FromIterator;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 /// Represents a collection of laps.
 #[derive(Serialize, Deserialize, PartialEq, Default, Clone, Debug)]
@@ -30,5 +31,16 @@ impl Deref for Laps {
     /// Implements dereferencing for `Laps`.
     fn deref(&self) -> &Self::Target {
         &self.laps
+    }
+}
+
+impl DerefMut for Laps {
+    /// Allows accessing the analyses in the collection via mutable dereferencing.
+    ///
+    /// # Returns
+    ///
+    /// A mutable reference to the vector of analyses.
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.laps
     }
 }

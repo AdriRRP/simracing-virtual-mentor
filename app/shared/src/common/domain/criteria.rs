@@ -4,8 +4,9 @@ pub mod order;
 
 use filters::Filters;
 use order::Order;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct Criteria {
     filters: Option<Filters>,
     order: Option<Order>,

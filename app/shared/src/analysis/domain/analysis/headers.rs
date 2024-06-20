@@ -1,6 +1,6 @@
 use crate::analysis::domain::analysis::header::Header;
-use crate::analysis::domain::analysis::Analysis;
 
+use crate::analysis::domain::analysis::Analysis;
 use serde::{Deserialize, Serialize};
 use std::ops::{Deref, DerefMut};
 

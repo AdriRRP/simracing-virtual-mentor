@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
-#[derive(Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
+#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
 pub struct Value {
     filter_value: String,
 }

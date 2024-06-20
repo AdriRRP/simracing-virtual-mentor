@@ -4,7 +4,7 @@ use crate::file::domain::file::File;
 use std::any::Any;
 use std::fmt::Debug;
 
-/// Represents the "created" file for a file.
+/// Represents the "created" event for a file.
 #[derive(Debug)]
 pub struct Created {
     /// The created file.
@@ -12,7 +12,7 @@ pub struct Created {
 }
 
 impl Created {
-    /// Creates a new `Created` file.
+    /// Creates a new `Created` event.
     ///
     /// # Arguments
     ///
@@ -20,7 +20,7 @@ impl Created {
     ///
     /// # Returns
     ///
-    /// A new `Created` file.
+    /// A new `Created` event.
     #[must_use]
     pub fn new(file: &File) -> Self {
         Self { file: file.clone() }

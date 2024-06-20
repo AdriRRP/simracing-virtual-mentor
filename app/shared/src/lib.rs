@@ -1,5 +1,8 @@
 pub mod analysis {
     pub mod application {
+        pub mod analyze {
+            pub mod service;
+        }
         pub mod create {
             pub mod service;
         }
@@ -13,11 +16,23 @@ pub mod analysis {
             pub mod by_criteria {
                 pub mod service;
             }
+            pub mod header_by_id {
+                pub mod service;
+            }
+            pub mod header_by_criteria {
+                pub mod service;
+            }
+        }
+        pub mod update {
+            pub mod service;
         }
     }
     pub mod domain {
         pub mod analyses;
         pub mod analysis;
+        pub mod event {
+            pub mod created;
+        }
         pub mod repository;
     }
     pub mod infrastructure {

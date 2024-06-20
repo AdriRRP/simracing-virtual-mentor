@@ -9,6 +9,7 @@ use shared::file::infrastructure::repository::in_memory::InMemory;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::Json;
+use shared::common::domain::criteria::Criteria;
 use std::sync::Arc;
 
 /// # Errors
@@ -16,9 +17,9 @@ use std::sync::Arc;
 /// Will return `Err` if the service call produces any error
 pub async fn find_by_criteria(
     State(finder): State<Arc<ByCriteriaFinder<InMemory>>>,
+    Json(criteria): Json<Criteria>,
 ) -> Result<Json<Files>, (StatusCode, String)> {
-    let criteria = "put criteria here";
-    let files = finder.find(criteria).await;
+    let files = finder.find(&criteria).await;
     match files {
         Ok(Some(files)) => Ok(Json(files)),
         Ok(None) => {

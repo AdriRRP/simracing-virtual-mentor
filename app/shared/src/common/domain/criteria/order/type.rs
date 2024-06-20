@@ -1,11 +1,12 @@
 pub mod error;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::{Debug, Display};
 
 use error::Error;
 
-#[derive(Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
+#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
 pub enum Type {
     Asc,
     Desc,

@@ -4,9 +4,10 @@ pub mod value;
 
 use condition::Condition;
 use field::Field;
+use serde::{Deserialize, Serialize};
 use value::Value;
 
-#[derive(Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
+#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
 pub struct Filter {
     field: Field,
     condition: Condition,
@@ -15,10 +16,10 @@ pub struct Filter {
 
 impl Filter {
     #[must_use]
-    pub const fn new(field: Field, operator: Condition, value: Value) -> Self {
+    pub const fn new(field: Field, condition: Condition, value: Value) -> Self {
         Self {
             field,
-            condition: operator,
+            condition,
             value,
         }
     }

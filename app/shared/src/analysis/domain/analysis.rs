@@ -1,9 +1,11 @@
 pub mod header;
 pub mod headers;
 pub mod reference_lap;
+pub mod status;
 
 use crate::analysis::domain::analysis::header::Header;
 use crate::analysis::domain::analysis::reference_lap::ReferenceLap;
+use crate::analysis::domain::analysis::status::Status;
 use crate::lap::domain::lap::metrics::Metrics;
 use crate::lap::domain::lap::Lap;
 
@@ -19,30 +21,52 @@ pub struct Analysis {
     pub header: Header,
 
     /// Laps to compare each other
-    pub reference: ReferenceLap,
-    pub target: ReferenceLap,
+    pub reference: Option<ReferenceLap>,
+    pub target: Option<ReferenceLap>,
 
     /// Interpolated common distance
     pub union_distances: Vec<f32>,
 
     /// Difference metrics: reference - target
-    pub differences: Metrics,
+    pub differences: Option<Metrics>,
 }
 
 impl Analysis {
-    /// Analyzes the difference between a reference lap and a target lap, generating various metrics.
-    ///
-    /// # Arguments
-    ///
-    /// * `id` - A `Uuid` representing the unique identifier for the analysis.
-    /// * `name` - A `String` representing the name of the analysis.
-    /// * `ref_lap` - A `Lap` representing the reference lap.
-    /// * `target_lap` - A `Lap` representing the target lap.
-    ///
-    /// # Returns
-    ///
-    /// Returns a `Result` containing `Self` on success, or an `Error` on failure.
-    ///
+    #[must_use]
+    pub fn new(
+        id: Uuid,
+        name: String,
+        date: DateTime<Utc>,
+        circuit: String,
+        ref_lap_id: Uuid,
+        target_lap_id: Uuid,
+    ) -> Self {
+        Self {
+            header: Header::new(id, name, date, circuit, ref_lap_id, target_lap_id),
+            reference: None,
+            target: None,
+            union_distances: vec![],
+            differences: None,
+        }
+    }
+
+    #[must_use]
+    pub fn with_error(
+        id: Uuid,
+        name: String,
+        date: DateTime<Utc>,
+        circuit: String,
+        error_msg: String,
+    ) -> Self {
+        Self {
+            header: Header::with_error(id, name, date, circuit, error_msg),
+            reference: None,
+            target: None,
+            union_distances: vec![],
+            differences: None,
+        }
+    }
+
     /// # Errors
     ///
     /// This function returns an error if:
@@ -56,13 +80,7 @@ impl Analysis {
     ///
     /// Ensure that both `ref_lap` and `target_lap` are from the same circuit to avoid the `DifferentCircuits` error.
     ///
-    pub fn analyze(
-        id: Uuid,
-        name: String,
-        date: DateTime<Utc>,
-        ref_lap: Lap,
-        target_lap: Lap,
-    ) -> Result<Self, Error> {
+    pub fn analyze(&mut self, ref_lap: Lap, target_lap: Lap) -> Result<(), Error> {
         if ref_lap.header.circuit != target_lap.header.circuit {
             return Err(Error::DifferentCircuits(
                 ref_lap.header.circuit,
@@ -70,31 +88,33 @@ impl Analysis {
             ));
         }
 
-        let circuit = ref_lap.header.circuit.clone();
         let union_distances = Self::generate_union_distances(&ref_lap, &target_lap);
         let ref_metrics = Self::interpolate_metrics(&ref_lap.metrics, &union_distances)?;
         let target_metrics = Self::interpolate_metrics(&target_lap.metrics, &union_distances)?;
         let differences = Self::calculate_differences(&ref_metrics, &target_metrics);
 
-        Ok(Self {
-            header: Header::new(id, name, date, circuit),
-            reference: ReferenceLap::new(
-                ref_lap.header.number,
-                ref_lap.header.driver.clone(),
-                ref_lap.header.category.clone(),
-                ref_lap.header.car,
-                ref_metrics,
-            ),
-            target: ReferenceLap::new(
-                target_lap.header.number,
-                target_lap.header.driver.clone(),
-                target_lap.header.category.clone(),
-                target_lap.header.car,
-                target_metrics,
-            ),
-            union_distances,
-            differences,
-        })
+        self.reference = Some(ReferenceLap::new(
+            ref_lap.header.number,
+            ref_lap.header.driver.clone(),
+            ref_lap.header.category.clone(),
+            ref_lap.header.car,
+            ref_metrics,
+        ));
+
+        self.target = Some(ReferenceLap::new(
+            target_lap.header.number,
+            target_lap.header.driver.clone(),
+            target_lap.header.category.clone(),
+            target_lap.header.car,
+            target_metrics,
+        ));
+
+        self.union_distances = union_distances;
+        self.differences = Some(differences);
+
+        self.header.status = Status::Completed;
+
+        Ok(())
     }
 
     fn generate_union_distances(lap1: &Lap, lap2: &Lap) -> Vec<f32> {
@@ -333,4 +353,6 @@ pub enum Error {
     DifferentCircuits(String, String),
     #[error("error interpolating metrics: {0}")]
     InterpolatingMetrics(String),
+    #[error("cannot build an analysis with given header: {0}")]
+    FromHeader(String),
 }

@@ -1,6 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
-#[derive(Eq, PartialEq, Clone, Debug)]
+#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)]
 pub struct Field {
     filter_field: String,
 }

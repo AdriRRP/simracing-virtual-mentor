@@ -1,11 +1,12 @@
 pub mod error;
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::{Debug, Display};
 
 use crate::common::domain::criteria::filter::condition::error::Error;
 
-#[derive(Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
+#[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
 pub enum Condition {
     Equal,
     NotEqual,

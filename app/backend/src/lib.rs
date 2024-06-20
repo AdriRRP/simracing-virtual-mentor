@@ -13,10 +13,13 @@ pub mod api {
         }
         pub mod repository {
             pub mod mongo_analysis;
-            pub mod mongo_lap;
             pub mod mongo_file;
+            pub mod mongo_lap;
         }
         pub mod subscriber {
+            pub mod on_analysis_created {
+                pub mod do_analysis;
+            }
             pub mod on_file_deleted {
                 pub mod delete_laps;
             }

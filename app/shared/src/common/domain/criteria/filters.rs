@@ -1,7 +1,8 @@
 use super::filter::Filter;
+use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 
-#[derive(PartialEq, Eq, Clone, Default, Debug)] // TODO: Review clone
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Default, Debug)] // TODO: Review clone
 pub struct Filters {
     filters: Vec<Filter>,
 }

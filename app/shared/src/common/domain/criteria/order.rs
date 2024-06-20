@@ -3,9 +3,10 @@ pub mod r#type;
 
 use by::By;
 use r#type::Type;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
-#[derive(PartialEq, Eq, Clone, Debug)] // TODO: Review clone
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)] // TODO: Review clone
 pub struct Order {
     by: By,
     r#type: Type,

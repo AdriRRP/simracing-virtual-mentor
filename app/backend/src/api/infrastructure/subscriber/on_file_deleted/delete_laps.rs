@@ -7,6 +7,12 @@ use shared::lap::application::find::by_criteria::service::Finder;
 use shared::lap::infrastructure::repository::in_memory::InMemory;
 
 use async_trait::async_trait;
+use shared::common::domain::criteria::filter::condition::Condition;
+use shared::common::domain::criteria::filter::field::Field;
+use shared::common::domain::criteria::filter::value::Value;
+use shared::common::domain::criteria::filter::Filter;
+use shared::common::domain::criteria::filters::Filters;
+use shared::common::domain::criteria::Criteria;
 use std::sync::Arc;
 use tokio::sync::broadcast::Receiver;
 use tokio::sync::RwLock;
@@ -55,9 +61,19 @@ impl Subscriber for LapDeleter {
         tracing::debug!("Processing new file {}", event.id());
         if let Some(file_deleted) = event.as_any().downcast_ref::<Deleted>() {
             let file_id = file_deleted.id.clone();
-            // Find all laps with given id
-            let criteria = "lap where lap.file_id == file_id";
-            let laps = match self.finder.find(criteria).await {
+
+            let criteria = Criteria::new(
+                Some(Filters::from(vec![Filter::new(
+                    Field::new("file_id"),
+                    Condition::Equal,
+                    Value::new(&file_id),
+                )])),
+                None,
+                None,
+                None,
+            );
+
+            let laps = match self.finder.find(&criteria).await {
                 Ok(Some(laps)) => laps,
                 Ok(None) => {
                     tracing::warn!("No laps found with file_id `{file_id}`");

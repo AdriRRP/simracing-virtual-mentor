@@ -12,6 +12,7 @@ use shared::lap::infrastructure::repository::in_memory::InMemory;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::Json;
+use shared::common::domain::criteria::Criteria;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -20,9 +21,9 @@ use uuid::Uuid;
 /// Will return `Err` if the service call produces any error
 pub async fn find_by_criteria(
     State(finder): State<Arc<ByCriteriaFinder<InMemory>>>,
+    Json(criteria): Json<Criteria>,
 ) -> Result<Json<Laps>, (StatusCode, String)> {
-    let criteria = "put criteria here";
-    let laps = finder.find(criteria).await;
+    let laps = finder.find(&criteria).await;
     match laps {
         Ok(Some(laps)) => Ok(Json(laps)),
         Ok(None) => {
@@ -60,9 +61,9 @@ pub async fn find_by_id(
 /// Will return `Err` if the service call produces any error
 pub async fn find_headers_by_criteria(
     State(finder): State<Arc<ByCriteriaHeadersFinder<InMemory>>>,
+    Json(criteria): Json<Criteria>,
 ) -> Result<Json<Headers>, (StatusCode, String)> {
-    let criteria = "put criteria here";
-    let headers = finder.find(criteria).await;
+    let headers = finder.find(&criteria).await;
     match headers {
         Ok(Some(headers)) => Ok(Json(headers)),
         Ok(None) => {

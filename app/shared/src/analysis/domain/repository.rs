@@ -24,6 +24,13 @@ pub trait Repository: Send + Sync {
     /// This asynchronous function will return an `Err` if there is an error while attempting to delete the analysis data.
     async fn delete(&self, id: &Uuid) -> Result<(), String>;
 
+    /// Updates analysis data asynchronously given an analysis object.
+    ///
+    /// # Errors
+    ///
+    /// This asynchronous function will return an `Err` if there is an error while attempting to update the analysis data.
+    async fn update(&self, analysis: &Analysis) -> Result<(), String>;
+
     /// Finds analysis data asynchronously by its ID.
     ///
     /// # Errors

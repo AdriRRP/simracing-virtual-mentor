@@ -1,11 +1,11 @@
 use crate::analysis::domain::analyses::Analyses;
 use crate::analysis::domain::analysis::header::Header;
+use crate::analysis::domain::analysis::headers::Headers;
 use crate::analysis::domain::analysis::Analysis;
 use crate::analysis::domain::repository::Repository;
 use crate::common::domain::criteria::filters::Filters;
 use crate::common::domain::criteria::Criteria;
 
-use crate::analysis::domain::analysis::headers::Headers;
 use async_trait::async_trait;
 use std::cmp::Ordering;
 use std::sync::{Arc, Mutex};
@@ -54,6 +54,31 @@ impl Repository for InMemory {
 
         analyses_guard.remove(i);
         drop(analyses_guard);
+        Ok(())
+    }
+
+    /// Updates an analysis with the specified analysis instance from the in-memory storage.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the analysis update fails or if no analysis with the specified data is found.
+    async fn update(&self, analysis: &Analysis) -> Result<(), String> {
+        let mut analyses_guard = self.analyses.lock().map_err(|e| format!("{e}"))?;
+
+        let i = analyses_guard
+            .iter()
+            .position(|a| a.header.id == analysis.header.id)
+            .ok_or_else(|| {
+                format!(
+                    "No analysis with ID {} found to update.",
+                    analysis.header.id
+                )
+            })?;
+
+        analyses_guard[i] = analysis.clone();
+
+        drop(analyses_guard);
+
         Ok(())
     }
 

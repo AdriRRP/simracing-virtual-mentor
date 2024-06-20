@@ -1,18 +1,21 @@
 use crate::analysis::domain::analysis::Analysis;
 use crate::analysis::domain::repository::Repository;
+use crate::common::domain::event::bus::Bus as EventBus;
 use crate::lap::domain::repository::Repository as LapRepository;
 
+use crate::analysis::domain::event::created::Created;
 use chrono::{DateTime, Utc};
 use std::sync::Arc;
 use uuid::Uuid;
 
 /// A struct responsible for asynchronously creating analysis data.
-pub struct Creator<R: Repository, LR: LapRepository> {
+pub struct Creator<R: Repository, LR: LapRepository, E: EventBus> {
     repository: Arc<R>,
     lap_repository: Arc<LR>,
+    event_bus: Arc<E>,
 }
 
-impl<R: Repository, LR: LapRepository> Creator<R, LR> {
+impl<R: Repository, LR: LapRepository, E: EventBus> Creator<R, LR, E> {
     /// Creates a new `Creator` instance.
     ///
     /// # Parameters
@@ -23,10 +26,11 @@ impl<R: Repository, LR: LapRepository> Creator<R, LR> {
     /// # Returns
     ///
     /// A new `Creator` instance.
-    pub fn new(repository: Arc<R>, lap_repository: Arc<LR>) -> Self {
+    pub fn new(repository: Arc<R>, lap_repository: Arc<LR>, event_bus: Arc<E>) -> Self {
         Self {
             repository,
             lap_repository,
+            event_bus,
         }
     }
 
@@ -60,16 +64,32 @@ impl<R: Repository, LR: LapRepository> Creator<R, LR> {
             .find_by_id(&ref_lap_id)
             .await?
             .ok_or(format!("Reference Lap with id {ref_lap_id} not found"))?;
+
         let target_lap = self
             .lap_repository
             .find_by_id(&target_lap_id)
             .await?
             .ok_or(format!("Target Lap with id {target_lap_id} not found"))?;
 
-        let analysis =
-            Analysis::analyze(id, name, date, ref_lap, target_lap).map_err(|e| e.to_string())?;
+        if ref_lap.header.circuit != target_lap.header.circuit {
+            return Err("the laps in an analysis have to belong to the same circuit".to_owned());
+        }
 
-        self.repository.create(analysis).await
-        // Optionally, you might want to trigger domain events here.
+        let analysis = Analysis::new(
+            id,
+            name,
+            date,
+            ref_lap.header.circuit.clone(),
+            ref_lap_id,
+            target_lap_id,
+        );
+
+        match self.repository.create(analysis).await {
+            Ok(()) => {
+                let event = Arc::new(Created::new(&id));
+                self.event_bus.dispatch(event).await
+            }
+            e => e,
+        }
     }
 }

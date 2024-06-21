@@ -1,0 +1,22 @@
+endpoints:
+  analysis:
+    server: "http://127.0.0.1:16666"
+    create: "/analysis/delete"
+    delete: "/analysis/delete"
+    find_by_id: "/analysis/find"
+    find_by_criteria: "/analysis/find"
+  file:
+    server: "http://127.0.0.1:16666"
+    delete: "/file/delete"
+    find_by_id: "/file/find"
+    find_by_criteria: "/file/find"
+  lap:
+    server: "http://127.0.0.1:16666"
+    delete: "/lap/delete"
+    find_by_id: "/lap/find"
+    find_by_criteria: "/lap/find"
+    find_header_by_id: "/lap/find/header"
+    find_header_by_criteria: "/lap/find/header"
+  ibt_extractor:
+    server: "http://127.0.0.1:16666"
+    upload: "/ibt_extractor/upload"

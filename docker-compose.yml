@@ -1,0 +1,26 @@
+services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./etc/mongo/symracing_virtual_mentor/000_init.js:/docker-entrypoint-initdb.d/000_init.js
+
+  backend:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.backend
+    depends_on:
+      - mongo
+    ports:
+      - 16666:16666
+    environment:
+      BACKEND__SERVER__HOST: 0.0.0.0
+      BACKEND__SERVER__PORT: 16666
+      BACKEND__EVENT_BUS_CAPACITY: 200
+      BACKEND__LOG_LEVEL: DEBUG
+

@@ -1,0 +1,65 @@
+if (typeof env.LOAD_LAP_TEST_DATA !== 'undefined' && env.LOAD_LAP_TEST_DATA === 'true') {
+    // Create a new collection and insert documents
+    db.lap.insert([
+        {
+            header: {
+                _id: UUID("00000000-0000-0000-0000-000000000001"),
+                file_id: "TEST#FILE#001",
+                number: 0,
+                driver: "Test Driver",
+                category: "Test Category",
+                car: "Test Car",
+                circuit: "Test Circuit",
+                date: new ISODate("2024-02-24T20:30:00Z"),
+                time: 666,
+            },
+            metrics: {
+                speed: [],
+                throttle: [],
+                brake: [],
+                clutch: [],
+                gear: [],
+                rpm: [],
+                distance: [],
+                distance_pct: [],
+                track_temp: [],
+                latitude: [],
+                longitude: [],
+                altitude: [],
+                steering_wheel_angle: [],
+                fuel_level: [],
+                lap_current_lap_time: [],
+            },
+        },
+        {
+            header: {
+                _id: UUID("00000000-0000-0000-0000-000000000002"),
+                file_id: "TEST#FILE#002",
+                number: 0,
+                driver: "Test Driver 2",
+                category: "Test Category 2",
+                car: "Test Car 2",
+                circuit: "Test Circuit 2",
+                date: new ISODate("2024-03-24T20:30:00Z"),
+                time: 555,
+            },
+            metrics: {
+                speed: [],
+                throttle: [],
+                brake: [],
+                clutch: [],
+                gear: [],
+                rpm: [],
+                distance: [],
+                distance_pct: [],
+                track_temp: [],
+                latitude: [],
+                longitude: [],
+                altitude: [],
+                steering_wheel_angle: [],
+                fuel_level: [],
+                lap_current_lap_time: [],
+            }
+        },
+    ]);
+}

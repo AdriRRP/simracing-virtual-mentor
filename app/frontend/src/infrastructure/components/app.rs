@@ -1,23 +1,26 @@
-use yew::prelude::*;
-use shared::telemetry::domain::repository::Repository;
-use crate::infrastructure::components::scatter_plot::ScatterPlot;
-use shared::telemetry::infrastructure::repository::in_memory::InMemory;
+use crate::infrastructure::components::navbar::NavBar;
+use crate::infrastructure::components::routes::switch;
+use crate::infrastructure::components::routes::Route;
 
+use crate::infrastructure::components::repository_context::Repositories;
+use yew::prelude::*;
+use yew_router::BrowserRouter;
+use yew_router::Switch;
 
 #[function_component(App)]
 pub fn app() -> Html {
-    let repository = InMemory::default();
-    //let use_state_handle: UseStateHandle<Option<Session>> = use_state(|| None);
-    //use_effect(move || {
-    //    use_state_handle.set(
-    //        repository.find_by_id(String::from("00000"))
-    //    );
-    //});
-
+    //html! {
+    //    <main>
+    //        <LapHeadersHtml lap_headers={(*lap_headers).clone()} />
+    //    </main>
+    //}
+    let ctx = use_state(|| Repositories::default());
     html! {
-        <main>
-            <ScatterPlot session={repository.find_by_id(String::from("00000"))}/>
-            //<ScatterPlot session={None}/>
-        </main>
+        <ContextProvider<Repositories> context={(*ctx).clone()}>
+            <BrowserRouter>
+                <NavBar />
+                <Switch<Route> render={switch} />
+            </BrowserRouter>
+        </ContextProvider<Repositories>>
     }
 }

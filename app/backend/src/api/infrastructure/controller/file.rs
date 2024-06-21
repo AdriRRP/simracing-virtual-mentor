@@ -1,22 +1,23 @@
 use crate::api::infrastructure::event::tokio_bus::TokioBus;
+use crate::api::infrastructure::repository::mongo::file::Mongo as FileRepository;
+
+use shared::common::domain::criteria::Criteria;
 use shared::file::application::delete::service::Deleter;
 use shared::file::application::find::by_criteria::service::Finder as ByCriteriaFinder;
 use shared::file::application::find::by_id::service::Finder as ByIdFinder;
 use shared::file::domain::file::File;
 use shared::file::domain::files::Files;
-use shared::file::infrastructure::repository::in_memory::InMemory;
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::Json;
-use shared::common::domain::criteria::Criteria;
 use std::sync::Arc;
 
 /// # Errors
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_by_criteria(
-    State(finder): State<Arc<ByCriteriaFinder<InMemory>>>,
+    State(finder): State<Arc<ByCriteriaFinder<FileRepository>>>,
     Json(criteria): Json<Criteria>,
 ) -> Result<Json<Files>, (StatusCode, String)> {
     let files = finder.find(&criteria).await;
@@ -38,7 +39,7 @@ pub async fn find_by_criteria(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_by_id(
-    State(finder): State<Arc<ByIdFinder<InMemory>>>,
+    State(finder): State<Arc<ByIdFinder<FileRepository>>>,
     Path(user_id): Path<String>,
 ) -> Result<Json<File>, (StatusCode, String)> {
     let file = finder.find(&user_id).await;
@@ -56,7 +57,7 @@ pub async fn find_by_id(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn delete(
-    State(deleter): State<Arc<Deleter<InMemory, TokioBus>>>,
+    State(deleter): State<Arc<Deleter<FileRepository, TokioBus>>>,
     Path(user_id): Path<String>,
 ) -> Result<(), (StatusCode, String)> {
     let result = deleter.delete(&user_id).await;

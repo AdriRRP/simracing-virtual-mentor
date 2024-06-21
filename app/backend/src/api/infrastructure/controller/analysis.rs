@@ -1,4 +1,6 @@
 use crate::api::infrastructure::event::tokio_bus::TokioBus;
+use crate::api::infrastructure::repository::mongo::analysis::Mongo as AnalysisRepository;
+use crate::api::infrastructure::repository::mongo::lap::Mongo as LapRepository;
 
 use shared::analysis::application::create::service::Creator;
 use shared::analysis::application::delete::service::Deleter;
@@ -10,9 +12,7 @@ use shared::analysis::domain::analyses::Analyses;
 use shared::analysis::domain::analysis::header::Header;
 use shared::analysis::domain::analysis::headers::Headers;
 use shared::analysis::domain::analysis::Analysis;
-use shared::analysis::infrastructure::repository::in_memory::InMemory;
 use shared::common::domain::criteria::Criteria;
-use shared::lap::infrastructure::repository::in_memory::InMemory as InMemoryLap;
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
@@ -34,7 +34,7 @@ pub struct Args {
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn creator(
-    State(creator): State<Arc<Creator<InMemory, InMemoryLap, TokioBus>>>,
+    State(creator): State<Arc<Creator<AnalysisRepository, LapRepository, TokioBus>>>,
     Json(args): Json<Args>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     match creator
@@ -56,7 +56,7 @@ pub async fn creator(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_by_criteria(
-    State(finder): State<Arc<ByCriteriaFinder<InMemory>>>,
+    State(finder): State<Arc<ByCriteriaFinder<AnalysisRepository>>>,
     Json(criteria): Json<Criteria>,
 ) -> Result<Json<Analyses>, (StatusCode, String)> {
     let analyses = finder.find(&criteria).await;
@@ -78,7 +78,7 @@ pub async fn find_by_criteria(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_by_id(
-    State(finder): State<Arc<ByIdFinder<InMemory>>>,
+    State(finder): State<Arc<ByIdFinder<AnalysisRepository>>>,
     Path(analysis_id): Path<Uuid>,
 ) -> Result<Json<Analysis>, (StatusCode, String)> {
     let analysis = finder.find(&analysis_id).await;
@@ -96,7 +96,7 @@ pub async fn find_by_id(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_headers_by_criteria(
-    State(finder): State<Arc<ByCriteriaHeaderFinder<InMemory>>>,
+    State(finder): State<Arc<ByCriteriaHeaderFinder<AnalysisRepository>>>,
     Json(criteria): Json<Criteria>,
 ) -> Result<Json<Headers>, (StatusCode, String)> {
     let headers = finder.find(&criteria).await;
@@ -118,7 +118,7 @@ pub async fn find_headers_by_criteria(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_header_by_id(
-    State(finder): State<Arc<ByIdHeaderFinder<InMemory>>>,
+    State(finder): State<Arc<ByIdHeaderFinder<AnalysisRepository>>>,
     Path(analysis_id): Path<Uuid>,
 ) -> Result<Json<Header>, (StatusCode, String)> {
     let header = finder.find(&analysis_id).await;
@@ -136,7 +136,7 @@ pub async fn find_header_by_id(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn delete(
-    State(deleter): State<Arc<Deleter<InMemory>>>,
+    State(deleter): State<Arc<Deleter<AnalysisRepository>>>,
     Path(analysis_id): Path<Uuid>,
 ) -> Result<(), (StatusCode, String)> {
     let result = deleter.delete(&analysis_id).await;

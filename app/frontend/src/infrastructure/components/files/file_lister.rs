@@ -170,7 +170,7 @@ impl FileLister {
                                 <p>
                                     <strong>{file.name.clone()}</strong>
                                     <br />
-                                    <small>{file.status}</small>
+                                    <small>{serde_json::to_string(&file.status).unwrap_or_default()}</small>
                                     <br />
                                     <small>{"25/09/2023"}</small>
                                 </p>

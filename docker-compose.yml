@@ -8,7 +8,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./etc/mongo/symracing_virtual_mentor/:/docker-entrypoint-initdb.d/
+      - ./etc/mongo/symracing_virtual_mentor/000_init.js:/docker-entrypoint-initdb.d/000_init.js
 
   backend:
     build:

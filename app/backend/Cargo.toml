@@ -27,4 +27,8 @@ tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
 tower-http = { version = "0.5.2", features = ["cors"] }
+bson = { version = "2.11.0", features = ["chrono-0_4"] }
+mongodb = { version = "2.8.2", features = ["tokio-runtime"] }
+futures = "0.3.30"
 symracing_virtual_mentor_shared = {path = "../shared"}
+log = "0.4.21"

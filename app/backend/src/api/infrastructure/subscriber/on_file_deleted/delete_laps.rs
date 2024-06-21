@@ -1,18 +1,19 @@
 use crate::api::infrastructure::event::tokio_bus::TokioBus;
-use shared::common::domain::event::subscriber::{Error, Subscriber};
-use shared::common::domain::event::Event;
-use shared::file::domain::event::deleted::Deleted;
-use shared::lap::application::delete::service::Deleter;
-use shared::lap::application::find::by_criteria::service::Finder;
-use shared::lap::infrastructure::repository::in_memory::InMemory;
+use crate::api::infrastructure::repository::mongo::lap::Mongo as LapRepository;
 
-use async_trait::async_trait;
 use shared::common::domain::criteria::filter::condition::Condition;
 use shared::common::domain::criteria::filter::field::Field;
 use shared::common::domain::criteria::filter::value::Value;
 use shared::common::domain::criteria::filter::Filter;
 use shared::common::domain::criteria::filters::Filters;
 use shared::common::domain::criteria::Criteria;
+use shared::common::domain::event::subscriber::{Error, Subscriber};
+use shared::common::domain::event::Event;
+use shared::file::domain::event::deleted::Deleted;
+use shared::lap::application::delete::service::Deleter;
+use shared::lap::application::find::by_criteria::service::Finder;
+
+use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::broadcast::Receiver;
 use tokio::sync::RwLock;
@@ -21,16 +22,16 @@ type EventReceiver = Receiver<Arc<dyn Event>>;
 
 pub struct LapDeleter {
     receiver: Arc<RwLock<EventReceiver>>,
-    finder: Arc<Finder<InMemory>>,
-    deleter: Arc<Deleter<InMemory>>,
+    finder: Arc<Finder<LapRepository>>,
+    deleter: Arc<Deleter<LapRepository>>,
 }
 
 impl LapDeleter {
     #[must_use]
     pub async fn new(
         event_bus: &Arc<TokioBus>,
-        finder: &Arc<Finder<InMemory>>,
-        deleter: &Arc<Deleter<InMemory>>,
+        finder: &Arc<Finder<LapRepository>>,
+        deleter: &Arc<Deleter<LapRepository>>,
     ) -> Self {
         tracing::debug!("Creating subscriber");
 
@@ -72,6 +73,8 @@ impl Subscriber for LapDeleter {
                 None,
                 None,
             );
+
+            tracing::debug!("Criteria: {:?}", criteria.clone());
 
             let laps = match self.finder.find(&criteria).await {
                 Ok(Some(laps)) => laps,

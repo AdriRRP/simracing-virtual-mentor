@@ -1,3 +1,5 @@
+use crate::api::infrastructure::repository::mongo::lap::Mongo as LapRepository;
+
 use shared::lap::application::delete::service::Deleter;
 use shared::lap::application::find::by_criteria::service::Finder as ByCriteriaFinder;
 use shared::lap::application::find::by_id::service::Finder as ByIdFinder;
@@ -7,7 +9,6 @@ use shared::lap::domain::lap::header::Header;
 use shared::lap::domain::lap::headers::Headers;
 use shared::lap::domain::lap::Lap;
 use shared::lap::domain::laps::Laps;
-use shared::lap::infrastructure::repository::in_memory::InMemory;
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
@@ -20,7 +21,7 @@ use uuid::Uuid;
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_by_criteria(
-    State(finder): State<Arc<ByCriteriaFinder<InMemory>>>,
+    State(finder): State<Arc<ByCriteriaFinder<LapRepository>>>,
     Json(criteria): Json<Criteria>,
 ) -> Result<Json<Laps>, (StatusCode, String)> {
     let laps = finder.find(&criteria).await;
@@ -42,7 +43,7 @@ pub async fn find_by_criteria(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_by_id(
-    State(finder): State<Arc<ByIdFinder<InMemory>>>,
+    State(finder): State<Arc<ByIdFinder<LapRepository>>>,
     Path(lap_id): Path<Uuid>,
 ) -> Result<Json<Lap>, (StatusCode, String)> {
     let lap = finder.find(&lap_id).await;
@@ -60,7 +61,7 @@ pub async fn find_by_id(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_headers_by_criteria(
-    State(finder): State<Arc<ByCriteriaHeadersFinder<InMemory>>>,
+    State(finder): State<Arc<ByCriteriaHeadersFinder<LapRepository>>>,
     Json(criteria): Json<Criteria>,
 ) -> Result<Json<Headers>, (StatusCode, String)> {
     let headers = finder.find(&criteria).await;
@@ -82,7 +83,7 @@ pub async fn find_headers_by_criteria(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn find_header_by_id(
-    State(finder): State<Arc<ByIdHeaderFinder<InMemory>>>,
+    State(finder): State<Arc<ByIdHeaderFinder<LapRepository>>>,
     Path(lap_id): Path<Uuid>,
 ) -> Result<Json<Header>, (StatusCode, String)> {
     let header = finder.find(&lap_id).await;
@@ -100,7 +101,7 @@ pub async fn find_header_by_id(
 ///
 /// Will return `Err` if the service call produces any error
 pub async fn delete(
-    State(deleter): State<Arc<Deleter<InMemory>>>,
+    State(deleter): State<Arc<Deleter<LapRepository>>>,
     Path(lap_id): Path<Uuid>,
 ) -> Result<(), (StatusCode, String)> {
     let result = deleter.delete(&lap_id).await;

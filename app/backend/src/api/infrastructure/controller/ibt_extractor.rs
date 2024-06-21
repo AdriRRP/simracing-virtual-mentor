@@ -1,9 +1,9 @@
 use crate::api::infrastructure::event::tokio_bus::TokioBus;
-use shared::file::application::find::by_id::service::Finder as FileFinder;
-use shared::file::infrastructure::repository::in_memory::InMemory as InMemoryFileRepository;
-use shared::lap::infrastructure::repository::in_memory::InMemory as InMemoryLapRepository;
-
+use crate::api::infrastructure::repository::mongo::file::Mongo as FileRepository;
+use crate::api::infrastructure::repository::mongo::lap::Mongo as LapRepository;
 use crate::ibt_extractor::application::extract::service::Extractor as IbtExtractor;
+
+use shared::file::application::find::by_id::service::Finder as FileFinder;
 
 use axum::extract::{Multipart, Path, State};
 use axum::http::StatusCode;
@@ -11,10 +11,10 @@ use futures_util::TryFutureExt;
 use std::io::Cursor;
 use std::sync::Arc;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ControllerState {
-    pub ibt_parser: Arc<IbtExtractor<InMemoryFileRepository, InMemoryLapRepository, TokioBus>>,
-    pub file_finder: Arc<FileFinder<InMemoryFileRepository>>,
+    pub ibt_parser: Arc<IbtExtractor<FileRepository, LapRepository, TokioBus>>,
+    pub file_finder: Arc<FileFinder<FileRepository>>,
 }
 
 /// # Errors

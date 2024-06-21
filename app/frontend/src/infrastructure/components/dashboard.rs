@@ -167,13 +167,17 @@ impl Component for PlotlyDrawer {
             let analysis = Rc::clone(&analysis);
             async move {
                 info!("Starting canvas binding");
-
-                let lat = &analysis.target_lap_metrics.latitude[..];
-                let lon = &analysis.target_lap_metrics.longitude[..];
-                let dist = &analysis.union_distances[..];
-                match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
-                    Ok(_) => Self::Message::SyncCanvas(div_id),
-                    Err(e) => Self::Message::Error(format!("{e:?}")),
+                let analysis: &Analysis = &analysis;
+                if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
+                    let lat = &reference.metrics.latitude[..];
+                    let lon = &reference.metrics.longitude[..];
+                    let dist = &union_distances[..];
+                    match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
+                        Ok(_) => Self::Message::SyncCanvas(div_id),
+                        Err(e) => Self::Message::Error(format!("{e:?}")),
+                    }
+                } else {
+                    Self::Message::Error(format!("Cannot extract latitude and longitude from analysis `{}`", analysis.header.id))
                 }
             }
         });
@@ -181,33 +185,39 @@ impl Component for PlotlyDrawer {
         ctx.link().send_future({
             let div_id = self.canvas_pos.id.clone();
             let analysis = Rc::clone(&analysis);
-            
             async move {
                 info!("Starting canvas binding");
-                let analysis = Rc::clone(&analysis);
-                let lat = &analysis.target_lap_metrics.latitude[..];
-                let lon = &analysis.target_lap_metrics.longitude[..];
-                let dist = &analysis.union_distances[..];
-                match create_pointer_layer(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
-                    Ok(_) => {
-                        let _ = add_mouse_move_event(div_id.clone(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await;
-                        Self::Message::SyncCanvas(div_id.clone())
-                    },
-                    Err(e) => Self::Message::Error(format!("{e:?}")),
+                let analysis: &Analysis = &analysis;
+                if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
+                    let lat = &reference.metrics.latitude[..];
+                    let lon = &reference.metrics.longitude[..];
+                    let dist = &union_distances[..];
+                    match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
+                        Ok(_) => Self::Message::SyncCanvas(div_id),
+                        Err(e) => Self::Message::Error(format!("{e:?}")),
+                    }
+                } else {
+                    Self::Message::Error(format!("Cannot extract latitude and longitude from analysis `{}`", analysis.header.id))
                 }
             }
         });
 
         for target_div in &self.plot_divs {
             ctx.link().send_future({
+                let analysis = analysis.clone();
                 let plot = create_plot(&target_div.plot_type, &analysis);
                 let div_id = target_div.id.clone();
                 async move {
                     info!("Starting plotly binding");
-                    match js_new_plot_(div_id.as_str(), &plot.to_js_object()).await {
-                        Ok(_) => Self::Message::SyncPlotlyHover(div_id),
-                        Err(e) => Self::Message::Error(format!("{e:?}")),
+                    if let Ok(plot) = plot {
+                        match js_new_plot_(div_id.as_str(), &plot.to_js_object()).await {
+                            Ok(_) => Self::Message::SyncPlotlyHover(div_id),
+                            Err(e) => Self::Message::Error(format!("{e:?}")),
+                        }
+                    } else {
+                        Self::Message::Error(format!("Cannot create plot for analysis `{}`", analysis.header.id))
                     }
+                    
                 }
             });
         }

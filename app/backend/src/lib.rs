@@ -12,9 +12,7 @@ pub mod api {
             pub mod tokio_bus;
         }
         pub mod repository {
-            pub mod mongo_analysis;
-            pub mod mongo_file;
-            pub mod mongo_lap;
+            pub mod mongo;
         }
         pub mod subscriber {
             pub mod on_analysis_created {

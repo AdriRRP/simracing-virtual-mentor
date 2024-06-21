@@ -1,13 +1,13 @@
 use crate::api::infrastructure::event::tokio_bus::TokioBus;
+use crate::api::infrastructure::repository::mongo::analysis::Mongo as AnalysisRepository;
+use crate::api::infrastructure::repository::mongo::lap::Mongo as LapRepository;
 
 use shared::analysis::application::analyze::service::Analyzer;
 use shared::analysis::application::find::by_id::service::Finder;
 use shared::analysis::application::update::service::Updater;
 use shared::analysis::domain::event::created::Created;
-use shared::analysis::infrastructure::repository::in_memory::InMemory as InMemoryAnalysisRepository;
 use shared::common::domain::event::subscriber::{Error, Subscriber};
 use shared::common::domain::event::Event;
-use shared::lap::infrastructure::repository::in_memory::InMemory as InMemoryLapRepository;
 
 use async_trait::async_trait;
 use shared::analysis::domain::analysis::Analysis;
@@ -19,18 +19,18 @@ type EventReceiver = Receiver<Arc<dyn Event>>;
 
 pub struct DoAnalysis {
     receiver: Arc<RwLock<EventReceiver>>,
-    finder: Arc<Finder<InMemoryAnalysisRepository>>,
-    analyzer: Arc<Analyzer<InMemoryAnalysisRepository, InMemoryLapRepository>>,
-    updater: Arc<Updater<InMemoryAnalysisRepository>>,
+    finder: Arc<Finder<AnalysisRepository>>,
+    analyzer: Arc<Analyzer<AnalysisRepository, LapRepository>>,
+    updater: Arc<Updater<AnalysisRepository>>,
 }
 
 impl DoAnalysis {
     #[must_use]
     pub async fn new(
         event_bus: &Arc<TokioBus>,
-        finder: &Arc<Finder<InMemoryAnalysisRepository>>,
-        analyzer: &Arc<Analyzer<InMemoryAnalysisRepository, InMemoryLapRepository>>,
-        updater: &Arc<Updater<InMemoryAnalysisRepository>>,
+        finder: &Arc<Finder<AnalysisRepository>>,
+        analyzer: &Arc<Analyzer<AnalysisRepository, LapRepository>>,
+        updater: &Arc<Updater<AnalysisRepository>>,
     ) -> Self {
         tracing::debug!("Creating subscriber");
 

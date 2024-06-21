@@ -1,10 +1,10 @@
 use crate::api::infrastructure::event::tokio_bus::TokioBus;
+use crate::api::infrastructure::repository::mongo::file::Mongo as FileRepository;
+use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
+
 use shared::common::domain::event::subscriber::{Error, Subscriber};
 use shared::common::domain::event::Event;
 use shared::file::application::validate::service::Validator;
-use shared::file::infrastructure::repository::in_memory::InMemory;
-
-use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
 
 use async_trait::async_trait;
 use std::sync::Arc;
@@ -15,14 +15,14 @@ type EventReceiver = Receiver<Arc<dyn Event>>;
 
 pub struct FileValidator {
     receiver: Arc<RwLock<EventReceiver>>,
-    validator: Arc<Validator<InMemory, TokioBus>>,
+    validator: Arc<Validator<FileRepository, TokioBus>>,
 }
 
 impl FileValidator {
     #[must_use]
     pub async fn new(
         event_bus: &Arc<TokioBus>,
-        validator: &Arc<Validator<InMemory, TokioBus>>,
+        validator: &Arc<Validator<FileRepository, TokioBus>>,
     ) -> Self {
         tracing::debug!("Creating subscriber");
 

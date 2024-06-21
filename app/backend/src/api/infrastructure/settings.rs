@@ -42,9 +42,9 @@ pub struct Mongo {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MongoCollections {
-    analysis: String,
-    file: String,
-    lap: String,
+    pub analysis: String,
+    pub file: String,
+    pub lap: String,
 }
 
 impl Display for LogLevel {

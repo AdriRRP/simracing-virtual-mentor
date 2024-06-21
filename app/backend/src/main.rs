@@ -55,7 +55,12 @@ async fn main() -> io::Result<()> {
         )
         .init();
 
-    let app_assembler = AppAssembler::new(&settings);
+    let app_assembler = AppAssembler::new(&settings).await.map_err(|e| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("Error initializing App Assembler: {e}"),
+        )
+    })?;
 
     SubscriberManager::builder()
         .with_subscriber(Arc::new(

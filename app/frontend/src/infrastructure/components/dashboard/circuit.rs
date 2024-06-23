@@ -1,11 +1,34 @@
-use wasm_bindgen::prelude::wasm_bindgen;
+use web_sys::CustomEvent;
+use log::info;
+use yew::prelude::*;
+use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
+use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, MouseEvent, CustomEventInit};
 use serde::{Serialize, Deserialize};
-use wasm_bindgen::{JsCast, JsValue};
-use wasm_bindgen::__rt::IntoJsResult;
-use web_sys::HtmlCanvasElement;
 use wasm_bindgen::closure::Closure;
-use yew::MouseEvent;
-use crate::infrastructure::components::dashboard::Canvas;
+use wasm_bindgen::JsValue;
+use wasm_bindgen::prelude::wasm_bindgen;
+use serde_wasm_bindgen::to_value;
+use web_sys::console::{info, log};
+
+const UPDATE_CIRCUIT_POINTER_EVENT: &'static str = "update_circuit_pointer";
+
+#[wasm_bindgen(module = "/assets/scripts/plotly_interop.js")]
+extern "C" {
+    #[wasm_bindgen(js_name = "updatePlotlyHover")]
+    fn updatePlotlyHover(div_ids: &JsValue, point: &JsValue);
+}
+
+#[wasm_bindgen]
+pub fn hover_event_from_plotly(distance: f32) {
+    let document = web_sys::window().unwrap().document().unwrap();
+
+    let mut event_init = CustomEventInit::new();
+    event_init.detail(&JsValue::from_f64(distance as f64));
+
+    let event = web_sys::CustomEvent::new_with_event_init_dict(UPDATE_CIRCUIT_POINTER_EVENT, &event_init).unwrap();
+    document.dispatch_event(&event).unwrap();
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct GpsCoord {
@@ -16,7 +39,7 @@ struct GpsCoord {
 
 impl GpsCoord {
     pub fn new(lat: f64, lon: f64, dist: f32) -> Self {
-        Self {lat, lon, dist}
+        Self { lat, lon, dist }
     }
 }
 
@@ -29,13 +52,8 @@ struct Point {
 
 impl Point {
     pub fn new(x: f64, y: f64, dist: f32) -> Self {
-        Self {x, y, dist}
+        Self { x, y, dist }
     }
-}
-
-#[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
 }
 
 fn lat_lon_to_xy(lat: f64, lon: f64) -> (f64, f64) {
@@ -45,17 +63,20 @@ fn lat_lon_to_xy(lat: f64, lon: f64) -> (f64, f64) {
     (x, y)
 }
 
-fn normalize_coordinates(coords: Vec<GpsCoord>, width: f64, height: f64) -> Vec<Point> {
+fn normalize_coordinates(coords: Vec<GpsCoord>, width: f64, height: f64, margin: f64) -> Vec<Point> {
     let min_lat = coords.iter().map(|c| c.lat).fold(f64::INFINITY, f64::min);
     let max_lat = coords.iter().map(|c| c.lat).fold(f64::NEG_INFINITY, f64::max);
     let min_lon = coords.iter().map(|c| c.lon).fold(f64::INFINITY, f64::min);
     let max_lon = coords.iter().map(|c| c.lon).fold(f64::NEG_INFINITY, f64::max);
 
     coords.iter()
-        .map(|GpsCoord{ lat, lon, dist}| Point {
-            x: ((*lat - min_lat) / (max_lat - min_lat)) * width,
-            y: ((*lon - min_lon) / (max_lon - min_lon)) * height,
-            dist: *dist,
+        .map(|GpsCoord{ lat, lon, dist }| {
+            let (x, y) = lat_lon_to_xy(*lat, *lon);
+            Point {
+                x: ((*lat - min_lat) / (max_lat - min_lat)) * (width - 2.0 * margin) + margin,
+                y: ((*lon - min_lon) / (max_lon - min_lon)) * (height - 2.0 * margin) + margin,
+                dist: *dist,
+            }
         })
         .collect()
 }
@@ -77,76 +98,144 @@ fn find_nearest_point(points: &Vec<Point>, mouse_x: f64, mouse_y: f64) -> Option
     nearest_point
 }
 
-pub async fn create_pointer_layer(id: &str, width: f64, height: f64, lat: &[f64], lon: &[f64], dist: &[f32]) -> Result<(),Error> {
-
-    let gps_coords = gps_coord(lat, lon, dist);
-    let normalized_points = normalize_coordinates(gps_coords, width, height);
-
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id(id).unwrap();
-    let canvas: web_sys::HtmlCanvasElement = canvas
-        .dyn_into::<web_sys::HtmlCanvasElement>()
-        .map_err(|_| ())
-        .unwrap();
-
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<web_sys::CanvasRenderingContext2d>()
-        .unwrap();
-
-    let x_margin = 0.;
-    let y_margin = 0.;
-
-    if let Some(start) = normalized_points.iter().min_by(|a, b| a.dist.partial_cmp(&b.dist).unwrap()) {
-        context.set_fill_style(&JsValue::from_str("green"));
-        context.begin_path();
-        context.arc(start.x + x_margin, start.y + y_margin, 8.0, 0.0, std::f64::consts::PI * 2.0).unwrap();
-        context.fill();
-    }
-
-    Ok(())
+fn find_nearest_point_by_distance(points: &Vec<Point>, distance: f32) -> Option<Point> {
+    points.iter().min_by_key(|p| ((p.dist - distance).abs() * 1000.0) as i32).cloned()
 }
-pub async fn create_circuit(id: &str, width: f64, height: f64, lat: &[f64], lon: &[f64], dist: &[f32]) -> Result<(),Error> {
 
-    let gps_coords = gps_coord(lat, lon, dist);
-    let normalized_points = normalize_coordinates(gps_coords, width, height);
+#[derive(Properties, PartialEq)]
+pub struct Props {
+    pub width: f64,
+    pub height: f64,
+    pub margin: f64,
+    pub latitudes: Vec<f64>,
+    pub longitudes: Vec<f64>,
+    pub distances: Vec<f32>,
+}
 
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id(id).unwrap();
-    let canvas: web_sys::HtmlCanvasElement = canvas
-        .dyn_into::<web_sys::HtmlCanvasElement>()
-        .map_err(|_| ())
-        .unwrap();
+#[function_component(Circuit)]
+pub fn circuit(props: &Props) -> Html {
+    let canvas_ref = use_node_ref();
+    let width = props.width;
+    let height = props.height;
+    let margin = props.margin;
+    let latitudes = props.latitudes.clone();
+    let longitudes = props.longitudes.clone();
+    let distances = props.distances.clone();
+    let plot_div_ids = vec![
+        "speed_plot",
+        "throttle_plot",
+        "gear_plot",
+        "brake_plot",
+        "steering_wheel_angle_plot",
+    ];
 
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<web_sys::CanvasRenderingContext2d>()
-        .unwrap();
 
-    let x_margin = 0.;
-    let y_margin = 0.;
+    let gps_coords = gps_coord(&latitudes, &longitudes, &distances);
+    let normalized_points = normalize_coordinates(gps_coords, width, height, margin);
 
 
-    let my_gradient = context.create_linear_gradient(0., 0., 170., 0.);
-    my_gradient.add_color_stop(0., "black");
-    my_gradient.add_color_stop(0.5, "red");
-    my_gradient.add_color_stop(1., "white");
+    {
+        let normalized_points = normalized_points.clone();
+        let canvas_ref = canvas_ref.clone();
+        use_effect_with(canvas_ref.clone(), move |canvas_ref| {
+            let document = web_sys::window().unwrap().document().unwrap();
+            let canvas = canvas_ref.cast::<HtmlCanvasElement>().unwrap();
+            let context = canvas
+                .get_context("2d")
+                .unwrap()
+                .unwrap()
+                .dyn_into::<CanvasRenderingContext2d>()
+                .unwrap();
 
-    let js_gradient = my_gradient.into_js_result().unwrap();
+            let closure = Closure::<dyn FnMut(_)>::new(move |event: web_sys::CustomEvent| {
+                let distance = event.detail().as_f64().unwrap() as f32;
+                if let Some(closest_point) = find_nearest_point_by_distance(&normalized_points, distance) {
+                    context.set_fill_style(&JsValue::from_str("black"));
+                    context.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+                    draw_circuit(&context, &normalized_points);
+                    context.begin_path();
+                    context.arc(closest_point.x, closest_point.y, 5.0, 0.0, 2.0 * std::f64::consts::PI).unwrap();
+                    context.set_fill_style(&JsValue::from_str("red"));
+                    context.fill();
+                }
+            });
 
-    for point in normalized_points.iter() {
+            document
+                .add_event_listener_with_callback(UPDATE_CIRCUIT_POINTER_EVENT, closure.as_ref().unchecked_ref())
+                .unwrap();
+            closure.forget();
 
-        context.set_fill_style(&js_gradient);
-        context.begin_path();
-        context.arc(point.x + x_margin, point.y + y_margin, 3.0, 0.0, std::f64::consts::PI * 2.0).unwrap();
-        context.fill();
+            || ()
+        });
     }
+    
+    
 
-    Ok(())
+    let onmousemove = {
+        let canvas_ref = canvas_ref.clone();
+        let normalized_points = normalized_points.clone();
+        Callback::from(move |event: MouseEvent| {
+            let canvas = canvas_ref.cast::<HtmlCanvasElement>().unwrap();
+            let rect = canvas.get_bounding_client_rect();
+            let mouse_x = event.client_x() as f64 - rect.left();
+            let mouse_y = event.client_y() as f64 - rect.top();
+            let context = canvas
+                .get_context("2d")
+                .unwrap()
+                .unwrap()
+                .dyn_into::<CanvasRenderingContext2d>()
+                .unwrap();
+
+            // Encontrar el punto más cercano
+            if let Some(closest_point) = find_nearest_point(&normalized_points, mouse_x, mouse_y) {
+                // Redibujar el canvas
+                context.set_fill_style(&JsValue::from_str("black"));
+                context.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+                draw_circuit(&context, &normalized_points);
+                context.begin_path();
+                context.arc(closest_point.x, closest_point.y, 5.0, 0.0, 2.0 * std::f64::consts::PI).unwrap();
+                context.set_fill_style(&JsValue::from_str("red"));
+                context.fill();
+
+                // Enviar evento a Plotly
+                let point_json = to_value(&closest_point).unwrap();
+                let plot_div_ids_js = to_value(&plot_div_ids).unwrap();
+                updatePlotlyHover(&plot_div_ids_js, &point_json);
+            }
+        })
+    };
+
+    use_effect_with(canvas_ref.clone(), move |canvas_ref| {
+        if let Some(canvas) = canvas_ref.cast::<HtmlCanvasElement>() {
+            let context = canvas
+                .get_context("2d")
+                .unwrap()
+                .unwrap()
+                .dyn_into::<CanvasRenderingContext2d>()
+                .unwrap();
+            context.set_fill_style(&JsValue::from_str("black"));
+            context.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+            draw_circuit(&context, &normalized_points);
+        }
+        || ()
+    });
+
+    html! {
+        <canvas ref={canvas_ref} width="800" height="600" {onmousemove}></canvas>
+    }
+}
+
+fn draw_circuit(context: &CanvasRenderingContext2d, points: &Vec<Point>) {
+    context.set_stroke_style(&JsValue::from_str("white"));
+    context.begin_path();
+    for (i, point) in points.iter().enumerate() {
+        if i == 0 {
+            context.move_to(point.x, point.y);
+        } else {
+            context.line_to(point.x, point.y);
+        }
+    }
+    context.stroke();
 }
 
 fn gps_coord(lat: &[f64], lon: &[f64], dist: &[f32]) -> Vec<GpsCoord> {
@@ -158,59 +247,4 @@ fn gps_coord(lat: &[f64], lon: &[f64], dist: &[f32]) -> Vec<GpsCoord> {
     lat.iter().zip(lon.iter()).zip(dist.iter())
         .map(|((&lat, &lon), &d)| GpsCoord::new(lat, lon, d))
         .collect()
-}
-
-pub async fn add_mouse_move_event(id: String, width: f64, height: f64, lat: &[f64], lon: &[f64], dist: &[f32]) -> Result<(),String> {
-    let gps_coords = gps_coord(lat, lon, dist);
-    let normalized_points = normalize_coordinates(gps_coords, width, height);
-
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id(&id).unwrap();
-    let canvas: web_sys::HtmlCanvasElement = canvas
-        .dyn_into::<web_sys::HtmlCanvasElement>()
-        .map_err(|_| ())
-        .unwrap();
-
-    let mouse_move_closure = {
-        let canvas = canvas.clone();
-         Closure::wrap(Box::new(move |event: MouseEvent| {
-            let points = normalized_points.clone();
-
-            let rect = canvas.get_bounding_client_rect();
-            let mouse_x = event.client_x() as f64 - rect.left();
-            let mouse_y = event.client_y() as f64 - rect.top();
-
-            let points = points.clone();
-            let nearest_point = find_nearest_point(&points, mouse_x, mouse_y);
-
-            if let Some(point) = nearest_point {
-                let context = canvas
-                    .get_context("2d")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_into::<web_sys::CanvasRenderingContext2d>()
-                    .unwrap();
-
-                let x_margin = 0.;
-                let y_margin = 0.;
-
-                context.set_fill_style(&JsValue::from_str("green"));
-                context.begin_path();
-                context.arc(point.x + x_margin, point.y + y_margin, 8.0, 0.0, std::f64::consts::PI * 2.0).unwrap();
-                context.fill();
-            }
-        }) as Box<dyn FnMut(_)>)
-    };
-
-    canvas.add_event_listener_with_callback("mousemove", mouse_move_closure.as_ref().unchecked_ref()).unwrap();
-    //canvas.add_event_listener_with_callback("mousedown", mouse_down_closure.as_ref().unchecked_ref()).unwrap();
-    //canvas.add_event_listener_with_callback("mouseup", mouse_up_closure.as_ref().unchecked_ref()).unwrap();
-    
-    Ok(())
-}
-
-#[derive(PartialEq, Eq, Debug, thiserror::Error)]
-pub enum Error {
-    #[error("the reference lap has been run on Circuit `{0}` while the target lap has been run on Circuit `{1}`")]
-    DifferentCircuits(String, String),
 }

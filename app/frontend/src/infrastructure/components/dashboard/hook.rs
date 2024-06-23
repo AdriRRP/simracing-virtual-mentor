@@ -11,6 +11,7 @@ use web_sys::HtmlElement;
 use shared::lap::domain::laps::Laps;
 use yew::prelude::*;
 use yew::suspense::{Suspension, SuspensionResult};
+use shared::common::domain::criteria::Criteria;
 
 #[hook]
 pub fn use_analyses(
@@ -23,7 +24,7 @@ pub fn use_analyses(
     let suspension_hanlde = use_state(|| {
         let criteria = criteria.to_owned();
         Suspension::from_future(async move {
-            match repo.find_by_criteria(&criteria).await {
+            match repo.find_by_criteria(&Criteria::default()).await {
                 Ok(Some(found_analyses)) => {
                     let selection = found_analyses.first().unwrap().clone();
                     result_handle.set(Some(selection))

@@ -2,8 +2,9 @@ mod hook;
 mod plot;
 mod circuit;
 
-use crate::infrastructure::components::dashboard::circuit::add_mouse_move_event;
-use crate::infrastructure::components::dashboard::circuit::create_pointer_layer;
+//use crate::infrastructure::components::dashboard::circuit::add_mouse_move_event;
+//use crate::infrastructure::components::dashboard::circuit::create_pointer_layer;
+use crate::infrastructure::components::dashboard::circuit::Circuit;
 use std::cell::Cell;
 use std::collections::HashMap;
 use crate::infrastructure::components::dashboard::hook::{use_analyses, use_plotly_draw};
@@ -39,7 +40,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::js_sys::Object;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{EventTarget, HtmlElement, MouseEvent};
-use crate::infrastructure::components::dashboard::circuit::create_circuit;
+//use crate::infrastructure::components::dashboard::circuit::create_circuit;
 
 const CANVAS_ID: &str = "circuit_canvas";
 const CANVAS_HEIGHT: f64 = 800.;
@@ -53,10 +54,10 @@ extern "C" {
     async fn js_new_plot_(id: &str, obj: &Object) -> Result<JsValue, JsValue>;
 }
 
-#[wasm_bindgen(module = "/assets/scripts/utils.js")]
+#[wasm_bindgen(module = "/assets/scripts/plotly_interop.js")]
 extern "C" {
-    #[wasm_bindgen(js_name = "sync_plotly_hover")]
-    fn sync_plotly_hover(div_id: JsValue, sync_div_ids: Vec<JsValue>);
+    #[wasm_bindgen(js_name = "sync_plotly")]
+    fn sync_plotly(div_id: JsValue, sync_div_ids: Vec<JsValue>);
 }
 
 #[derive(Properties, Clone, PartialEq)]
@@ -162,45 +163,45 @@ impl Component for PlotlyDrawer {
 
         let analysis = Rc::new(analysis);
 
-        ctx.link().send_future({
-            let div_id = self.canvas_circuit.id.clone();
-            let analysis = Rc::clone(&analysis);
-            async move {
-                info!("Starting canvas binding");
-                let analysis: &Analysis = &analysis;
-                if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
-                    let lat = &reference.metrics.latitude[..];
-                    let lon = &reference.metrics.longitude[..];
-                    let dist = &union_distances[..];
-                    match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
-                        Ok(_) => Self::Message::SyncCanvas(div_id),
-                        Err(e) => Self::Message::Error(format!("{e:?}")),
-                    }
-                } else {
-                    Self::Message::Error(format!("Cannot extract latitude and longitude from analysis `{}`", analysis.header.id))
-                }
-            }
-        });
+        //ctx.link().send_future({
+        //    let div_id = self.canvas_circuit.id.clone();
+        //    let analysis = Rc::clone(&analysis);
+        //    async move {
+        //        info!("Starting canvas binding");
+        //        let analysis: &Analysis = &analysis;
+        //        if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
+        //            let lat = &reference.metrics.latitude[..];
+        //            let lon = &reference.metrics.longitude[..];
+        //            let dist = &union_distances[..];
+        //            match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
+        //                Ok(_) => Self::Message::SyncCanvas(div_id),
+        //                Err(e) => Self::Message::Error(format!("{e:?}")),
+        //            }
+        //        } else {
+        //            Self::Message::Error(format!("Cannot extract latitude and longitude from analysis `{}`", analysis.header.id))
+        //        }
+        //    }
+        //});
 
-        ctx.link().send_future({
-            let div_id = self.canvas_pos.id.clone();
-            let analysis = Rc::clone(&analysis);
-            async move {
-                info!("Starting canvas binding");
-                let analysis: &Analysis = &analysis;
-                if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
-                    let lat = &reference.metrics.latitude[..];
-                    let lon = &reference.metrics.longitude[..];
-                    let dist = &union_distances[..];
-                    match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
-                        Ok(_) => Self::Message::SyncCanvas(div_id),
-                        Err(e) => Self::Message::Error(format!("{e:?}")),
-                    }
-                } else {
-                    Self::Message::Error(format!("Cannot extract latitude and longitude from analysis `{}`", analysis.header.id))
-                }
-            }
-        });
+        //ctx.link().send_future({
+        //    let div_id = self.canvas_pos.id.clone();
+        //    let analysis = Rc::clone(&analysis);
+        //    async move {
+        //        info!("Starting canvas binding");
+        //        let analysis: &Analysis = &analysis;
+        //        if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
+        //            let lat = &reference.metrics.latitude[..];
+        //            let lon = &reference.metrics.longitude[..];
+        //            let dist = &union_distances[..];
+        //            match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
+        //                Ok(_) => Self::Message::SyncCanvas(div_id),
+        //                Err(e) => Self::Message::Error(format!("{e:?}")),
+        //            }
+        //        } else {
+        //            Self::Message::Error(format!("Cannot extract latitude and longitude from analysis `{}`", analysis.header.id))
+        //        }
+        //    }
+        //});
 
         for target_div in &self.plot_divs {
             ctx.link().send_future({
@@ -226,18 +227,14 @@ impl Component for PlotlyDrawer {
             <div class="fixed-grid">
                 <div class="grid">
                     <div class="cell">
-                        <canvas
-                            id={self.canvas_circuit.id.clone()}
-                            width={self.canvas_circuit.width.to_string()}
-                            height={self.canvas_circuit.height.to_string()}
-                            ref={self.canvas_circuit.node_ref.clone()}
-                            class="px-4 py-4" />
-                        <canvas
-                            id={self.canvas_pos.id.clone()}
-                            width={self.canvas_pos.width.to_string()}
-                            height={self.canvas_pos.height.to_string()}
-                            ref={self.canvas_pos.node_ref.clone()}
-                            class="px-4 py-4 is-overlay" />
+                        <Circuit
+                            width={800.}
+                            height={600.}
+                            margin={20.}
+                            latitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.metrics.latitude)}
+                            longitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.metrics.longitude)}
+                            distances={analysis.union_distances.clone()}
+                        />
                     </div>
                     <div class="cell is-col-start-3" /*ref={self.target_div.clone()}*/ >
                         {
@@ -258,7 +255,7 @@ impl Component for PlotlyDrawer {
             Self::Message::SyncPlotlyHover(div_id) => {
                 let div_id = JsValue::from(div_id);
                 let sync_div_ids: Vec<JsValue> = self.plot_divs.iter().map(|target_div| { JsValue::from(target_div.id.clone()) }).collect();
-                sync_plotly_hover(div_id, sync_div_ids);
+                sync_plotly(div_id, sync_div_ids);
                 false
             }
             Self::Message::Error(e) => {

@@ -1,42 +1,36 @@
-use crate::infrastructure::components::repository_context::Repositories;
-
+use shared::file::domain::file::Status;
 use shared::file::domain::files::Files;
+use shared::common::domain::criteria::Criteria;
 
-use log::info;
 use std::future::Future;
 use yew::{classes, html, Callback, Component, Context, Html};
+use yew::Properties;
+
+#[derive(Properties, Clone, PartialEq)]
+pub struct FileListProps {
+    pub files: Files,
+    pub error: Option<String>,
+    pub fetch_callback: Callback<()>,
+    pub delete_file_callback: Callback<String>,
+}
 
 pub enum Msg {
-    Fetch,
-    View(Option<Files>),
-    DeleteFile(String),
     ShowModal,
     HideModal,
     Error(String),
-    BackToDefault,
 }
 
-pub struct FileLister {
-    pub fetching: bool,
-    pub show_modal: bool,
-    pub files: Option<Files>,
-    pub error: Option<String>,
+#[derive(Default)]
+pub struct FileList {
+    filter: Criteria,
+    fetching: bool,
+    show_modal: bool,
+    error: Option<String>
 }
 
-impl Default for FileLister {
-    fn default() -> Self {
-        Self {
-            fetching: true,
-            show_modal: false,
-            files: Option::default(),
-            error: Option::default(),
-        }
-    }
-}
-
-impl Component for FileLister {
+impl Component for FileList {
     type Message = Msg;
-    type Properties = ();
+    type Properties = FileListProps;
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self::default()
@@ -44,58 +38,9 @@ impl Component for FileLister {
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::Fetch => {
-                let (repo_ctx, _) = ctx
-                    .link()
-                    .context::<Repositories>(Callback::noop())
-                    .expect("No Repositories Context Provided");
-
-                {
-                    let file_repo = repo_ctx.file.clone();
-                    let link = ctx.link().clone();
-                    wasm_bindgen_futures::spawn_local(async move {
-                        match file_repo.find_by_criteria("").await {
-                            Ok(opt_files) => {
-                                link.send_message(Msg::View(opt_files));
-                            }
-                            Err(e) => {
-                                link.send_message(Msg::Error(e));
-                            }
-                        }
-                    });
-                }
-                false
-            }
-            Msg::View(opt_files) => {
-                self.fetching = false;
-                self.files = opt_files;
-                true
-            }
             Msg::Error(e) => {
                 self.fetching = false;
                 self.error = Some(e);
-                true
-            }
-            Msg::DeleteFile(id) => {
-                let (repo_ctx, _) = ctx
-                    .link()
-                    .context::<Repositories>(Callback::noop())
-                    .expect("No Repositories Context Provided");
-
-                {
-                    let file_repo = repo_ctx.file.clone();
-                    let link = ctx.link().clone();
-                    wasm_bindgen_futures::spawn_local(async move {
-                        match file_repo.delete(&id).await {
-                            Ok(_) => {
-                                link.send_message(Msg::BackToDefault);
-                            }
-                            Err(e) => {
-                                link.send_message(Msg::Error(e));
-                            }
-                        }
-                    });
-                }
                 true
             }
             Msg::ShowModal => {
@@ -106,29 +51,23 @@ impl Component for FileLister {
                 self.show_modal = false;
                 true
             }
-            Msg::BackToDefault => {
-                info!("BackToDefault message received");
-                *self = Self::default();
-                true
-            }
         }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        if self.fetching {
-            ctx.link().send_message(Msg::Fetch)
-        };
-
         html! {
             <div class="box mt-4">
-                if let Some(msg) = &self.error {
+                if let Some(msg) = &ctx.props().error {
                     <div class="block mx-2">
                         <article class="message is-danger">
                             <div class="message-header">
                                 <p>{"Error fetching files"}</p>
                                 <button class="delete"
                                     aria-label="delete"
-                                    onclick={ctx.link().callback(|_| {Msg::BackToDefault})}
+                                    onclick={
+                                        let callback = ctx.props().fetch_callback.clone();
+                                        Callback::from(move |_| {callback.emit(())})
+                                    }
                                 />
                             </div>
                             <div class="message-body">
@@ -141,20 +80,22 @@ impl Component for FileLister {
                         {"Fetching Files..."}
                     </div>
                     <progress class="progress is-large is-primary" max="100" />
-                } else if let Some(files) = &self.files {
-                    {Self::view_files(files, ctx, self.show_modal)}
-                } else {
+                } else if ctx.props().files.is_empty() {
                     <div class="block has-text-centered">
                         <h1 class="subtitle is-3">{"No files yet! Start adding a file."}</h1>
                     </div>
+                } else {
+                    {Self::view_files(ctx, self.show_modal)}
                 }
             </div>
         }
     }
 }
 
-impl FileLister {
-    pub fn view_files(files: &Files, ctx: &Context<Self>, modal: bool) -> Html {
+impl FileList {
+    pub fn view_files(ctx: &Context<Self>, modal: bool) -> Html {
+        let files = &ctx.props().files;
+
         html! {
             files.iter().map(|file| {
                 let file_id = file.id.clone();
@@ -162,7 +103,13 @@ impl FileLister {
                     <article class="media is-hoverable">
                         <figure class="media-left">
                             <p class="image is-64x64">
-                                <h1 class="title is-1 is-center">{"📄"}</h1>
+                                <h1 class="title is-1 is-center">{
+                                    match file.status {
+                                        Status::Accepted => {"⏳"}
+                                        Status::Success => {"📄"}
+                                        Status::Fail(_) => {"🚫"}
+                                    }
+                                }</h1>
                             </p>
                         </figure>
                         <div class="media-content">
@@ -170,15 +117,23 @@ impl FileLister {
                                 <p>
                                     <strong>{file.name.clone()}</strong>
                                     <br />
-                                    <small>{serde_json::to_string(&file.status).unwrap_or_default()}</small>
+                                    <small>{file.created_on.to_string()}</small>
                                     <br />
-                                    <small>{"25/09/2023"}</small>
+                                    {
+                                        match &file.status {
+                                            Status::Fail(msg) => html!{
+                                                <small class="has-text-danger">{msg}</small>
+                                            },
+                                            _ => html!{},
+                                        }
+                                    }
                                 </p>
                             </div>
                         </div>
                         <div class="media-right">
                             <button
                                 class="button is-info is-dark is-outlined is-large mr-4"
+                                disabled={!matches!(file.status, Status::Success)}
                             >{"🏁"}</button>
                             <button
                                 class="button is-danger is-outlined is-large js-modal-trigger"
@@ -209,7 +164,13 @@ impl FileLister {
                                         <div class="buttons">
                                             <button
                                                 class="button is-danger"
-                                                onclick={ctx.link().callback(move |_| {Msg::DeleteFile(file_id.clone())})}
+                                                onclick={
+                                                    let link = ctx.link().clone();
+                                                    let callback = ctx.props().delete_file_callback.clone();
+                                                    link.callback(move |_| {
+                                                        callback.emit(file_id.clone());
+                                                        Msg::HideModal
+                                                    })}
                                             >{"Delete"}</button>
                                             <button
                                                 class="button is-dark"

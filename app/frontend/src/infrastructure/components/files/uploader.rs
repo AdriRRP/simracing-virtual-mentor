@@ -20,7 +20,7 @@ pub enum Msg {
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub notify_parent: Callback<()>,
+    pub on_file_uploaded: Callback<()>,
 }
 
 pub struct FileUploader {
@@ -75,6 +75,7 @@ impl Component for FileUploader {
                     let file_name = file_name.clone();
                     let name = self.name.clone();
                     let link = ctx.link().clone();
+                    let on_file_uploaded = ctx.props().on_file_uploaded.clone();
                     wasm_bindgen_futures::spawn_local(async move {
                         info!("Into spawn repo");
                         match ibt_repo.upload(name, file_name.clone(), data).await {
@@ -82,7 +83,8 @@ impl Component for FileUploader {
                                 info!("Correctamente subido!");
                                 link.send_message(Msg::Success(format!(
                                     "File `{file_name}` successfully uploaded"
-                                )))
+                                )));
+                                on_file_uploaded.emit(())
                             }
                             Err(e) => {
                                 error!("Lamentablemente hay un error: {e}");
@@ -212,13 +214,7 @@ impl Component for FileUploader {
                             <p>{"Successfully uploaded file"}</p>
                             <button class="delete"
                                 aria-label="delete"
-                                onclick={
-                                    let notify_parent = ctx.props().notify_parent.clone();
-                                    ctx.link().callback(move |_| {
-                                        notify_parent.emit(());
-                                        Msg::BackToDefault
-                                    })
-                                }
+                                onclick={ctx.link().callback(|_| {Msg::BackToDefault})}
                                 />
                           </div>
                           <div class="message-body">

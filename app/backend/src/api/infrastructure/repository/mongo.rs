@@ -14,6 +14,7 @@ use mongodb::options::{ClientOptions, Credential};
 use mongodb::{Client, Collection};
 use serde::de::DeserializeOwned;
 use std::fmt::{Debug, Display};
+use tracing::warn;
 
 pub mod analysis;
 pub mod file;
@@ -123,12 +124,15 @@ where
                     Condition::GreaterThan => doc!(field: doc!("$gt": value)),
                     Condition::LowerThan => doc!(field: doc!("$lt": value)),
                     Condition::Contains => {
-                        doc!(field : doc!( "$regex" : doc!("$toString" : value)))
+                        //doc!(field : doc!( "$regex" : doc!("$toString" : value)))
+                        doc!(field : doc!( "$regex" : value, "$options": "i" ))
                     }
+                    // TODO: Revisar filtro
                     Condition::NotContains => {
                         doc!(field : doc!( "$not" : doc!("$toString" : value)))
                     }
                 };
+                tracing::warn!("{doc:?}");
                 Ok(bson::Bson::from(doc))
             })
             .collect();
@@ -137,9 +141,20 @@ where
         
         tracing::trace!("Criteria BSON: {:?}", filters_bson.clone());
 
-        let query = doc!("$and": filters_bson);
+        let query = if filters_bson.is_empty() {
+            Some(doc! {})
+        } else {
+            Some(doc!("$and": filters_bson))
+        };
 
-        Ok(self.query(collection, Some(query), Some(find_opts)).await?)
+        tracing::trace!("Query: {:?}", query.clone());
+
+        let result = self.query(collection, query, Some(find_opts)).await;
+        if let Err(ref e) = result {
+            tracing::error!("{:?}", e.to_string());
+        }
+        Ok(result?)
+        //Ok(self.query(collection, query, Some(find_opts)).await?)
     }
 
     /// # Errors

@@ -1,10 +1,10 @@
 use super::filter::Filter;
 use serde::{Deserialize, Serialize};
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Default, Debug)] // TODO: Review clone
 pub struct Filters {
-    filters: Vec<Filter>,
+    pub filters: Vec<Filter>,
 }
 
 impl Filters {
@@ -31,6 +31,16 @@ impl Deref for Filters {
     /// A reference to the vector of files.
     fn deref(&self) -> &Self::Target {
         &self.filters
+    }
+}
+impl DerefMut for Filters {
+    /// Allows accessing the files in the collection via dereferencing.
+    ///
+    /// # Returns
+    ///
+    /// A mutable reference to the vector of files.
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.filters
     }
 }
 

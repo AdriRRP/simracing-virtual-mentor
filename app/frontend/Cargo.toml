@@ -32,7 +32,7 @@ wasm-bindgen-futures = { version = "0.4.42" }
 log = "0.4.21"
 yew-router = "0.18.0"
 reqwest = { version = "0.12.4", features = ["json", "multipart"] }
-web-sys = { version = "0.3.69", features = ["DomRect", "CanvasGradient","HtmlCanvasElement","CanvasRenderingContext2d", "Document", "Element", "Window", "FileReaderSync", "DataTransfer", "CustomEvent", "EventTarget", "ReadableStreamDefaultReader"] }
+web-sys = { version = "0.3.69", features = ["HtmlSelectElement", "DomRect", "CanvasGradient","HtmlCanvasElement","CanvasRenderingContext2d", "Document", "Element", "Window", "FileReaderSync", "DataTransfer", "CustomEvent", "EventTarget", "ReadableStreamDefaultReader"] }
 urlencoding = "2.1.3"
 js-sys = "0.3.69"
 wasm-bindgen-file-reader = "1.0.0"
@@ -40,3 +40,4 @@ gloo = "0.11.0"
 base64 = "0.22.1"
 mime = "0.3.17"
 thiserror = "1.0.61"
+chrono = "0.4.38"

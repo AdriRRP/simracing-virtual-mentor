@@ -6,12 +6,12 @@ use filters::Filters;
 use order::Order;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
 pub struct Criteria {
-    filters: Option<Filters>,
-    order: Option<Order>,
-    offset: Option<usize>,
-    limit: Option<usize>,
+    pub filters: Option<Filters>,
+    pub order: Option<Order>,
+    pub offset: Option<usize>,
+    pub limit: Option<usize>,
 }
 
 impl Criteria {

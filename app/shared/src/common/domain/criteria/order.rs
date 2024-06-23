@@ -8,8 +8,8 @@ use std::cmp::Ordering;
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)] // TODO: Review clone
 pub struct Order {
-    by: By,
-    r#type: Type,
+    pub by: By,
+    pub r#type: Type,
 }
 
 impl Order {

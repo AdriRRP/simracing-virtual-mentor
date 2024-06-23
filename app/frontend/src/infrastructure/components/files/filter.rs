@@ -1,5 +1,3 @@
-use chrono::Utc;
-use chrono::{DateTime, NaiveDate};
 use crate::infrastructure::components::files::filter::_Props::on_filter_change;
 
 use shared::common::domain::criteria::Criteria;
@@ -14,6 +12,8 @@ use log::{info, debug};
 use yew::{function_component, html, Html, props};
 use yew::prelude::*;
 use chrono::NaiveDateTime;
+use chrono::Utc;
+use chrono::{DateTime, NaiveDate};
 
 
 #[derive(Properties, PartialEq)]
@@ -108,7 +108,7 @@ pub fn file_filter(props: &Props) -> Html {
 
     html! {
         <div class="box mt-4">
-            <h2 class="subtitle is-2">{"Filter"}</h2>
+            <h2 class="subtitle is-5">{"Filter"}</h2>
             <form>
 
                 <div class="has-2-cols field">

@@ -113,6 +113,7 @@ impl Component for Files {
         
         html! {
             <div class="container">
+                <h1 class="title">{"Files"}</h1>
                 <FileUploader on_file_uploaded={fetch_files.clone()} />
                 <FileFilter {on_filter_change} />
                 <FileList

@@ -55,7 +55,7 @@ impl Default for Settings {
             endpoints: Endpoints {
                 analysis: Analysis {
                     server: "http://127.0.0.1:16666".to_string(),
-                    create: "/analysis/delete".to_string(),
+                    create: "/analysis/create".to_string(),
                     delete: "/analysis/delete".to_string(),
                     find_by_id: "/analysis/find".to_string(),
                     find_by_criteria: "/analysis/find".to_string(),

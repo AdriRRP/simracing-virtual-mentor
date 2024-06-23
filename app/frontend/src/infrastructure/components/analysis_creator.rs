@@ -1,13 +1,15 @@
-pub(crate) mod list;
-pub(crate) mod filter;
+pub mod lap_selector;
 
 use crate::infrastructure::components::laps::filter::LapFilter;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::lap::http::Http as LapRepository;
+use crate::infrastructure::repository::analysis::http::Http as AnalysisRepository;
 use crate::infrastructure::components::laps::list::LapList;
+use crate::infrastructure::components::analysis_creator::lap_selector::LapSelector;
 
 use shared::common::domain::criteria::Criteria;
-use shared::lap::domain::lap::headers::Headers as DomainLaps;
+use shared::lap::domain::lap::headers::Headers as Laps;
+use shared::lap::domain::lap::header::Header as Lap;
 
 use yew::prelude::*;
 use log::info;
@@ -15,22 +17,26 @@ use uuid::Uuid;
 
 pub enum Msg {
     FetchLaps,
-    DeleteLap(Uuid),
-    SetLaps(DomainLaps),
+    SetLaps(Laps),
+    SetReference(Lap),
+    SetTarget(Lap),
     SetFilter(Criteria),
     Error(String),
 }
 
 #[derive(Default)]
-pub struct Laps {
+pub struct AnalysisCreator {
     filter: Criteria,
-    laps: DomainLaps,
+    laps: Laps,
     lap_repository: LapRepository,
+    analysis_repository: LapRepository,
     error: Option<String>,
     is_fetching: bool,
+    reference_lap: Option<Lap>,
+    target_lap: Option<Lap>,
 }
 
-impl Component for Laps {
+impl Component for AnalysisCreator {
     type Message = Msg;
     type Properties = ();
 
@@ -44,7 +50,7 @@ impl Component for Laps {
             .expect("No Repositories Context Provided");
 
         _self.lap_repository = repo_ctx.lap.clone();
-        
+
         ctx.link().send_message(Msg::FetchLaps);
         _self.is_fetching = true;
 
@@ -71,21 +77,6 @@ impl Component for Laps {
                 });
                 false
             }
-            Msg::DeleteLap(id) => {
-                let lap_repo = self.lap_repository.clone();
-                let link = ctx.link().clone();
-                wasm_bindgen_futures::spawn_local(async move {
-                    match lap_repo.delete(&id).await {
-                        Ok(()) => {
-                            link.send_message(Msg::FetchLaps);
-                        }
-                        Err(e) => {
-                            link.send_message(Msg::Error(e));
-                        }
-                    }
-                });
-                false
-            }
             Msg::SetFilter(filter) => {
                 info!("setting new filter {:?}", filter.clone());
                 self.filter = filter;
@@ -102,22 +93,40 @@ impl Component for Laps {
                 self.error = Some(msg);
                 true
             }
+            Msg::SetReference(lap) => {
+                self.reference_lap = Some(lap);
+                true
+            }
+            Msg::SetTarget(lap) => {
+                self.target_lap = Some(lap);
+                true
+            }
         }
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         let on_filter_change = ctx.link().callback(Msg::SetFilter);
         let fetch_laps = ctx.link().callback(|_| Msg::FetchLaps);
-        let delete_lap_callback = ctx.link().callback(Msg::DeleteLap);
+        let use_as_reference_lap_callback = ctx.link().callback(|lap| Msg::SetReference(lap));
+        let use_as_target_lap_callback = ctx.link().callback(|lap| Msg::SetTarget(lap));
+        
+        info!("reference_lap: {:?}", self.reference_lap.clone());
+        info!("target_lap: {:?}", self.target_lap.clone());
 
         html! {
             <div class="container">
-                <h1 class="title">{"Laps"}</h1>
+                <h1 class="title">{"Analysis Creator"}</h1>
+                <LapSelector
+                    reference_lap={self.reference_lap.clone()}
+                    target_lap={self.target_lap.clone()}
+                />
                 <LapFilter {on_filter_change} />
                 <LapList
                     laps={self.laps.clone()}
                     error={self.error.clone()}
-                    {delete_lap_callback}
+                    //{delete_lap_callback}
+                    {use_as_reference_lap_callback}
+                    {use_as_target_lap_callback}
                     fetch_callback={fetch_laps.clone()}
                     fetching={self.is_fetching.clone()}
                 />

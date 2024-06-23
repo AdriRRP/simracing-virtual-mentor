@@ -8,6 +8,7 @@ use shared::analysis::domain::analysis::Analysis;
 
 use uuid::Uuid;
 use serde::Deserialize;
+use shared::common::domain::criteria::Criteria;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Http {
@@ -117,7 +118,7 @@ impl Http {
         }
     }
 
-    pub async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Analyses>, String> {
+    pub async fn find_by_criteria(&self, criteria: &Criteria) -> Result<Option<Analyses>, String> {
         let response = Client::new()
             .post(&self.find_by_criteria)
             .json(criteria)

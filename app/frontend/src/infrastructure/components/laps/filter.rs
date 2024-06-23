@@ -21,8 +21,8 @@ pub struct Props {
     pub on_filter_change: Callback<Criteria>
 }
 
-#[function_component(FileFilter)]
-pub fn file_filter(props: &Props) -> Html {
+#[function_component(LapFilter)]
+pub fn lap_filter(props: &Props) -> Html {
 
     let criteria_state = use_state(|| Criteria::default());
     let parent_callback = props.on_filter_change.clone();
@@ -108,7 +108,7 @@ pub fn file_filter(props: &Props) -> Html {
 
     html! {
         <div class="box mt-4">
-            <h2 class="subtitle is-2">{"Filter"}</h2>
+            <h2 class="subtitle is-5">{"Filter"}</h2>
             <form>
 
                 <div class="has-2-cols field">

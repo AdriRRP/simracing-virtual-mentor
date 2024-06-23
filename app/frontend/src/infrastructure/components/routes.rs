@@ -3,6 +3,7 @@ use crate::infrastructure::components::dashboard::Dashboard;
 use crate::infrastructure::components::files::Files;
 use crate::infrastructure::components::home::Home;
 use crate::infrastructure::components::laps::Laps;
+use crate::infrastructure::components::analysis_creator::AnalysisCreator;
 
 use yew::html;
 use yew::Html;
@@ -18,6 +19,8 @@ pub enum Route {
     Laps,
     #[at("/analyses")]
     Analyses,
+    #[at("/analysis_creator")]
+    AnalysisCreator,
     #[at("/dashboard")]
     Dashboard,
 }
@@ -29,5 +32,6 @@ pub fn switch(routes: Route) -> Html {
         Route::Laps => html! { <Laps /> },
         Route::Analyses => html! { <Analyses /> },
         Route::Dashboard => html! { <Dashboard /> },
+        Route::AnalysisCreator => html! { <AnalysisCreator /> },
     }
 }

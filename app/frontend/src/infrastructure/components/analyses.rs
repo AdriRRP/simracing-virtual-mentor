@@ -1,9 +1,12 @@
+use crate::infrastructure::components::routes::Route;
 use yew::prelude::*;
+use yew_router::prelude::Link;
 
 #[function_component(Analyses)]
 pub fn analyses() -> Html {
     html! {
-        <div class="analyses">
+        <div class="container">
+            <h1 class="title">{"Analyses"}</h1>
             <div class="card">
                 <h2>{ "Search Analyses" }</h2>
                 <form>
@@ -36,6 +39,7 @@ pub fn analyses() -> Html {
                     </tbody>
                 </table>
             </div>
+            <Link<Route> to={Route::AnalysisCreator}><button class="button is-primary is-rounded">{"➕"}</button></Link<Route>>
         </div>
     }
 }

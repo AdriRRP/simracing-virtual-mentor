@@ -1,10 +1,13 @@
+use chrono::Utc;
 use crate::infrastructure::settings::Settings;
 use reqwest::Client;
+use serde::Serialize;
 
 use shared::analysis::domain::analyses::Analyses;
 use shared::analysis::domain::analysis::Analysis;
 
 use uuid::Uuid;
+use serde::Deserialize;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Http {
@@ -38,11 +41,38 @@ impl Http {
     }
 }
 
+// TODO: Move from here! //////////////////
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Request {
+    pub id: Uuid,
+    pub name: String,
+    pub ref_lap_id: Uuid,
+    pub target_lap_id: Uuid,
+}
+
+impl Request {
+    pub fn new(
+        name: String,
+        ref_lap_id: Uuid,
+        target_lap_id: Uuid,
+    ) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            name,
+            ref_lap_id,
+            target_lap_id,
+        }
+    }
+}
+
+// TODO: ////////////////////////////////
+
 impl Http {
-    pub async fn create(&self, analysis: Analysis) -> Result<(), String> {
+    pub async fn create(&self, request: Request) -> Result<(), String> {
         let response = Client::new()
             .put(&self.create)
-            .json(&analysis)
+            .json(&request)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;

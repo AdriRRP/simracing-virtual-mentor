@@ -1,18 +1,20 @@
 use shared::file::domain::file::Status;
-use shared::file::domain::files::Files;
+use shared::lap::domain::lap::headers::Headers as Laps;
+use shared::lap::domain::lap::header::Header as Lap;
 use shared::common::domain::criteria::Criteria;
 
 use std::future::Future;
+use uuid::Uuid;
 use yew::{classes, html, Callback, Component, Context, Html};
 use yew::Properties;
 
 #[derive(Properties, Clone, PartialEq)]
-pub struct FileListProps {
-    pub files: Files,
+pub struct LapListProps {
+    pub laps: Laps,
     pub error: Option<String>,
-    pub fetch_callback: Callback<()>,
-    pub delete_file_callback: Callback<String>,
     pub fetching: bool,
+    pub fetch_callback: Callback<()>,
+    pub delete_lap_callback: Callback<Uuid>,
 }
 
 pub enum Msg {
@@ -22,15 +24,15 @@ pub enum Msg {
 }
 
 #[derive(Default)]
-pub struct FileList {
+pub struct LapList {
     filter: Criteria,
     show_modal: bool,
     error: Option<String>
 }
 
-impl Component for FileList {
+impl Component for LapList {
     type Message = Msg;
-    type Properties = FileListProps;
+    type Properties = LapListProps;
 
     fn create(_ctx: &Context<Self>) -> Self {
         Self::default()
@@ -60,7 +62,7 @@ impl Component for FileList {
                     <div class="block mx-2">
                         <article class="message is-danger">
                             <div class="message-header">
-                                <p>{"Error fetching files"}</p>
+                                <p>{"Error fetching laps"}</p>
                                 <button class="delete"
                                     aria-label="delete"
                                     onclick={
@@ -76,64 +78,56 @@ impl Component for FileList {
                     </div>
                 } else if ctx.props().fetching {
                     <div class="block">
-                        {"Fetching Files..."}
+                        {"Fetching Laps..."}
                     </div>
                     <progress class="progress is-large is-primary" max="100" />
-                } else if ctx.props().files.is_empty() {
+                } else if ctx.props().laps.is_empty() {
                     <div class="block has-text-centered">
-                        <h1 class="subtitle is-3">{"No files yet! Start adding a file."}</h1>
+                        <h1 class="subtitle is-3">{"No laps yet! Start adding a file."}</h1>
                     </div>
                 } else {
-                    {Self::view_files(ctx, self.show_modal)}
+                    {Self::view_laps(ctx, self.show_modal)}
                 }
             </div>
         }
     }
 }
 
-impl FileList {
-    pub fn view_files(ctx: &Context<Self>, modal: bool) -> Html {
-        let files = &ctx.props().files;
+impl LapList {
 
+    fn lap_name(lap: &Lap) -> String {
+        format!(
+            "{} [Lap {}] ({:.2} s)",
+            lap.driver,
+            lap.number,
+            lap.time
+        )
+    }
+    pub fn view_laps(ctx: &Context<Self>, modal: bool) -> Html {
+        let laps = &ctx.props().laps;
         html! {
-            files.iter().map(|file| {
-                let file_id = file.id.clone();
+            laps.iter().map(|lap| {
+                let lap_id = lap.id.clone();
+                let lap_name = Self::lap_name(lap);
                 html!{
                     <article class="media is-hoverable">
                         <figure class="media-left">
                             <p class="image is-64x64">
-                                <h1 class="title is-1 is-center">{
-                                    match file.status {
-                                        Status::Accepted => {"⏳"}
-                                        Status::Success => {"📄"}
-                                        Status::Fail(_) => {"🚫"}
-                                    }
-                                }</h1>
+                                <h1 class="title is-1 is-center">{"🏁"}</h1>
                             </p>
                         </figure>
                         <div class="media-content">
                             <div class="content">
                                 <p>
-                                    <strong>{file.name.clone()}</strong>
-                                    <br />
-                                    <small>{file.created_on.to_string()}</small>
-                                    <br />
-                                    {
-                                        match &file.status {
-                                            Status::Fail(msg) => html!{
-                                                <small class="has-text-danger">{msg}</small>
-                                            },
-                                            _ => html!{},
-                                        }
-                                    }
+                                    <p class="title is-4">{lap_name.clone()}</p>
+                                    <p class="subtitle is-5">{lap.circuit.clone()}</p>
+                                    <p class="subtitle is-7">{lap.car.clone()}</p>
+                                    <p class="subtitle is-7">{lap.category.clone()}</p>
+                                    <p class="subtitle is-7">{lap.date.to_string()}</p>
                                 </p>
                             </div>
                         </div>
                         <div class="media-right">
-                            <button
-                                class="button is-info is-dark is-outlined is-large mr-4"
-                                disabled={!matches!(file.status, Status::Success)}
-                            >{"🏁"}</button>
                             <button
                                 class="button is-danger is-outlined is-large js-modal-trigger"
                                 data-target="delete-modal"
@@ -154,8 +148,8 @@ impl FileList {
                                     <section class="modal-card-body">
                                         {
                                             format!(
-                                                "Are you sure you want to delete the `{}` file?",
-                                                file.name.clone()
+                                                "Are you sure you want to delete the `{}` lap?",
+                                                lap_name.clone()
                                             )
                                         }
                                     </section>
@@ -165,9 +159,9 @@ impl FileList {
                                                 class="button is-danger"
                                                 onclick={
                                                     let link = ctx.link().clone();
-                                                    let callback = ctx.props().delete_file_callback.clone();
+                                                    let callback = ctx.props().delete_lap_callback.clone();
                                                     link.callback(move |_| {
-                                                        callback.emit(file_id.clone());
+                                                        callback.emit(lap_id.clone());
                                                         Msg::HideModal
                                                     })}
                                             >{"Delete"}</button>

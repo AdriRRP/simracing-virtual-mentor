@@ -81,7 +81,7 @@ impl Http {
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
-        
+
         if response.status().is_success() {
             let files: Files = response.json().await.map_err(|e| format!("{e}"))?;
             if files.is_empty() {

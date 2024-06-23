@@ -7,8 +7,9 @@ use crate::infrastructure::settings::Settings;
 
 use log::info;
 use reqwest::Client;
+use shared::common::domain::criteria::Criteria;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct Http {
     pub delete: String,
     pub find_by_id: String,
@@ -116,7 +117,7 @@ impl Http {
 
     pub(crate) async fn find_header_by_criteria(
         &self,
-        criteria: &str,
+        criteria: &Criteria,
     ) -> Result<Option<Headers>, String> {
         let response = Client::new()
             .post(&self.find_header_by_criteria)

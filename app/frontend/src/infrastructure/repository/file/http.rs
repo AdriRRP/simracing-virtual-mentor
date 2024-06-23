@@ -1,9 +1,11 @@
+use log::info;
 use crate::infrastructure::settings::Settings;
 
 use shared::file::domain::file::File;
 use shared::file::domain::files::Files;
 
 use reqwest::Client;
+use shared::common::domain::criteria::Criteria;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Http {
@@ -29,6 +31,12 @@ impl Http {
                 settings.endpoints.file.server, settings.endpoints.file.find_by_criteria
             ),
         }
+    }
+}
+
+impl Default for Http {
+    fn default() -> Self {
+        Self::new(&Settings::default())
     }
 }
 
@@ -66,14 +74,14 @@ impl Http {
         }
     }
 
-    pub async fn find_by_criteria(&self, criteria: &str) -> Result<Option<Files>, String> {
+    pub async fn find_by_criteria(&self, criteria: &Criteria) -> Result<Option<Files>, String> {
         let response = Client::new()
             .post(&self.find_by_criteria)
             .json(criteria)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
-
+        
         if response.status().is_success() {
             let files: Files = response.json().await.map_err(|e| format!("{e}"))?;
             if files.is_empty() {

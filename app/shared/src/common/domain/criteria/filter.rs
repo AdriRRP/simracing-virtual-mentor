@@ -9,9 +9,9 @@ use value::Value;
 
 #[derive(Serialize, Deserialize, Eq, PartialEq, Clone, Debug)] // TODO: Revisar clone
 pub struct Filter {
-    field: Field,
-    condition: Condition,
-    value: Value,
+    pub field: Field,
+    pub condition: Condition,
+    pub value: Value,
 }
 
 impl Filter {

@@ -12,6 +12,7 @@ use shared::file::domain::repository::Repository;
 
 use async_trait::async_trait;
 use bson::{doc, Bson};
+use log::{warn, trace};
 use mongodb::Collection;
 
 pub struct Mongo {
@@ -21,11 +22,16 @@ pub struct Mongo {
 impl MongoTrait<File, Entity> for Mongo {
     fn map_criteria_field(name: &str, value: &str) -> Result<Bson, String> {
         match name {
-            "id" | "name" => Ok(Bson::from(value)),
-            "status" => {
-                let status: Status = serde_json::from_str(value).map_err(|e| e.to_string())?;
-                bson::to_bson(&status).map_err(|e| e.to_string())
-            }
+            "id" | "name" | "status" => Ok(Bson::from(value)),
+            //"status" => {
+            //    tracing::warn!("{value:?}");
+            //    let status: Status = serde_json::from_str(value).map_err(|e| {
+            //        tracing::error!("{e}");
+            //        e.to_string()
+            //    })?;
+            //    tracing::warn!("{status:?}");
+            //    bson::to_bson(&status).map_err(|e| e.to_string())
+            //}
             "created_on" => bson::DateTime::parse_rfc3339_str(value)
                 .map_err(|e| e.to_string())
                 .map(Bson::from),
@@ -82,6 +88,7 @@ impl Repository for Mongo {
     }
 
     async fn find_by_criteria(&self, criteria: &Criteria) -> Result<Option<Files>, String> {
+        trace!("{criteria:?}");
         self.query_criteria(&self.collection, criteria)
             .await
             .map(|v| Some(Files::from(v)))

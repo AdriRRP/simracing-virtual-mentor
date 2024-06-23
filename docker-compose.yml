@@ -23,4 +23,5 @@ services:
       BACKEND__SERVER__PORT: 16666
       BACKEND__EVENT_BUS_CAPACITY: 200
       BACKEND__LOG_LEVEL: DEBUG
+      BACKEND__MONGO__URI: mongodb://mongo:27017
 

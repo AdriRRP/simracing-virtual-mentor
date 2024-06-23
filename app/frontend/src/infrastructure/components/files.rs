@@ -1,6 +1,5 @@
 mod list;
 mod uploader;
-mod item;
 mod filter;
 
 use crate::infrastructure::components::files::filter::FileFilter;
@@ -29,6 +28,7 @@ pub struct Files {
     files: DomainFiles,
     file_repository: FileRepository,
     error: Option<String>,
+    is_fetching: bool,
 }
 
 impl Component for Files {
@@ -47,6 +47,7 @@ impl Component for Files {
         _self.file_repository = repo_ctx.file.clone();
         
         ctx.link().send_message(Msg::FetchFiles);
+        _self.is_fetching = true;
         
         _self
     }
@@ -88,11 +89,13 @@ impl Component for Files {
             }
             Msg::SetFilter(filter) => {
                 info!("setting new filter {:?}", filter.clone());
+                self.is_fetching = true;
                 self.filter = filter;
                 ctx.link().send_message(Msg::FetchFiles);
                 false
             }
             Msg::SetFiles(files) => {
+                self.is_fetching = false;
                 self.files = files;
                 true
             }
@@ -116,7 +119,9 @@ impl Component for Files {
                     files={self.files.clone()}
                     error={self.error.clone()}
                     {delete_file_callback}
-                    fetch_callback={fetch_files.clone()} />
+                    fetch_callback={fetch_files.clone()}
+                    fetching={self.is_fetching}
+                />
             </div>
         }
     }

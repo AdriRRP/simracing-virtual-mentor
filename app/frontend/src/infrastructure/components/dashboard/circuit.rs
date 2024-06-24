@@ -129,10 +129,8 @@ pub fn circuit(props: &Props) -> Html {
         "steering_wheel_angle_plot",
     ];
 
-
     let gps_coords = gps_coord(&latitudes, &longitudes, &distances);
     let normalized_points = normalize_coordinates(gps_coords, width, height, margin);
-
 
     {
         let normalized_points = normalized_points.clone();
@@ -150,11 +148,10 @@ pub fn circuit(props: &Props) -> Html {
             let closure = Closure::<dyn FnMut(_)>::new(move |event: web_sys::CustomEvent| {
                 let distance = event.detail().as_f64().unwrap() as f32;
                 if let Some(closest_point) = find_nearest_point_by_distance(&normalized_points, distance) {
-                    context.set_fill_style(&JsValue::from_str("black"));
-                    context.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+                    context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
                     draw_circuit(&context, &normalized_points);
                     context.begin_path();
-                    context.arc(closest_point.x, closest_point.y, 5.0, 0.0, 2.0 * std::f64::consts::PI).unwrap();
+                    context.arc(closest_point.x, closest_point.y, 8.0, 0.0, 2.0 * std::f64::consts::PI).unwrap();
                     context.set_fill_style(&JsValue::from_str("red"));
                     context.fill();
                 }
@@ -168,8 +165,6 @@ pub fn circuit(props: &Props) -> Html {
             || ()
         });
     }
-    
-    
 
     let onmousemove = {
         let canvas_ref = canvas_ref.clone();
@@ -189,11 +184,10 @@ pub fn circuit(props: &Props) -> Html {
             // Encontrar el punto más cercano
             if let Some(closest_point) = find_nearest_point(&normalized_points, mouse_x, mouse_y) {
                 // Redibujar el canvas
-                context.set_fill_style(&JsValue::from_str("black"));
-                context.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+                context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
                 draw_circuit(&context, &normalized_points);
                 context.begin_path();
-                context.arc(closest_point.x, closest_point.y, 5.0, 0.0, 2.0 * std::f64::consts::PI).unwrap();
+                context.arc(closest_point.x, closest_point.y, 8.0, 0.0, 2.0 * std::f64::consts::PI).unwrap();
                 context.set_fill_style(&JsValue::from_str("red"));
                 context.fill();
 
@@ -213,8 +207,7 @@ pub fn circuit(props: &Props) -> Html {
                 .unwrap()
                 .dyn_into::<CanvasRenderingContext2d>()
                 .unwrap();
-            context.set_fill_style(&JsValue::from_str("black"));
-            context.fill_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
+            context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
             draw_circuit(&context, &normalized_points);
         }
         || ()
@@ -227,6 +220,7 @@ pub fn circuit(props: &Props) -> Html {
 
 fn draw_circuit(context: &CanvasRenderingContext2d, points: &Vec<Point>) {
     context.set_stroke_style(&JsValue::from_str("white"));
+    context.set_line_width(6.0); // Grosor del circuito
     context.begin_path();
     for (i, point) in points.iter().enumerate() {
         if i == 0 {

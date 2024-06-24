@@ -230,7 +230,7 @@ impl Component for PlotlyDrawer {
                         <Circuit
                             width={800.}
                             height={600.}
-                            margin={20.}
+                            margin={50.}
                             latitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.metrics.latitude)}
                             longitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.metrics.longitude)}
                             distances={analysis.union_distances.clone()}

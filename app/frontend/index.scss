@@ -21,3 +21,26 @@
 #menu-switch:checked ~ .navbar-menu{
   display: block;
 }
+
+.console {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: monospace;
+  margin-top: 10px;
+  white-space: pre-wrap;
+}
+
+.console pre {
+  margin: 0;
+  padding: 5px 0;
+}
+
+.console .maintain {
+  color: #00ff00; /* Verde para mantener */
+}
+
+.console .action {
+  color: #ff0000; /* Rojo para acciones */
+}

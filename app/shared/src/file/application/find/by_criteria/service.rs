@@ -1,6 +1,6 @@
+use crate::common::domain::criteria::Criteria;
 use crate::file::domain::files::Files;
 use crate::file::domain::repository::Repository;
-use crate::common::domain::criteria::Criteria;
 
 use std::sync::Arc;
 

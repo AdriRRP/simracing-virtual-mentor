@@ -2,20 +2,20 @@ pub mod disk_header;
 pub mod from_reader;
 pub mod header;
 pub mod macros;
-pub mod metric;
-pub mod metrics;
 pub mod session_info;
 pub mod var_filter;
 pub mod var_header;
 pub mod var_headers;
 pub mod var_value;
+pub mod variable;
+pub mod variables;
 
 use crate::ibt::domain::file::disk_header::DiskHeader;
 use crate::ibt::domain::file::from_reader::{FixedSize, VariableSize};
 use crate::ibt::domain::file::header::{Header, HEADER_BYTES_SIZE};
-use crate::ibt::domain::file::metrics::Metrics;
 use crate::ibt::domain::file::session_info::SessionInfo;
 use crate::ibt::domain::file::var_filter::VarFilter;
+use crate::ibt::domain::file::variables::Variables;
 
 use std::fmt::Debug;
 use std::io::{Read, Seek};
@@ -46,7 +46,7 @@ pub struct File {
     pub header: Header,
     pub disk_header: DiskHeader,
     pub session_info: SessionInfo,
-    pub metrics: Metrics,
+    pub metrics: Variables,
 }
 
 impl File {
@@ -79,7 +79,7 @@ impl File {
                 .collect::<Vec<String>>(),
         ));
 
-        let metrics = Metrics::from_reader(reader, &header, &filter)
+        let metrics = Variables::from_reader(reader, &header, &filter)
             .map_err(|e| Error::Metrics(format!("{e}")))?;
 
         // Return complete laps

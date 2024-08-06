@@ -12,7 +12,7 @@ use plotly::{Layout, Plot, Scatter};
 use serde::{Deserialize, Serialize};
 use shared::analysis::domain::analysis::reference_lap::ReferenceLap;
 use shared::ibt::domain::file::var_header::Error::Name;
-use shared::lap::domain::lap::metrics::Metrics;
+use shared::lap::domain::lap::variables::Variables;
 
 #[derive(Clone)]
 pub enum PlotType {
@@ -96,48 +96,48 @@ fn base_layout() -> Layout {
         )
 }
 
-fn select_metrics(plot_type: &PlotType, reference: &ReferenceLap, target: &ReferenceLap, difference: Metrics, distances: Vec<f32>) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, &'static str)
+fn select_metrics(plot_type: &PlotType, reference: &ReferenceLap, target: &ReferenceLap, difference: Variables, distances: Vec<f32>) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, &'static str)
 {
     match plot_type {
         PlotType::Speed => (
             distances,
-            reference.metrics.speed.clone(),
-            target.metrics.speed.clone(),
+            reference.variables.speed.clone(),
+            target.variables.speed.clone(),
             difference.speed.clone(),
             "%{y:.1f} km/h",
         ),
         PlotType::Throttle => (
             distances,
-            reference.metrics.throttle.clone(),
-            target.metrics.throttle.clone(),
+            reference.variables.throttle.clone(),
+            target.variables.throttle.clone(),
             difference.throttle.clone(),
             "%{y:.2f}",
         ),
         PlotType::Brake => (
             distances,
-            reference.metrics.brake.clone(),
-            target.metrics.brake.clone(),
+            reference.variables.brake.clone(),
+            target.variables.brake.clone(),
             difference.brake.clone(),
             "%{y:.2f}",
         ),
         PlotType::Gear => (
             distances,
-            reference.metrics.gear.clone().iter().map(|&x| f32::from(x)).collect(),
-            target.metrics.gear.clone().iter().map(|&x| f32::from(x)).collect(),
+            reference.variables.gear.clone().iter().map(|&x| f32::from(x)).collect(),
+            target.variables.gear.clone().iter().map(|&x| f32::from(x)).collect(),
             difference.gear.clone().iter().map(|&x| f32::from(x)).collect(),
             "Gear %{y:.0f}"
         ),
         PlotType::SteeringWheelAngle => (
             distances,
-            reference.metrics.steering_wheel_angle.clone(),
-            target.metrics.steering_wheel_angle.clone(),
+            reference.variables.steering_wheel_angle.clone(),
+            target.variables.steering_wheel_angle.clone(),
             difference.steering_wheel_angle.clone(),
             "%{y:.2f} rad",
         ),
     }
 }
 
-fn traces(plot: &mut Plot, plot_type: &PlotType, reference: &ReferenceLap, target: &ReferenceLap, difference: Metrics, distances: Vec<f32>) {
+fn traces(plot: &mut Plot, plot_type: &PlotType, reference: &ReferenceLap, target: &ReferenceLap, difference: Variables, distances: Vec<f32>) {
     let (x, y_ref, y_target, y_diff, hover) = select_metrics(plot_type, reference, target, difference, distances);
     trace(
         plot,

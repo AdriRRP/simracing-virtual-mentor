@@ -1,4 +1,4 @@
-    name,description,var_type,unit,count,count_as_time,offset
+name,description,var_type,unit,count,count_as_time,offset
 SessionTime,Seconds since session start,Double,s,1,0,0
 SessionTick,Current update number,Int,,1,0,8
 SessionNum,Session number,Int,,1,0,12

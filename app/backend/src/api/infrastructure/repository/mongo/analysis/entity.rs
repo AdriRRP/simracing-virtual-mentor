@@ -2,7 +2,9 @@ use shared::analysis::domain::analysis::header::Header as DomainHeader;
 use shared::analysis::domain::analysis::reference_lap::ReferenceLap;
 use shared::analysis::domain::analysis::status::Status;
 use shared::analysis::domain::analysis::Analysis;
-use shared::lap::domain::lap::metrics::Metrics;
+use shared::lap::domain::lap::variables::Variables;
+use shared::analysis::domain::analysis::clustering::Clustering;
+use shared::analysis::domain::analysis::tags::Tags;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -19,7 +21,9 @@ pub struct Entity {
     pub reference: Option<ReferenceLap>,
     pub target: Option<ReferenceLap>,
     pub union_distances: Vec<f32>,
-    pub differences: Option<Metrics>,
+    pub differences: Option<Variables>,
+    pub clustering: Option<Clustering>,
+    pub tags: Option<Tags>,
 }
 impl TryInto<Analysis> for Entity {
     type Error = String;
@@ -38,6 +42,8 @@ impl TryInto<Analysis> for Entity {
             target: self.target,
             union_distances: self.union_distances,
             differences: self.differences,
+            clustering: self.clustering,
+            tags: self.tags,
         })
     }
 }
@@ -69,6 +75,8 @@ impl TryFrom<Analysis> for Entity {
             target: analysis.target,
             union_distances: analysis.union_distances,
             differences: analysis.differences,
+            clustering: analysis.clustering,
+            tags: analysis.tags,
         })
     }
 }

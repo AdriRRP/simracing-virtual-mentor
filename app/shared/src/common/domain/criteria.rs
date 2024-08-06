@@ -6,7 +6,7 @@ use filters::Filters;
 use order::Order;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, Default, Eq, PartialEq)]
 pub struct Criteria {
     pub filters: Option<Filters>,
     pub order: Option<Order>,

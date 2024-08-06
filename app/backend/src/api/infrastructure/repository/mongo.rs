@@ -14,7 +14,6 @@ use mongodb::options::{ClientOptions, Credential};
 use mongodb::{Client, Collection};
 use serde::de::DeserializeOwned;
 use std::fmt::{Debug, Display};
-use tracing::warn;
 
 pub mod analysis;
 pub mod file;

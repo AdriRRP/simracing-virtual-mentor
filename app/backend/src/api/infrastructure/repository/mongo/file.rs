@@ -12,7 +12,7 @@ use shared::file::domain::repository::Repository;
 
 use async_trait::async_trait;
 use bson::{doc, Bson};
-use log::{warn, trace};
+use log::trace;
 use mongodb::Collection;
 
 pub struct Mongo {

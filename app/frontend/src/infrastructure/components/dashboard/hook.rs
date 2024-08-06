@@ -30,11 +30,11 @@ pub fn use_analyses(
                     result_handle.set(Some(selection))
                 }
                 Ok(None) => {
-                    error!("No laps found");
+                    error!("No analyses found");
                     result_handle.set(None)
                 }
                 Err(e) => {
-                    error!("Error fetching laps: {e}");
+                    error!("Error fetching analyses: {e}");
                     result_handle.set(None)
                 }
             }

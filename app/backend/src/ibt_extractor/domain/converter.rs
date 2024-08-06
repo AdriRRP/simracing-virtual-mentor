@@ -1,9 +1,9 @@
-use shared::ibt::domain::file::metrics::Metrics as IbtMetrics;
+use shared::ibt::domain::file::variables::Variables as IbtVariables;
 use shared::ibt::domain::file::session_info::driver_info::driver::Driver;
 use shared::ibt::domain::file::session_info::SessionInfo;
 use shared::ibt::domain::file::var_value::primitive::Primitive;
 use shared::ibt::domain::file::var_value::VarValue;
-use shared::lap::domain::lap::metrics::Metrics;
+use shared::lap::domain::lap::variables::Variables;
 use shared::lap::domain::lap::Lap;
 use shared::lap::domain::laps::Laps;
 
@@ -12,12 +12,12 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 macro_rules! extract_values {
-    ($metrics:expr, $metric_name:expr, $primitive_variant:ident $(, $output_type:ty)?) => {{
-        $metrics
+    ($variables:expr, $variable_name:expr, $primitive_variant:ident $(, $output_type:ty)?) => {{
+        $variables
             .iter()
-            .find(|m| m.var_header.name() == $metric_name)
-            .map(|metric| {
-                metric
+            .find(|m| m.var_header.name() == $variable_name)
+            .map(|variable| {
+                variable
                     .var_values
                     .iter()
                     .flat_map(|vv| match vv {
@@ -27,7 +27,7 @@ macro_rules! extract_values {
                                     let output = output.map(|original| original as $output_type);
                                 )?
                                 output
-                            },
+                            }
                         _ => None, // TODO: Log the error
                     })
                     .collect::<Vec<_>>()
@@ -37,7 +37,7 @@ macro_rules! extract_values {
 }
 
 #[must_use]
-pub fn ibt_metrics2laps(file_id: &str, session_info: &SessionInfo, metrics: &IbtMetrics) -> Laps {
+pub fn ibt_variables2laps(file_id: &str, session_info: &SessionInfo, variables: &IbtVariables) -> Laps {
     let driver = get_driver_or_none(session_info);
 
     let driver_name = driver
@@ -63,11 +63,11 @@ pub fn ibt_metrics2laps(file_id: &str, session_info: &SessionInfo, metrics: &Ibt
 
     let date = get_datetime_or_now(session_info);
 
-    let metrics_by_lap: HashMap<u16, Metrics> = group_metrics_by_lap(metrics);
+    let variables_by_lap: HashMap<u16, Variables> = group_variables_by_lap(variables);
 
-    let laps_vec: Vec<Lap> = metrics_by_lap
+    let laps_vec: Vec<Lap> = variables_by_lap
         .iter()
-        .map(|(lap_number, metrics)| {
+        .map(|(lap_number, variables)| {
             Lap::new(
                 Uuid::new_v4(),
                 file_id.to_string(),
@@ -77,7 +77,7 @@ pub fn ibt_metrics2laps(file_id: &str, session_info: &SessionInfo, metrics: &Ibt
                 car.clone(),
                 circuit.clone(),
                 date,
-                metrics.clone(),
+                variables.clone(),
             )
         })
         .collect();
@@ -134,46 +134,46 @@ fn get_datetime_or_now(session_info: &SessionInfo) -> DateTime<Utc> {
     .unwrap_or_else(Utc::now)
 }
 
-fn group_metrics_by_lap(metrics: &IbtMetrics) -> HashMap<u16, Metrics> {
-    let lap: Vec<u16> = extract_values!(metrics, "Lap", Int, u16);
+fn group_variables_by_lap(variables: &IbtVariables) -> HashMap<u16, Variables> {
+    let lap: Vec<u16> = extract_values!(variables, "Lap", Int, u16);
     // TODO: Check all vectors have the same size
-    let speed: Vec<f32> = extract_values!(metrics, "Speed", Float);
-    let throttle: Vec<f32> = extract_values!(metrics, "Throttle", Float);
-    let brake: Vec<f32> = extract_values!(metrics, "Brake", Float);
-    let clutch: Vec<f32> = extract_values!(metrics, "Clutch", Float);
-    let gear: Vec<i8> = extract_values!(metrics, "Gear", Int, i8);
-    let rpm: Vec<f32> = extract_values!(metrics, "RPM", Float);
-    let distance: Vec<f32> = extract_values!(metrics, "LapDist", Float);
-    let distance_pct: Vec<f32> = extract_values!(metrics, "LapDistPct", Float);
-    let track_temp: Vec<f32> = extract_values!(metrics, "TrackTempCrew", Float);
-    let latitude: Vec<f64> = extract_values!(metrics, "Lat", Double);
-    let longitude: Vec<f64> = extract_values!(metrics, "Lon", Double);
-    let altitude: Vec<f32> = extract_values!(metrics, "Alt", Float);
-    let steering_wheel_angle: Vec<f32> = extract_values!(metrics, "SteeringWheelAngle", Float);
-    let fuel_level: Vec<f32> = extract_values!(metrics, "FuelLevel", Float);
-    let lap_current_lap_time: Vec<f32> = extract_values!(metrics, "LapCurrentLapTime", Float);
+    let speed: Vec<f32> = extract_values!(variables, "Speed", Float);
+    let throttle: Vec<f32> = extract_values!(variables, "Throttle", Float);
+    let brake: Vec<f32> = extract_values!(variables, "Brake", Float);
+    let clutch: Vec<f32> = extract_values!(variables, "Clutch", Float);
+    let gear: Vec<i8> = extract_values!(variables, "Gear", Int, i8);
+    let rpm: Vec<f32> = extract_values!(variables, "RPM", Float);
+    let distance: Vec<f32> = extract_values!(variables, "LapDist", Float);
+    let distance_pct: Vec<f32> = extract_values!(variables, "LapDistPct", Float);
+    let track_temp: Vec<f32> = extract_values!(variables, "TrackTempCrew", Float);
+    let latitude: Vec<f64> = extract_values!(variables, "Lat", Double);
+    let longitude: Vec<f64> = extract_values!(variables, "Lon", Double);
+    let altitude: Vec<f32> = extract_values!(variables, "Alt", Float);
+    let steering_wheel_angle: Vec<f32> = extract_values!(variables, "SteeringWheelAngle", Float);
+    let fuel_level: Vec<f32> = extract_values!(variables, "FuelLevel", Float);
+    let lap_current_lap_time: Vec<f32> = extract_values!(variables, "LapCurrentLapTime", Float);
 
     let mut groups = HashMap::new();
 
     (0..lap.len()).for_each(|i| {
-        let lap_metrics = groups.entry(lap[i]).or_insert_with(Metrics::default);
-        lap_metrics.speed.push(speed[i]);
-        lap_metrics.throttle.push(throttle[i]);
-        lap_metrics.brake.push(brake[i]);
-        lap_metrics.clutch.push(clutch[i]);
-        lap_metrics.gear.push(gear[i]);
-        lap_metrics.rpm.push(rpm[i]);
-        lap_metrics.distance.push(distance[i]);
-        lap_metrics.distance_pct.push(distance_pct[i]);
-        lap_metrics.track_temp.push(track_temp[i]);
-        lap_metrics.latitude.push(latitude[i]);
-        lap_metrics.longitude.push(longitude[i]);
-        lap_metrics.altitude.push(altitude[i]);
-        lap_metrics
+        let lap_variables = groups.entry(lap[i]).or_insert_with(Variables::default);
+        lap_variables.speed.push(speed[i]);
+        lap_variables.throttle.push(throttle[i]);
+        lap_variables.brake.push(brake[i]);
+        lap_variables.clutch.push(clutch[i]);
+        lap_variables.gear.push(gear[i]);
+        lap_variables.rpm.push(rpm[i]);
+        lap_variables.distance.push(distance[i]);
+        lap_variables.distance_pct.push(distance_pct[i]);
+        lap_variables.track_temp.push(track_temp[i]);
+        lap_variables.latitude.push(latitude[i]);
+        lap_variables.longitude.push(longitude[i]);
+        lap_variables.altitude.push(altitude[i]);
+        lap_variables
             .steering_wheel_angle
             .push(steering_wheel_angle[i]);
-        lap_metrics.fuel_level.push(fuel_level[i]);
-        lap_metrics
+        lap_variables.fuel_level.push(fuel_level[i]);
+        lap_variables
             .lap_current_lap_time
             .push(lap_current_lap_time[i]);
     });

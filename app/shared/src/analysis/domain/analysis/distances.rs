@@ -1,0 +1,15 @@
+use crate::lap::domain::lap::Lap;
+
+#[must_use]
+pub fn generate_union(lap1: &Lap, lap2: &Lap) -> Vec<f32> {
+    let mut distances: Vec<f32> = lap1
+        .variables
+        .distance
+        .iter()
+        .chain(lap2.variables.distance.iter())
+        .copied()
+        .collect();
+    distances.sort_by(|a, b| a.partial_cmp(b).unwrap()); // TODO: Posible error!
+    distances.dedup();
+    distances
+}

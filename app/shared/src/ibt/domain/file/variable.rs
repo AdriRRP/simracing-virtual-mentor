@@ -5,17 +5,17 @@ use crate::ibt::domain::file::var_value::VarValue;
 use std::io::{Read, Seek};
 use std::ops::Deref;
 
-/// Represents a metric composed of variable values.
+/// Represents a variable composed of variable values.
 #[derive(PartialEq, Clone, Debug)]
-pub struct Metric {
-    /// Header information for the metric.
+pub struct Variable {
+    /// Header information for the variable.
     pub var_header: VarHeader,
-    /// Variable values contained in the metric.
+    /// Variable values contained in the variable.
     pub var_values: Vec<VarValue>,
 }
 
-impl Metric {
-    /// Constructs a `Metric` instance from a reader, given the header information and offsets.
+impl Variable {
+    /// Constructs a `Variable` instance from a reader, given the header information and offsets.
     ///
     /// # Errors
     ///
@@ -46,7 +46,7 @@ impl Metric {
     }
 }
 
-impl Deref for Metric {
+impl Deref for Variable {
     type Target = Vec<VarValue>;
 
     fn deref(&self) -> &Self::Target {
@@ -96,13 +96,13 @@ mod tests {
         let var_header = test_var_header();
         let test_bytes = test_bytes();
         let mut cursor = Cursor::new(&test_bytes);
-        let result = Metric::from_reader(
+        let result = Variable::from_reader(
             &mut cursor,
             &var_header,
             0,
             VarType::Char.byte_size() as u64,
         );
-        let expected = Ok(Metric {
+        let expected = Ok(Variable {
             var_header,
             var_values: vec![VarValue::Single(Primitive::Char('a'))],
         });
@@ -115,7 +115,7 @@ mod tests {
         var_header.var_type = VarType::Double;
         let test_bytes = test_bytes();
         let mut cursor = Cursor::new(&test_bytes);
-        let result = Metric::from_reader(
+        let result = Variable::from_reader(
             &mut cursor,
             &var_header,
             0,

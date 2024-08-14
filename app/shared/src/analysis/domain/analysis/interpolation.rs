@@ -1,6 +1,30 @@
 use crate::analysis::domain::analysis::Error;
 use crate::lap::domain::lap::variables::Variables;
 
+/// Interpolates the given variables based on the provided distances.
+///
+/// # Arguments
+///
+/// * `variables` - A reference to a `Variables` struct containing the original data.
+/// * `distances` - A slice of `f32` values representing the new distances at which to interpolate the variables.
+///
+/// # Returns
+///
+/// * `Result<Variables, Error>` - Returns a `Variables` struct with interpolated values if successful, or an `Error` if any interpolation fails.
+///
+/// # Errors
+///
+/// This function returns an `Error` in the following cases:
+///
+/// * `Error::InterpolationFailed` - This error is returned if any of the interpolation functions fail to compute the new values.
+/// * `Error::DistanceMismatch` - This error might be returned if the distances provided do not match the expected length or format required for interpolation.
+/// * `Error::DataConversionFailed` - This error might occur if there is an issue converting `f32` distances to `f64` for interpolation purposes.
+/// * `Error::OutOfBounds` - This error could be returned if the interpolation function attempts to access indices outside the bounds of the input data.
+/// * `Error::InvalidInput` - This error is returned if the input data is not in a valid state for interpolation, such as empty vectors or NaN values.
+///
+/// The function ensures that the distances are converted to `f64` before performing interpolation. Each variable in the `Variables` struct is interpolated using either
+/// `try_f32_interpolation` or `try_i8_interpolation` for numeric values and `interpolate_vector` for latitude and longitude. The interpolated values are then collected
+/// into a new `Variables` struct and returned.
 pub fn interpolate_variables(variables: &Variables, distances: &[f32]) -> Result<Variables, Error> {
     let distances_f64: Vec<f64> = distances.iter().map(|&x| f64::from(x)).collect();
 

@@ -1,6 +1,6 @@
 use crate::analysis::domain::analysis::fuzzy_c_means::FuzzyCMeans;
 use crate::lap::domain::lap::variables::Variables;
-use ndarray::Array1;
+use ndarray::Array2;
 use serde::{Deserialize, Serialize};
 
 pub mod options;
@@ -15,7 +15,8 @@ pub struct Clustering {
 }
 
 impl Clustering {
-    pub fn new(diff_variables: Variables) -> Self {
+    #[must_use]
+    pub fn new(diff_variables: &Variables) -> Self {
         let num_clusters = 5;
         let fuzziness = 2.0;
         let max_iter = 1000;
@@ -51,18 +52,26 @@ impl Clustering {
         let mut result = Self::default();
 
         for (name, data) in variables {
-            let mut fcm = FuzzyCMeans::new(num_clusters, 1, fuzziness);
-            let nd_data = Array1::from(data);
-            fcm.initialize_centroids(&nd_data, num_clusters);
-            fcm.fit(&nd_data, max_iter, tolerance);
-            let memberships = fcm.predict();
+            let mut fcm = FuzzyCMeans::new(num_clusters, fuzziness, max_iter, tolerance);
+            let data = Array2::from_shape_vec((data.len(), 1), data).expect("shit");
+            fcm.fit(&data);
+            let memberships = fcm.fit(&data);
 
             match name {
-                "speed" => result.speed = memberships,
-                "throttle" => result.throttle = memberships,
-                "brake" => result.brake = memberships,
-                "gear" => result.gear = memberships,
-                "steering_wheel_angle" => result.steering_wheel_angle = memberships,
+                "speed" => {
+                    result.speed = memberships.outer_iter().map(|row| row.to_vec()).collect();
+                }
+                "throttle" => {
+                    result.throttle = memberships.outer_iter().map(|row| row.to_vec()).collect();
+                }
+                "brake" => {
+                    result.brake = memberships.outer_iter().map(|row| row.to_vec()).collect();
+                }
+                "gear" => result.gear = memberships.outer_iter().map(|row| row.to_vec()).collect(),
+                "steering_wheel_angle" => {
+                    result.steering_wheel_angle =
+                        memberships.outer_iter().map(|row| row.to_vec()).collect();
+                }
                 _ => (),
             }
         }

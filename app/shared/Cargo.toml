@@ -6,16 +6,17 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-trait = "0.1.80"
+async-trait = "0.1.81"
 chrono = { version = "0.4.38", features = ["serde"] }
-serde = { version = "1.0.202", features = ["derive"] }
+serde = { version = "1.0.204", features = ["derive"] }
 serde_yaml = "0.9"
-thiserror = "1.0.61"
+thiserror = "1.0.63"
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
-serde_json = "1.0.117"
-ndarray = "0.15.6"
+serde_json = "1.0.122"
+ndarray = "0.16.0"
+ndarray-rand = "0.15.0"
 rand = "0.8.5"
 
 [dev-dependencies]
-mockall = "0.12.1"
-tokio = { version = "1.38.0", features = ["test-util"] }
+mockall = "0.13.0"
+tokio = { version = "1.39.2", features = ["test-util"] }

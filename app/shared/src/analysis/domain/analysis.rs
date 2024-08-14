@@ -136,7 +136,7 @@ impl Analysis {
         self.header.status = Status::Completed;
 
         // Clustering
-        let clustering = Clustering::new(differences);
+        let clustering = Clustering::new(&differences);
         self.clustering = Some(clustering);
 
         Ok(())

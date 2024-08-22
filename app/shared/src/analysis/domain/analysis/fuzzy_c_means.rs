@@ -1,6 +1,52 @@
-use ndarray::{Array1, Array2, ArrayViewMut, Axis, Ix1, Zip};
+use ndarray::{Array, Array1, Array2, ArrayView, Axis, Ix1, Zip};
 use ndarray_rand::{rand_distr::Uniform, RandomExt};
 use rand::thread_rng;
+
+#[derive(Clone)]
+pub struct FittedModel {
+    centroids: Array2<f64>,
+    memberships: Array2<f64>,
+    fpc: f64,
+}
+
+impl FittedModel {
+    #[must_use]
+    pub fn new(centroids: Array2<f64>, memberships: Array2<f64>) -> Self {
+        let n_samples = memberships.shape()[0];
+        let fpc = {
+            #[allow(clippy::cast_precision_loss)]
+            let fpc = memberships.mapv(|x| x.powi(2)).sum() / n_samples as f64;
+            // Ensure FPC is within the expected range and not NaN
+            if fpc.is_nan() || fpc <= 0.0 {
+                eprintln!("Warning: FPC is NaN or 0.0, adjusting to f64::EPSILON");
+                f64::EPSILON // Handle division by zero
+            } else {
+                fpc.clamp(f64::EPSILON, 1.0)
+            }
+        };
+
+        Self {
+            centroids,
+            memberships,
+            fpc,
+        }
+    }
+
+    #[must_use]
+    pub const fn centroids(&self) -> &Array2<f64> {
+        &self.centroids
+    }
+
+    #[must_use]
+    pub const fn memberships(&self) -> &Array2<f64> {
+        &self.memberships
+    }
+
+    #[must_use]
+    pub const fn fpc(&self) -> f64 {
+        self.fpc
+    }
+}
 
 /// A struct representing the Fuzzy C-Means algorithm.
 pub struct FuzzyCMeans {
@@ -8,116 +54,203 @@ pub struct FuzzyCMeans {
     m: f64,
     max_iter: usize,
     error: f64,
-    cluster_centers: Option<Array2<f64>>,
 }
 
 impl FuzzyCMeans {
-    /// Creates a new instance of `FuzzyCMeans`.
+    /// Attempts to create a new instance of `FuzzyCMeans`.
+    ///
+    /// This constructor returns a `Result` to handle cases where the fuzziness
+    /// parameter `m` is invalid. Specifically, `m` must be greater than 1;
+    /// otherwise, the function returns an error.
     ///
     /// # Arguments
     ///
     /// * `c` - Number of clusters.
-    /// * `m` - Fuzziness parameter.
+    /// * `m` - Fuzziness parameter. Must be greater than 1.
     /// * `max_iter` - Maximum number of iterations.
     /// * `error` - Convergence error.
     ///
+    /// # Returns
+    ///
+    /// Returns `Ok(Self)` if the provided `m` is valid (greater than 1).
+    /// Otherwise, returns `Err(Error::FuzzinessFactorLowerOrEqualsThanOne)`.
+    ///
+    /// # Errors
+    ///
+    /// This function returns an `Error::FuzzinessFactorLowerOrEqualsThanOne` if `m`
+    /// is less than or equal to 1, as this would make the fuzzy clustering algorithm
+    /// mathematically invalid.
+    ///
     /// # Examples
     ///
-    /// ```
+    /// ```rust
     /// use symracing_virtual_mentor_shared::analysis::domain::analysis::fuzzy_c_means::FuzzyCMeans;
     ///
-    /// let mut fcm = FuzzyCMeans::new(2, 2.0, 100, 0.01);
+    /// // This will succeed because m > 1
+    /// let mut fcm = FuzzyCMeans::try_new(2, 2.0, 100, 0.01);
+    ///
+    /// // This will fail because m <= 1
+    /// let result = FuzzyCMeans::try_new(2, 1.0, 100, 0.01);
+    /// assert!(result.is_err());
     /// ```
-    #[must_use]
-    pub const fn new(c: usize, m: f64, max_iter: usize, error: f64) -> Self {
-        Self {
+    pub fn try_new(c: usize, m: f64, max_iter: usize, error: f64) -> Result<Self, Error> {
+        if m <= 1. {
+            return Err(Error::FuzzinessFactorLowerOrEqualsThanOne);
+        }
+
+        Ok(Self {
             c,
             m,
             max_iter,
             error,
-            cluster_centers: None,
-        }
+        })
     }
 
-    /// Fits the model to the provided data.
+    /// Fits the Fuzzy C-Means model to the provided data by generating an initial random
+    /// membership matrix.
+    ///
+    /// This function initializes the clustering process by generating a random membership
+    /// matrix and then calling `try_fit_with_memberships` to iteratively update the cluster
+    /// centers (centroids) and the membership matrix until the algorithm converges or the
+    /// maximum number of iterations is reached.
     ///
     /// # Arguments
     ///
-    /// * `data` - Data matrix of shape (`n_samples`, `n_features`).
+    /// * `data` - A 2D array containing the data points to be clustered. Each row represents
+    ///            a data point, and each column represents a feature.
     ///
     /// # Returns
     ///
-    /// A membership matrix of shape (`n_samples`, `n_clusters`).
+    /// Returns a `Result` containing a `FittedModel` if the fitting process is successful,
+    /// or an `Error` if an unexpected issue occurs during the fitting process. Since the
+    /// membership matrix is generated to be compatible with the data, errors related to
+    /// incompatible dimensions should not occur.
     ///
-    /// # Examples
+    /// # Errors
     ///
-    /// ```
+    /// While this function should not encounter dimension-related errors (due to the
+    /// guaranteed compatibility of the membership matrix), it may propagate other errors
+    /// from `try_fit_with_memberships`, although such cases are unlikely given correct
+    /// implementation of the model.
+    ///
+    /// # Example
+    ///
+    /// ```rust
     /// use ndarray::array;
     /// use symracing_virtual_mentor_shared::analysis::domain::analysis::fuzzy_c_means::FuzzyCMeans;
     ///
-    /// let data = array![
-    ///     [1.0, 2.0, 1.5],
-    ///     [1.5, 1.8, 1.7],
-    ///     [5.0, 8.0, 7.5],
-    ///     [8.0, 8.0, 8.0],
-    ///     [1.0, 0.6, 0.8],
-    ///     [9.0, 11.0, 10.5],
-    /// ];
+    /// let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]];
+    /// let fcm = FuzzyCMeans::try_new(2, 1.7, 100, 1e-4);
     ///
-    /// let mut fcm = FuzzyCMeans::new(2, 2.0, 100, 0.01);
-    /// let memberships = fcm.fit(&data);
+    /// match fcm.try_fit(&data) {
+    ///     Ok(fitted_model) => println!("Model fitted successfully!"),
+    ///     Err(e) => println!("Error fitting model: {:?}", e),
+    /// }
     /// ```
-    pub fn fit(&mut self, data: &Array2<f64>) -> Array2<f64> {
-        let n_samples = data.shape()[0];
+    pub fn try_fit(&self, data: &Array2<f64>) -> Result<FittedModel, Error> {
+        let num_samples = data.shape()[0];
+        let mut initial_memberships = self.generate_random_memberships(num_samples);
+        self.try_fit_with_memberships(data, &mut initial_memberships)
+    }
 
-        // Initialize memberships randomly
-        let mut memberships = {
-            let mut rng = thread_rng();
-            Array2::<f64>::random_using((n_samples, self.c), Uniform::new(0., 1.), &mut rng)
-        };
-
-        // Normalize memberships (ensure )
-        for mut membership in memberships.outer_iter_mut() {
-            Self::normalize_membership(&mut membership);
+    /// Fits the Fuzzy C-Means model to the provided data using the initial membership matrix.
+    ///
+    /// This function iteratively updates the cluster centers (centroids) and the membership
+    /// matrix until the algorithm converges or the maximum number of iterations is reached.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - A 2D array containing the data points to be clustered. Each row represents
+    ///            a data point, and each column represents a feature.
+    /// * `memberships` - A mutable reference to a 2D array representing the membership matrix,
+    ///                   where each entry denotes the degree of membership of a data point
+    ///                   to a particular cluster. The number of rows should match the number
+    ///                   of data points in `data`.
+    ///
+    /// # Returns
+    ///
+    /// Returns a `Result` containing a `FittedModel` if the fitting process is successful, or
+    /// an `Error` if the membership matrix and data dimensions are incompatible.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an `Error::IncompatibleMatrixMultiplication` if the number
+    /// of rows in the membership matrix does not match the number of rows in the data matrix.
+    /// This error occurs when the shapes of the membership matrix and the data matrix are
+    /// not compatible for the clustering process.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use ndarray::array;
+    /// use symracing_virtual_mentor_shared::analysis::domain::analysis::fuzzy_c_means::FuzzyCMeans;
+    ///
+    /// let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]];
+    /// let mut memberships = array![[0.5, 0.5], [0.3, 0.7], [0.2, 0.8]];
+    /// let fcm = FuzzyCMeans::try_new(2, 1.7, 100, 1e-4);
+    ///
+    /// match fcm.try_fit_with_memberships(&data, &mut memberships) {
+    ///     Ok(fitted_model) => println!("Model fitted successfully!"),
+    ///     Err(e) => println!("Error fitting model: {:?}", e),
+    /// }
+    /// ```
+    pub fn try_fit_with_memberships(
+        &self,
+        data: &Array2<f64>,
+        memberships: &mut Array2<f64>,
+    ) -> Result<FittedModel, Error> {
+        let ((memberships_rows, memberships_cols), (data_rows, data_cols)) =
+            (memberships.dim(), data.dim());
+        if memberships_rows != data_rows {
+            return Err(Error::IncompatibleMatrixMultiplication(
+                format!("membership shape {memberships_rows} x {memberships_cols}"),
+                format!("data shape {data_rows} x {data_cols}"),
+            ));
         }
 
+        let mut centroids: Array2<f64> = Array::<f64, _>::zeros((self.c, data.shape()[0]));
+
         for _ in 0..self.max_iter {
-            let cluster_centers = self.update_cluster_centers(data, &memberships);
-            let mut new_memberships = self.update_memberships(data, &cluster_centers);
+            centroids = self.update_cluster_centers(data, memberships);
+            let new_memberships = self.update_memberships(data, &centroids);
 
-            // Normalize new memberships
-            for mut membership in new_memberships.outer_iter_mut() {
-                Self::normalize_membership(&mut membership);
-            }
-
-            let diff = &memberships - &new_memberships;
+            let diff = &*memberships - &new_memberships;
             let max_diff = diff
                 .mapv(f64::abs)
                 .fold(f64::NEG_INFINITY, |a, &b| a.max(b));
 
-            memberships = new_memberships;
+            *memberships = new_memberships;
 
             if max_diff < self.error {
                 break;
             }
         }
 
-        self.cluster_centers = Some(self.update_cluster_centers(data, &memberships));
+        Ok(FittedModel::new(centroids, memberships.to_owned()))
+    }
+
+    fn generate_random_memberships(&self, num_samples: usize) -> Array2<f64> {
+        // Initialize memberships randomly
+        let mut memberships = {
+            let mut rng = thread_rng();
+            Array2::<f64>::random_using((num_samples, self.c), Uniform::new(0., 1.), &mut rng)
+        };
+
+        // Normalize memberships
+        for mut membership in memberships.outer_iter_mut() {
+            let sum: f64 = membership.sum();
+            if sum == 0.0 {
+                let len = membership.len();
+                #[allow(clippy::cast_precision_loss)]
+                membership.assign(&(Array1::ones(len) / len as f64));
+            } else {
+                membership /= sum;
+            }
+        }
+
         memberships
     }
 
-    /// Ensure that the sum of a point's membership to each cluster is 1
-    fn normalize_membership(membership: &mut ArrayViewMut<f64, Ix1>) {
-        let sum: f64 = membership.sum();
-        if sum == 0.0 {
-            let len = membership.len();
-            membership.assign(&(Array1::ones(len) / len as f64));
-        } else {
-            *membership /= sum;
-        }
-    }
-
-    /// Updates the cluster centers.
     fn update_cluster_centers(&self, data: &Array2<f64>, memberships: &Array2<f64>) -> Array2<f64> {
         let powered_memberships = memberships.mapv(|x| x.powf(self.m));
 
@@ -128,35 +261,35 @@ impl FuzzyCMeans {
         numerator / &denominator.mapv(|x| if x == 0. { f64::EPSILON } else { x })
     }
 
-    /// Updates the memberships of the data points based on the cluster centers.
-    fn update_memberships(&self, data: &Array2<f64>, cluster_centers: &Array2<f64>) -> Array2<f64> {
-        let mut new_memberships = Array2::<f64>::zeros((data.shape()[0], self.c));
+    fn update_memberships(&self, data: &Array2<f64>, centroids: &Array2<f64>) -> Array2<f64> {
+        let num_samples = data.shape()[0];
+        let mut new_memberships = Array2::<f64>::zeros((num_samples, self.c));
 
-        for (i, sample) in data.outer_iter().enumerate() {
-            for (j, center) in cluster_centers.outer_iter().enumerate() {
-                let numerator = Self::distance(&sample, &center).powf(2. / (self.m - 1.));
-                let mut denominator = 0.;
-
-                for other_center in cluster_centers.outer_iter() {
-                    denominator += Self::distance(&sample, &other_center).powf(2. / (self.m - 1.));
-                }
-
-                // Handle division by zero
-                denominator = if denominator == 0. {
-                    f64::EPSILON
-                } else {
-                    denominator
-                };
-
-                new_memberships[[i, j]] = 1. / (numerator / denominator);
+        for (i, sample) in data.axis_iter(Axis(0)).enumerate() {
+            for (j, centroid) in centroids.axis_iter(Axis(0)).enumerate() {
+                let numerator = Self::distance(&sample, &centroid); // d_ij
+                let u_ij: f64 = 1.
+                    / (centroids
+                        .axis_iter(Axis(0))
+                        .map(|k| {
+                            let denominator = Self::distance(&sample, &k); // d_ik
+                            let denominator = if denominator == 0. {
+                                f64::EPSILON
+                            } else {
+                                denominator
+                            };
+                            (numerator / denominator).powf(2. / (self.m - 1.))
+                        })
+                        .sum::<f64>());
+                new_memberships[[i, j]] = u_ij;
             }
         }
 
         new_memberships
     }
 
-    /// Calculates the Euclidean distance between two points.
-    fn distance(x: &ndarray::ArrayView1<f64>, y: &ndarray::ArrayView1<f64>) -> f64 {
+    #[must_use]
+    pub fn distance(x: &ArrayView<f64, Ix1>, y: &ArrayView<f64, Ix1>) -> f64 {
         Zip::from(x)
             .and(y)
             .fold(0., |acc, &x_i, &y_i| {
@@ -165,76 +298,14 @@ impl FuzzyCMeans {
             })
             .sqrt()
     }
+}
 
-    /// Returns the cluster centers after fitting the model.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use ndarray::array;
-    /// use symracing_virtual_mentor_shared::analysis::domain::analysis::fuzzy_c_means::FuzzyCMeans;
-    ///
-    /// let data = array![
-    ///     [1.0, 2.0, 1.5],
-    ///     [1.5, 1.8, 1.7],
-    ///     [5.0, 8.0, 7.5],
-    ///     [8.0, 8.0, 8.0],
-    ///     [1.0, 0.6, 0.8],
-    ///     [9.0, 11.0, 10.5],
-    /// ];
-    ///
-    /// let mut fcm = FuzzyCMeans::new(2, 2.0, 100, 0.01);
-    /// fcm.fit(&data);
-    /// let centers = fcm.cluster_centers().unwrap();
-    /// ```
-    #[must_use]
-    pub const fn cluster_centers(&self) -> Option<&Array2<f64>> {
-        self.cluster_centers.as_ref()
-    }
-
-    /// Calculates the Fuzzy Partition Coefficient (FPC).
-    ///
-    /// # Arguments
-    ///
-    /// * `memberships` - Membership matrix of shape (`n_samples`, `n_clusters`).
-    ///
-    /// # Returns
-    ///
-    /// The FPC value.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use ndarray::array;
-    /// use symracing_virtual_mentor_shared::analysis::domain::analysis::fuzzy_c_means::FuzzyCMeans;
-    ///
-    /// let data = array![
-    ///     [1.0, 2.0, 1.5],
-    ///     [1.5, 1.8, 1.7],
-    ///     [5.0, 8.0, 7.5],
-    ///     [8.0, 8.0, 8.0],
-    ///     [1.0, 0.6, 0.8],
-    ///     [9.0, 11.0, 10.5],
-    /// ];
-    ///
-    /// let mut fcm = FuzzyCMeans::new(2, 2.0, 100, 0.01);
-    /// let memberships = fcm.fit(&data);
-    /// let fpc_value = fcm.fpc(&memberships);
-    /// assert!(fpc_value > 0.0 && fpc_value <= 1.0);
-    /// ```
-    #[must_use]
-    pub fn fpc(&self, memberships: &Array2<f64>) -> f64 {
-        let n_samples = memberships.shape()[0];
-        let fpc = memberships.mapv(|x| x.powi(2)).sum() / n_samples as f64;
-
-        // Ensure FPC is within the expected range and not NaN
-        if fpc.is_nan() || fpc <= 0.0 {
-            eprintln!("Warning: FPC is NaN or 0.0, adjusting to f64::EPSILON");
-            f64::EPSILON // Handle division by zero
-        } else {
-            fpc.clamp(f64::EPSILON, 1.0)
-        }
-    }
+#[derive(PartialEq, Eq, Debug, thiserror::Error)]
+pub enum Error {
+    #[error("Fuzziness factor must be greater than 1")]
+    FuzzinessFactorLowerOrEqualsThanOne,
+    #[error("{0} cannot be multiplied by {1}")]
+    IncompatibleMatrixMultiplication(String, String),
 }
 
 /// Tests for the FuzzyCMeans module.
@@ -244,62 +315,98 @@ mod tests {
     use ndarray::array;
 
     #[test]
-    fn test_fit() {
-        let data = array![
-            [1.0, 2.0, 1.5],
-            [1.5, 1.8, 1.7],
-            [5.0, 8.0, 7.5],
-            [8.0, 8.0, 8.0],
-            [1.0, 0.6, 0.8],
-            [9.0, 11.0, 10.5],
+    fn first_iter_on_one_dim_data() {
+        let c = 2;
+        let m = 1.7;
+        let max_iter = 1;
+        let error = 0.01;
+
+        let fcm = FuzzyCMeans::try_new(c, m, max_iter, error)
+            .unwrap_or_else(|e| panic!("Test Failed: {e}"));
+
+        let data = array![[1.], [2.], [4.], [7.]];
+        let mut initial_memberships = array![[0.8, 0.2], [0.7, 0.3], [0.2, 0.8], [0.1, 0.9],];
+
+        let result = fcm
+            .try_fit_with_memberships(&data, &mut initial_memberships)
+            .unwrap_or_else(|e| panic!("Test Failed: {e}"));
+
+        let expected_centroids = array![[1.6539221306009797], [5.198884159924932]];
+
+        assert_eq!(result.centroids(), expected_centroids);
+
+        let expected_memberships = array![
+            [0.9950975335864382, 0.004902466413561808],
+            [0.9982632153654964, 0.0017367846345036414],
+            [0.12806762946010766, 0.8719323705398923],
+            [0.042760125204558706, 0.9572398747954414]
         ];
 
-        let mut fcm = FuzzyCMeans::new(2, 2.0, 100, 0.01);
-        let memberships = fcm.fit(&data);
+        assert_eq!(result.memberships(), expected_memberships);
 
-        assert_eq!(memberships.shape(), [6, 2]);
+        let expected_fpc = 0.920394895454056;
 
-        // Ensure that memberships are normalized
-        for row in memberships.outer_iter() {
-            let sum: f64 = row.sum();
-            assert!((sum - 1.0).abs() < 1e-5, "Memberships are not normalized");
-        }
+        assert_eq!(result.fpc(), expected_fpc);
     }
 
     #[test]
-    fn test_cluster_centers() {
-        let data = array![
-            [1.0, 2.0, 1.5],
-            [1.5, 1.8, 1.7],
-            [5.0, 8.0, 7.5],
-            [8.0, 8.0, 8.0],
-            [1.0, 0.6, 0.8],
-            [9.0, 11.0, 10.5],
+    fn first_iter_on_two_dim_data() {
+        let c = 2;
+        let m = 1.7;
+        let max_iter = 1;
+        let error = 0.01;
+
+        let fcm = FuzzyCMeans::try_new(c, m, max_iter, error)
+            .unwrap_or_else(|e| panic!("Test Failed: {e}"));
+
+        let data = array![[1., 3.], [2., 5.], [4., 8.], [7., 9.]];
+        let mut initial_memberships = array![[0.8, 0.2], [0.7, 0.3], [0.2, 0.8], [0.1, 0.9],];
+
+        let result = fcm
+            .try_fit_with_memberships(&data, &mut initial_memberships)
+            .unwrap_or_else(|e| panic!("Test Failed: {e}"));
+
+        let expected_centroids = array![
+            [1.6539221306009797, 4.167447085460862],
+            [5.198884159924932, 8.072577522696557]
         ];
 
-        let mut fcm = FuzzyCMeans::new(2, 2.0, 100, 0.01);
-        fcm.fit(&data);
-        let centers = fcm.cluster_centers().unwrap();
+        assert_eq!(result.centroids(), expected_centroids);
 
-        assert_eq!(centers.shape(), [2, 3]);
+        let expected_memberships = array![
+            [0.9895736243443243, 0.010426375655675672],
+            [0.9895640701351411, 0.01043592986485885],
+            [0.022536642797307747, 0.9774633572026923],
+            [0.025939954747919117, 0.9740600452520809]
+        ];
+
+        assert_eq!(result.memberships(), expected_memberships);
+
+        let expected_fpc = 0.9660297481982968;
+
+        assert_eq!(result.fpc(), expected_fpc);
     }
 
     #[test]
-    fn test_fpc() {
-        let data = array![
-            [1.0, 2.0, 1.5],
-            [1.5, 1.8, 1.7],
-            [5.0, 8.0, 7.5],
-            [8.0, 8.0, 8.0],
-            [1.0, 0.6, 0.8],
-            [9.0, 11.0, 10.5],
-        ];
+    fn incompatible_shape() {
+        let c = 2;
+        let m = 1.7;
+        let max_iter = 1;
+        let error = 0.01;
 
-        let mut fcm = FuzzyCMeans::new(2, 2.0, 100, 0.01);
-        let memberships = fcm.fit(&data);
-        let fpc_value = fcm.fpc(&memberships);
+        let fcm = FuzzyCMeans::try_new(c, m, max_iter, error)
+            .unwrap_or_else(|e| panic!("Test Failed: {e}"));
 
-        println!("FPC value: {}", fpc_value);
-        assert!(fpc_value > 0.0 && fpc_value <= 1.0);
+        let data = array![[1.], [2.], [4.], [7.]];
+        let mut initial_memberships = array![[0.8, 0.2, 0.7, 0.3], [0.2, 0.8, 0.1, 0.9],];
+
+        let expected_error = Error::IncompatibleMatrixMultiplication(
+            "membership shape 2 x 4".to_string(),
+            "data shape 4 x 1".to_string(),
+        );
+
+        let result = fcm.try_fit_with_memberships(&data, &mut initial_memberships);
+
+        assert!(result.is_err_and(|e| e == expected_error));
     }
 }

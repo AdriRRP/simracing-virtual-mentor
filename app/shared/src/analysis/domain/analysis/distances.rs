@@ -9,7 +9,10 @@ pub fn generate_union(lap1: &Lap, lap2: &Lap) -> Vec<f32> {
         .chain(lap2.variables.distance.iter())
         .copied()
         .collect();
-    distances.sort_by(|a, b| a.partial_cmp(b).unwrap()); // TODO: Posible error!
+
+    // Sort, considering NaN as the smallest or largest (here: smallest)
+    distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Less));
+
     distances.dedup();
     distances
 }

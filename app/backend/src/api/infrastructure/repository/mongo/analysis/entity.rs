@@ -3,7 +3,7 @@ use shared::analysis::domain::analysis::reference_lap::ReferenceLap;
 use shared::analysis::domain::analysis::status::Status;
 use shared::analysis::domain::analysis::Analysis;
 use shared::lap::domain::lap::variables::Variables;
-use shared::analysis::domain::analysis::clustering::Clustering;
+use shared::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
 use shared::analysis::domain::analysis::tags::Tags;
 
 use serde::{Deserialize, Serialize};
@@ -22,7 +22,7 @@ pub struct Entity {
     pub target: Option<ReferenceLap>,
     pub union_distances: Vec<f32>,
     pub differences: Option<Variables>,
-    pub clustering: Option<Clustering>,
+    pub clustering: Option<ClustersMemberships>,
     pub tags: Option<Tags>,
 }
 impl TryInto<Analysis> for Entity {

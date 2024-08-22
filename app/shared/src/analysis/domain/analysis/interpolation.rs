@@ -116,10 +116,11 @@ fn try_f32_interpolation(
         .iter()
         .map(|&x| f64::from(x))
         .collect::<Vec<f64>>();
+
+    #[allow(clippy::cast_possible_truncation)]
     interpolate_vector(&target, &original_distances, distances, is_discrete)
         .iter()
-        .map(|&x| Ok(x as f32)) // TODO: Revisar
-        //.map(|&x| f32::try_from(x).map_err(|e| Error::InterpolatingVariables(format!("{e}"))))
+        .map(|&x| Ok(x as f32))
         .collect()
 }
 
@@ -134,10 +135,11 @@ fn try_i8_interpolation(
         .iter()
         .map(|&x| f64::from(x))
         .collect::<Vec<f64>>();
+
+    #[allow(clippy::cast_possible_truncation)]
     interpolate_vector(&target, &original_distances, distances, is_discrete)
         .iter()
         .map(|&x| Ok(x as i8)) // TODO: Revisar
-        //.map(|x| i8::try_from(x).map_err(|e| Error::InterpolatingVariables(format!("{e}"))))
         .collect()
 }
 

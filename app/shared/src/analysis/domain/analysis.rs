@@ -1,6 +1,7 @@
-pub mod clustering;
+pub mod clusters_memberships;
 pub mod differences;
 pub mod distances;
+mod fcm_grid;
 pub mod fuzzy_c_means;
 pub mod header;
 pub mod headers;
@@ -10,7 +11,7 @@ pub mod status;
 pub mod tag;
 pub mod tags;
 
-use crate::analysis::domain::analysis::clustering::Clustering;
+use crate::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
 use crate::analysis::domain::analysis::differences::calculate as calculate_differences;
 use crate::analysis::domain::analysis::distances::generate_union as generate_union_distances;
 use crate::analysis::domain::analysis::header::Header;
@@ -42,7 +43,7 @@ pub struct Analysis {
     pub differences: Option<Variables>,
 
     /// Clustering results
-    pub clustering: Option<Clustering>,
+    pub clustering: Option<ClustersMemberships>,
 
     /// Assigned tags for differences
     pub tags: Option<Tags>,
@@ -136,7 +137,8 @@ impl Analysis {
         self.header.status = Status::Completed;
 
         // Clustering
-        let clustering = Clustering::new(&differences);
+        let clustering =
+            ClustersMemberships::try_transform_and_fit(&differences).map_err(Error::Clustering)?;
         self.clustering = Some(clustering);
 
         Ok(())
@@ -147,8 +149,10 @@ impl Analysis {
 pub enum Error {
     #[error("the reference lap has been run on Circuit `{0}` while the target lap has been run on Circuit `{0}`")]
     DifferentCircuits(String, String),
-    #[error("error interpolating metrics: {0}")]
-    InterpolatingMetrics(String),
+    #[error("error interpolating variables: {0}")]
+    InterpolatingVariables(String),
     #[error("cannot build an analysis with given header: {0}")]
     FromHeader(String),
+    #[error("cannot perform clusters_memberships: {0}")]
+    Clustering(String),
 }

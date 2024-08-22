@@ -70,8 +70,6 @@ pub struct InitMaxMinF64 {
     pub inc: Option<f64>,
 }
 
-
-
 impl Display for LogLevel {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {

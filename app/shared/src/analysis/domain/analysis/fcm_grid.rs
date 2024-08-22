@@ -34,7 +34,12 @@ impl Config {
         max_iter: (usize, Option<usize>, Option<usize>),
         error: (f64, Option<f64>, Option<f64>),
     ) -> Self {
-        Self { c, m, max_iter, error }
+        Self {
+            c,
+            m,
+            max_iter,
+            error,
+        }
     }
 }
 
@@ -143,7 +148,12 @@ mod tests {
 
     #[test]
     fn test_fcm_grid_no_increments() {
-        let config = Config::new((2, None, None), (2.0, None, None), (100, None, None), (0.01, None, None));
+        let config = Config::new(
+            (2, None, None),
+            (2.0, None, None),
+            (100, None, None),
+            (0.01, None, None),
+        );
         let fcm_grid = FcmGrid::new(config);
         let data = array![[1.0], [2.0], [3.0], [4.0], [5.0]];
 
@@ -153,7 +163,12 @@ mod tests {
 
     #[test]
     fn test_fcm_grid_with_increments() {
-        let config = Config::new((2, Some(3), Some(1)), (2.0, Some(2.5), Some(0.1)), (100, None, None), (0.01, None, None));
+        let config = Config::new(
+            (2, Some(3), Some(1)),
+            (2.0, Some(2.5), Some(0.1)),
+            (100, None, None),
+            (0.01, None, None),
+        );
         let fcm_grid = FcmGrid::new(config);
         let data = array![[1.0], [2.0], [3.0], [4.0], [5.0]];
 
@@ -163,12 +178,20 @@ mod tests {
 
     #[test]
     fn test_fcm_grid_no_valid_model() {
-        let config = Config::new((0, None, None), (0.0, None, None), (0, None, None), (0.0, None, None));
+        let config = Config::new(
+            (0, None, None),
+            (0.0, None, None),
+            (0, None, None),
+            (0.0, None, None),
+        );
         let fcm_grid = FcmGrid::new(config);
         let data = array![[1.0], [2.0], [3.0], [4.0], [5.0]];
 
         let result = fcm_grid.get_best_fitted_model(&data);
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), Error::CreatingModel("Fuzziness factor must be greater than 1".to_string()));
+        assert_eq!(
+            result.unwrap_err(),
+            Error::CreatingModel("Fuzziness factor must be greater than 1".to_string())
+        );
     }
 }

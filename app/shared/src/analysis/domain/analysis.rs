@@ -14,6 +14,7 @@ pub mod tags;
 use crate::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
 use crate::analysis::domain::analysis::differences::calculate as calculate_differences;
 use crate::analysis::domain::analysis::distances::generate_union as generate_union_distances;
+use crate::analysis::domain::analysis::fcm_grid::Config;
 use crate::analysis::domain::analysis::header::Header;
 use crate::analysis::domain::analysis::interpolation::interpolate_variables;
 use crate::analysis::domain::analysis::reference_lap::ReferenceLap;
@@ -25,7 +26,6 @@ use crate::lap::domain::lap::Lap;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use crate::analysis::domain::analysis::fcm_grid::Config;
 
 /// Represents an analysis entity, containing an identifier, name, and a list of laps.
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
@@ -103,7 +103,12 @@ impl Analysis {
     ///
     /// Ensure that both `ref_lap` and `target_lap` are from the same circuit to avoid the `DifferentCircuits` error.
     ///
-    pub fn analyze(&mut self, ref_lap: Lap, target_lap: Lap, fcm_grid_config: &Config) -> Result<(), Error> {
+    pub fn analyze(
+        &mut self,
+        ref_lap: Lap,
+        target_lap: Lap,
+        fcm_grid_config: &Config,
+    ) -> Result<(), Error> {
         if ref_lap.header.circuit != target_lap.header.circuit {
             return Err(Error::DifferentCircuits(
                 ref_lap.header.circuit,
@@ -138,8 +143,8 @@ impl Analysis {
         self.header.status = Status::Completed;
 
         // Clustering
-        let clustering =
-            ClustersMemberships::try_transform_and_fit(&differences, fcm_grid_config).map_err(Error::Clustering)?;
+        let clustering = ClustersMemberships::try_transform_and_fit(&differences, fcm_grid_config)
+            .map_err(Error::Clustering)?;
         self.clustering = Some(clustering);
 
         Ok(())

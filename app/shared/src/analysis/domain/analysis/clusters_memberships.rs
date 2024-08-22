@@ -37,7 +37,10 @@ impl ClustersMemberships {
     /// * `Failed to create ndarray` - Occurs if the `Array2::from_shape_vec` call fails due to shape or data issues.
     /// * `Error during FCM fitting` - Occurs if there is an error while creating or fitting the FCM model,
     ///   which could be due to invalid model parameters or fitting issues.
-    pub fn try_transform_and_fit(diff_variables: &Variables, fcm_grid_config: &Config) -> Result<Self, String> {
+    pub fn try_transform_and_fit(
+        diff_variables: &Variables,
+        fcm_grid_config: &Config,
+    ) -> Result<Self, String> {
         let fcm_grid = FcmGrid::new(fcm_grid_config.clone());
 
         let variables: Vec<(&str, Vec<f64>)> = vec![

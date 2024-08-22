@@ -2,7 +2,7 @@ use ndarray::{Array, Array1, Array2, ArrayView, Axis, Ix1, Zip};
 use ndarray_rand::{rand_distr::Uniform, RandomExt};
 use rand::thread_rng;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct FittedModel {
     centroids: Array2<f64>,
     memberships: Array2<f64>,

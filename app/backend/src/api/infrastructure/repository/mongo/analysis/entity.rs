@@ -1,10 +1,10 @@
+use shared::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
 use shared::analysis::domain::analysis::header::Header as DomainHeader;
 use shared::analysis::domain::analysis::reference_lap::ReferenceLap;
 use shared::analysis::domain::analysis::status::Status;
+use shared::analysis::domain::analysis::tags::Tags;
 use shared::analysis::domain::analysis::Analysis;
 use shared::lap::domain::lap::variables::Variables;
-use shared::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
-use shared::analysis::domain::analysis::tags::Tags;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;

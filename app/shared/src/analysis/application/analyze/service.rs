@@ -2,9 +2,9 @@ use crate::analysis::domain::analysis::status::Status;
 use crate::analysis::domain::repository::Repository;
 use crate::lap::domain::repository::Repository as LapRepository;
 
+use crate::analysis::domain::analysis::fcm_grid::Config;
 use std::sync::Arc;
 use uuid::Uuid;
-use crate::analysis::domain::analysis::fcm_grid::Config;
 
 /// A struct responsible for asynchronously perform an analysis.
 pub struct Analyzer<R: Repository, LR: LapRepository> {

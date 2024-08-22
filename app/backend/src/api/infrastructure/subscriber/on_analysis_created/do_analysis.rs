@@ -10,11 +10,11 @@ use shared::common::domain::event::subscriber::{Error, Subscriber};
 use shared::common::domain::event::Event;
 
 use async_trait::async_trait;
+use shared::analysis::domain::analysis::fcm_grid::Config;
 use shared::analysis::domain::analysis::Analysis;
 use std::sync::Arc;
 use tokio::sync::broadcast::Receiver;
 use tokio::sync::RwLock;
-use shared::analysis::domain::analysis::fcm_grid::Config;
 
 type EventReceiver = Receiver<Arc<dyn Event>>;
 
@@ -67,7 +67,11 @@ impl Subscriber for DoAnalysis {
     async fn process(&self, event: Arc<dyn Event>) {
         tracing::debug!("Processing new file {}", event.id());
         if let Some(analysis_created) = event.as_any().downcast_ref::<Created>() {
-            if let Err(msg) = self.analyzer.analyze(analysis_created.id, &self.fcm_grid_config).await {
+            if let Err(msg) = self
+                .analyzer
+                .analyze(analysis_created.id, &self.fcm_grid_config)
+                .await
+            {
                 if let Ok(Some(analysis)) = self.finder.find(&analysis_created.id).await {
                     let error_analysis = Analysis::with_error(
                         analysis.header.id,

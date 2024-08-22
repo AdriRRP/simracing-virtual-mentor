@@ -1,8 +1,8 @@
-use shared::ibt::domain::file::variables::Variables as IbtVariables;
 use shared::ibt::domain::file::session_info::driver_info::driver::Driver;
 use shared::ibt::domain::file::session_info::SessionInfo;
 use shared::ibt::domain::file::var_value::primitive::Primitive;
 use shared::ibt::domain::file::var_value::VarValue;
+use shared::ibt::domain::file::variables::Variables as IbtVariables;
 use shared::lap::domain::lap::variables::Variables;
 use shared::lap::domain::lap::Lap;
 use shared::lap::domain::laps::Laps;
@@ -39,7 +39,11 @@ macro_rules! extract_values {
 }
 
 #[must_use]
-pub fn ibt_variables2laps(file_id: &str, session_info: &SessionInfo, variables: &IbtVariables) -> Laps {
+pub fn ibt_variables2laps(
+    file_id: &str,
+    session_info: &SessionInfo,
+    variables: &IbtVariables,
+) -> Laps {
     let driver = get_driver_or_none(session_info);
 
     let driver_name = driver

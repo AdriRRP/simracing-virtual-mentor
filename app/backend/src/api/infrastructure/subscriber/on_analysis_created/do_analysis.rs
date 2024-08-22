@@ -14,6 +14,7 @@ use shared::analysis::domain::analysis::Analysis;
 use std::sync::Arc;
 use tokio::sync::broadcast::Receiver;
 use tokio::sync::RwLock;
+use shared::analysis::domain::analysis::fcm_grid::Config;
 
 type EventReceiver = Receiver<Arc<dyn Event>>;
 
@@ -22,6 +23,7 @@ pub struct DoAnalysis {
     finder: Arc<Finder<AnalysisRepository>>,
     analyzer: Arc<Analyzer<AnalysisRepository, LapRepository>>,
     updater: Arc<Updater<AnalysisRepository>>,
+    fcm_grid_config: Config,
 }
 
 impl DoAnalysis {
@@ -31,6 +33,7 @@ impl DoAnalysis {
         finder: &Arc<Finder<AnalysisRepository>>,
         analyzer: &Arc<Analyzer<AnalysisRepository, LapRepository>>,
         updater: &Arc<Updater<AnalysisRepository>>,
+        fcm_grid_config: Config,
     ) -> Self {
         tracing::debug!("Creating subscriber");
 
@@ -45,6 +48,7 @@ impl DoAnalysis {
             finder,
             analyzer,
             updater,
+            fcm_grid_config,
         }
     }
 }
@@ -63,7 +67,7 @@ impl Subscriber for DoAnalysis {
     async fn process(&self, event: Arc<dyn Event>) {
         tracing::debug!("Processing new file {}", event.id());
         if let Some(analysis_created) = event.as_any().downcast_ref::<Created>() {
-            if let Err(msg) = self.analyzer.analyze(analysis_created.id).await {
+            if let Err(msg) = self.analyzer.analyze(analysis_created.id, &self.fcm_grid_config).await {
                 if let Ok(Some(analysis)) = self.finder.find(&analysis_created.id).await {
                     let error_analysis = Analysis::with_error(
                         analysis.header.id,

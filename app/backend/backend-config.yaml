@@ -13,3 +13,16 @@ mongo:
     lap: lap
   user: admin
   pass: 1234
+fcm_grid:
+  c:
+    init: 3
+    max: 7
+    inc: 1
+  m:
+    init: 1.7
+    max: 2.5
+    inc: 0.1
+  max_iter:
+    init: 100
+  error:
+    init: 0.01

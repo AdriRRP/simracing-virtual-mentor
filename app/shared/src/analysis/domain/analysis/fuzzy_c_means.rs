@@ -2,7 +2,7 @@ use ndarray::{Array, Array1, Array2, ArrayView, Axis, Ix1, Zip};
 use ndarray_rand::{rand_distr::Uniform, RandomExt};
 use rand::thread_rng;
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct FittedModel {
     centroids: Array2<f64>,
     memberships: Array2<f64>,
@@ -140,7 +140,7 @@ impl FuzzyCMeans {
     /// use symracing_virtual_mentor_shared::analysis::domain::analysis::fuzzy_c_means::FuzzyCMeans;
     ///
     /// let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]];
-    /// let fcm = FuzzyCMeans::try_new(2, 1.7, 100, 1e-4);
+    /// let fcm = FuzzyCMeans::try_new(2, 1.7, 100, 1e-4).unwrap();
     ///
     /// match fcm.try_fit(&data) {
     ///     Ok(fitted_model) => println!("Model fitted successfully!"),
@@ -187,7 +187,7 @@ impl FuzzyCMeans {
     ///
     /// let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]];
     /// let mut memberships = array![[0.5, 0.5], [0.3, 0.7], [0.2, 0.8]];
-    /// let fcm = FuzzyCMeans::try_new(2, 1.7, 100, 1e-4);
+    /// let fcm = FuzzyCMeans::try_new(2, 1.7, 100, 1e-4).unwrap();
     ///
     /// match fcm.try_fit_with_memberships(&data, &mut memberships) {
     ///     Ok(fitted_model) => println!("Model fitted successfully!"),

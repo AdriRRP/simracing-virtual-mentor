@@ -1,112 +1,131 @@
 use crate::analysis::domain::analysis::fuzzy_c_means::{FittedModel, FuzzyCMeans};
 use ndarray::Array2;
 
-pub struct FcmGrid {
-    c: (usize, usize, usize),
-    m: (f64, f64, f64),
-    max_iter: (usize, usize, usize),
-    error: (f64, f64, f64),
+/// Configuration for the FCM (Fuzzy C-Means) grid search.
+#[derive(Clone)]
+pub struct Config {
+    /// Number of clusters (`c`), with optional max value and increment.
+    pub c: (usize, Option<usize>, Option<usize>),
+    /// Fuzziness parameter (`m`), with optional max value and increment.
+    pub m: (f64, Option<f64>, Option<f64>),
+    /// Maximum number of iterations (`max_iter`), with optional max value and increment.
+    pub max_iter: (usize, Option<usize>, Option<usize>),
+    /// Convergence error (`error`), with optional max value and increment.
+    pub error: (f64, Option<f64>, Option<f64>),
 }
 
-impl FcmGrid {
-    /// Creates a new instance of `FcmGrid` with the specified parameter ranges.
+impl Config {
+    /// Creates a new configuration for the FCM grid search.
     ///
     /// # Arguments
     ///
-    /// * `c` - Tuple containing the minimum, maximum, and increment values for the number of clusters.
-    /// * `m` - Tuple containing the minimum, maximum, and increment values for the fuzziness parameter.
-    /// * `max_iter` - Tuple containing the minimum, maximum, and increment values for the maximum number of iterations.
-    /// * `error` - Tuple containing the minimum, maximum, and increment values for the convergence error.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use crate::analysis::domain::analysis::fuzzy_c_means::FcmGrid;
-    ///
-    /// let grid = FcmGrid::new((2, 5, 1), (1.5, 2.5, 0.5), (50, 200, 50), (0.01, 0.1, 0.01));
-    /// ```
-    pub const fn new(
-        c: (usize, usize, usize),
-        m: (f64, f64, f64),
-        max_iter: (usize, usize, usize),
-        error: (f64, f64, f64),
-    ) -> Self {
-        Self {
-            c,
-            m,
-            max_iter,
-            error,
-        }
-    }
-
-    /// Performs a grid search to find the best Fuzzy C-Means (FCM) model based on the provided parameter ranges.
-    ///
-    /// This method iterates over all combinations of parameters defined in the `FcmGrid` and selects the model
-    /// with the best evaluation score (i.e., the lowest value of the objective function).
-    ///
-    /// # Arguments
-    ///
-    /// * `data` - The input data to be used for fitting the FCM model.
+    /// * `c` - Number of clusters (start, max, increment).
+    /// * `m` - Fuzziness parameter (start, max, increment).
+    /// * `max_iter` - Maximum number of iterations (start, max, increment).
+    /// * `error` - Convergence error (start, max, increment).
     ///
     /// # Returns
     ///
-    /// * `Ok(FittedModel)` - The best fitted model found during the grid search.
-    /// * `Err(Error)` - An error if no valid model is found or if there is a failure in model creation or fitting.
+    /// A new instance of `Config`.
+    #[must_use]
+    pub const fn new(
+        c: (usize, Option<usize>, Option<usize>),
+        m: (f64, Option<f64>, Option<f64>),
+        max_iter: (usize, Option<usize>, Option<usize>),
+        error: (f64, Option<f64>, Option<f64>),
+    ) -> Self {
+        Self { c, m, max_iter, error }
+    }
+}
+
+/// FCM (Fuzzy C-Means) grid search for finding the best model configuration.
+pub struct FcmGrid {
+    config: Config,
+}
+
+impl FcmGrid {
+    /// Creates a new FCM grid search with the provided configuration.
     ///
-    /// # Examples
+    /// # Arguments
     ///
-    /// ```
-    /// use ndarray::Array2;
-    /// use crate::analysis::domain::analysis::fuzzy_c_means::{FcmGrid, FittedModel, Error};
+    /// * `config` - Configuration for the grid search.
     ///
-    /// let data = Array2::<f64>::zeros((100, 10)); // Example data
-    /// let grid = FcmGrid::new((2, 5, 1), (1.5, 2.5, 0.5), (50, 200, 50), (0.01, 0.1, 0.01));
-    /// match grid.get_best_fitted_model(&data) {
-    ///     Ok(model) => println!("Best model found: {:?}", model),
-    ///     Err(e) => eprintln!("Error: {:?}", e),
-    /// }
-    /// ```
+    /// # Returns
+    ///
+    /// A new instance of `FcmGrid`.
+    #[must_use]
+    pub const fn new(config: Config) -> Self {
+        Self { config }
+    }
+
+    /// Performs the grid search and returns the best fitted model.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - Input data as a 2D array.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing the best fitted model, or an error if no valid model was found.
+    ///
+    /// # Errors
+    ///
+    /// * `Error::CreatingModel` - If there is an error creating the model.
+    /// * `Error::FittingModel` - If there is an error fitting the model.
+    /// * `Error::NoValidModelFound` - If no valid model is found during the grid search.
     pub fn get_best_fitted_model(&self, data: &Array2<f64>) -> Result<FittedModel, Error> {
         let mut best_model: Option<FittedModel> = None;
 
-        let (mut c, c_max, c_inc) = self.c;
-        let (mut m, m_max, m_inc) = self.m;
-        let (mut max_iter, max_iter_max, max_iter_inc) = self.max_iter;
-        let (mut error, error_max, error_inc) = self.error;
-
-        // Iterate over all combinations of parameters
-        while c <= c_max {
-            while m <= m_max {
-                while max_iter <= max_iter_max {
-                    while error <= error_max {
-                        // Attempt to create and fit the Fuzzy C-Means model
+        for c in Self::range(self.config.c) {
+            for m in Self::range_f64(self.config.m) {
+                for max_iter in Self::range(self.config.max_iter) {
+                    for error in Self::range_f64(self.config.error) {
                         let model_result = FuzzyCMeans::try_new(c, m, max_iter, error)
                             .map_err(|e| Error::CreatingModel(e.to_string()))?
                             .try_fit(data)
                             .map_err(|e| Error::FittingModel(e.to_string()))?;
 
-                        if best_model.is_none()
-                            || best_model
-                                .clone()
-                                .is_some_and(|m| m.fpc() < model_result.fpc())
+                        if best_model
+                            .as_ref()
+                            .map_or(true, |m| m.fpc() < model_result.fpc())
                         {
                             best_model = Some(model_result);
                         }
-
-                        error += error_inc;
                     }
-                    max_iter += max_iter_inc;
                 }
-                m += m_inc;
             }
-            c += c_inc;
         }
 
-        // Return the best model found or an error if none was valid
         best_model.ok_or(Error::NoValidModelFound)
+    }
+
+    fn range(param: (usize, Option<usize>, Option<usize>)) -> Box<dyn Iterator<Item = usize>> {
+        let (start, max, inc) = param;
+        if let (Some(max), Some(inc)) = (max, inc) {
+            Box::new((start..=max).step_by(inc))
+        } else {
+            Box::new(std::iter::once(start))
+        }
+    }
+
+    fn range_f64(param: (f64, Option<f64>, Option<f64>)) -> Box<dyn Iterator<Item = f64>> {
+        let (start, max, inc) = param;
+        if let (Some(max), Some(inc)) = (max, inc) {
+            Box::new(std::iter::successors(Some(start), move |&prev| {
+                let next = prev + inc;
+                if next <= max {
+                    Some(next)
+                } else {
+                    None
+                }
+            }))
+        } else {
+            Box::new(std::iter::once(start))
+        }
     }
 }
 
+/// Error type for the FCM grid search process.
 #[derive(PartialEq, Eq, Debug, thiserror::Error)]
 pub enum Error {
     #[error("Error creating model: {0}")]
@@ -115,4 +134,41 @@ pub enum Error {
     FittingModel(String),
     #[error("No valid model found")]
     NoValidModelFound,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ndarray::array;
+
+    #[test]
+    fn test_fcm_grid_no_increments() {
+        let config = Config::new((2, None, None), (2.0, None, None), (100, None, None), (0.01, None, None));
+        let fcm_grid = FcmGrid::new(config);
+        let data = array![[1.0], [2.0], [3.0], [4.0], [5.0]];
+
+        let result = fcm_grid.get_best_fitted_model(&data);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_fcm_grid_with_increments() {
+        let config = Config::new((2, Some(3), Some(1)), (2.0, Some(2.5), Some(0.1)), (100, None, None), (0.01, None, None));
+        let fcm_grid = FcmGrid::new(config);
+        let data = array![[1.0], [2.0], [3.0], [4.0], [5.0]];
+
+        let result = fcm_grid.get_best_fitted_model(&data);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_fcm_grid_no_valid_model() {
+        let config = Config::new((0, None, None), (0.0, None, None), (0, None, None), (0.0, None, None));
+        let fcm_grid = FcmGrid::new(config);
+        let data = array![[1.0], [2.0], [3.0], [4.0], [5.0]];
+
+        let result = fcm_grid.get_best_fitted_model(&data);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), Error::CreatingModel("Fuzziness factor must be greater than 1".to_string()));
+    }
 }

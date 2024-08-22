@@ -24,6 +24,8 @@ macro_rules! extract_values {
                         VarValue::Single(Primitive::$primitive_variant(val)) => {
                                 let output = Some(*val);
                                 $(
+                                    #[allow(clippy::cast_possible_truncation)]
+                                    #[allow(clippy::cast_sign_loss)]
                                     let output = output.map(|original| original as $output_type);
                                 )?
                                 output

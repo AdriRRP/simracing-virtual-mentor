@@ -1,4 +1,4 @@
-use crate::analysis::domain::analysis::fcm_grid::FcmGrid;
+use crate::analysis::domain::analysis::fcm_grid::{Config, FcmGrid};
 use crate::lap::domain::lap::variables::Variables;
 
 use ndarray::Array2;
@@ -37,30 +37,8 @@ impl ClustersMemberships {
     /// * `Failed to create ndarray` - Occurs if the `Array2::from_shape_vec` call fails due to shape or data issues.
     /// * `Error during FCM fitting` - Occurs if there is an error while creating or fitting the FCM model,
     ///   which could be due to invalid model parameters or fitting issues.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// let diff_vars = Variables {
-    ///     speed: vec![...],
-    ///     throttle: vec![...],
-    ///     brake: vec![...],
-    ///     gear: vec![...],
-    ///     steering_wheel_angle: vec![...],
-    /// };
-    ///
-    /// match try_transform_and_fit(&diff_vars) {
-    ///     Ok(result) => println!("Transformation and fitting succeeded: {:?}", result),
-    ///     Err(e) => eprintln!("Error occurred: {:?}", e),
-    /// }
-    /// ```
-    pub fn try_transform_and_fit(diff_variables: &Variables) -> Result<Self, String> {
-        let fcm_grid = FcmGrid::new(
-            (3, 7, 1),
-            (1.7, 2.7, 0.1),
-            (1000, 1000, 1),
-            (0.001, 0.01, 0.001),
-        );
+    pub fn try_transform_and_fit(diff_variables: &Variables, fcm_grid_config: &Config) -> Result<Self, String> {
+        let fcm_grid = FcmGrid::new(fcm_grid_config.clone());
 
         let variables: Vec<(&str, Vec<f64>)> = vec![
             (

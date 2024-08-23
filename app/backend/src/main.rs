@@ -80,6 +80,7 @@ async fn main() -> io::Result<()> {
                 &app_assembler.analysis.by_id_finder,
                 &app_assembler.analysis.analyzer,
                 &app_assembler.analysis.updater,
+                app_assembler.analysis.fcm_grid_config.clone(), // TODO: Review clone
             )
             .await,
         ))

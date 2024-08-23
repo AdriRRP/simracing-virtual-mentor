@@ -12,6 +12,7 @@ use shared::analysis::application::find::header_by_criteria::service::Finder as 
 use shared::analysis::application::find::header_by_id::service::Finder as AnalysisHeaderByIdFinder;
 use shared::analysis::application::update::service::Updater as AnalysisUpdater;
 
+use shared::analysis::domain::analysis::fcm_grid::Config;
 use std::sync::Arc;
 
 pub struct Assembler {
@@ -23,6 +24,7 @@ pub struct Assembler {
     pub by_criteria_finder: Arc<AnalysisByCriteriaFinder<AnalysisRepository>>,
     pub by_id_header_finder: Arc<AnalysisHeaderByIdFinder<AnalysisRepository>>,
     pub by_criteria_header_finder: Arc<AnalysisHeaderByCriteriaFinder<AnalysisRepository>>,
+    pub fcm_grid_config: Config,
 }
 
 impl Assembler {
@@ -42,7 +44,7 @@ impl Assembler {
     ///     * `AnalysisHeaderByIdFinder::new`
     ///     * `AnalysisHeaderByCriteriaFinder::new`
     ///
-    /// Each of these functions could fail due to various reasons such as configuration issues, 
+    /// Each of these functions could fail due to various reasons such as configuration issues,
     /// resource allocation failures, or other runtime errors specific to the initialization process
     /// of each component.
     pub async fn new(
@@ -68,6 +70,30 @@ impl Assembler {
         let by_id_header_finder = Arc::new(AnalysisHeaderByIdFinder::new(Arc::clone(&repository)));
         let by_criteria_header_finder =
             Arc::new(AnalysisHeaderByCriteriaFinder::new(Arc::clone(&repository)));
+
+        let fcm_grid_config = Config::new(
+            (
+                settings.fcm_grid.c.init,
+                settings.fcm_grid.c.max,
+                settings.fcm_grid.c.inc,
+            ),
+            (
+                settings.fcm_grid.m.init,
+                settings.fcm_grid.m.max,
+                settings.fcm_grid.m.inc,
+            ),
+            (
+                settings.fcm_grid.max_iter.init,
+                settings.fcm_grid.max_iter.max,
+                settings.fcm_grid.max_iter.inc,
+            ),
+            (
+                settings.fcm_grid.error.init,
+                settings.fcm_grid.error.max,
+                settings.fcm_grid.error.inc,
+            ),
+        );
+
         Ok(Self {
             analyzer,
             creator,
@@ -77,6 +103,7 @@ impl Assembler {
             by_criteria_finder,
             by_id_header_finder,
             by_criteria_header_finder,
+            fcm_grid_config,
         })
     }
 }

@@ -170,8 +170,8 @@ impl Component for PlotlyDrawer {
         //        info!("Starting canvas binding");
         //        let analysis: &Analysis = &analysis;
         //        if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
-        //            let lat = &reference.metrics.latitude[..];
-        //            let lon = &reference.metrics.longitude[..];
+        //            let lat = &reference.variables.latitude[..];
+        //            let lon = &reference.variables.longitude[..];
         //            let dist = &union_distances[..];
         //            match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
         //                Ok(_) => Self::Message::SyncCanvas(div_id),
@@ -224,29 +224,67 @@ impl Component for PlotlyDrawer {
         }
 
         html! {
-            <div class="fixed-grid">
-                <div class="grid">
-                    <div class="cell">
-                        <Circuit
-                            width={800.}
-                            height={600.}
-                            margin={50.}
-                            latitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.metrics.latitude)}
-                            longitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.metrics.longitude)}
-                            distances={analysis.union_distances.clone()}
-                        />
-                    </div>
-                    <div class="cell is-col-start-3" /*ref={self.target_div.clone()}*/ >
-                        {
-                            self.plot_divs.iter().map(|target_div| {
-                                html!{<div id={target_div.id.clone()} ref={target_div.node_ref.clone()} />}
-                            }).collect::<Html>()
-                        }
+    <div class="fixed-grid">
+        <div class="grid">
+            <div class="cell">
+                <Circuit
+                    width={800.}
+                    height={600.}
+                    margin={50.}
+                    latitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.variables.latitude)}
+                    longitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.variables.longitude)}
+                    distances={analysis.union_distances.clone()}
+                />
+                // Radio buttons for variable selection
+                // Radio buttons for variable selection
+                <div class="control mt-4 ml-6">
+                    <div class="field">
+                        <label class="radio mr-4">
+                            <input type="radio" name="variable" value="None"/>
+                            { "None" }
+                        </label>
+                        <label class="radio mr-4">
+                            <input type="radio" name="variable" value="Speed"/>
+                            { "Speed" }
+                        </label>
+                        <label class="radio mr-4">
+                            <input type="radio" name="variable" value="Throttle"/>
+                            { "Throttle" }
+                        </label>
+                        <label class="radio mr-4">
+                            <input type="radio" name="variable" value="Gear"/>
+                            { "Gear" }
+                        </label>
+                        <label class="radio mr-4">
+                            <input type="radio" name="variable" value="Brake"/>
+                            { "Brake" }
+                        </label>
+                        <label class="radio mr-4">
+                            <input type="radio" name="variable" value="Steering Wheel Angle"/>
+                            { "Steering Wheel Angle" }
+                        </label>
                     </div>
                 </div>
+                // Unix-style console for messages
+                <div class="console mt-4 ml-4">
+                    <pre class="maintain">{ "maintain speed with a tendency to increase it" }</pre>
+                    <pre class="action">{ "shift the car up a gear" }</pre>
+                    <pre class="maintain">{ "Hold the accelerator pedal with a tendency to depress it." }</pre>
+                    <pre class="maintain">{ "Hold the brake" }</pre>
+                    <pre class="maintain">{ "keep the steering wheel without turning with a tendency to turn to the right" }</pre>
+                </div>
             </div>
-
-        }
+            
+            <div class="cell is-col-start-3" /*ref={self.target_div.clone()}*/ >
+                {
+                    self.plot_divs.iter().map(|target_div| {
+                        html!{<div id={target_div.id.clone()} ref={target_div.node_ref.clone()} />}
+                    }).collect::<Html>()
+                }
+            </div>
+        </div>
+    </div>
+}
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {

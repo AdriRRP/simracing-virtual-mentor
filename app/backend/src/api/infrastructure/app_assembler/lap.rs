@@ -36,7 +36,7 @@ impl Assembler {
     ///     * `ByCriteriaLapHeaderFinder::new`
     ///     * `LapDeleter::new`
     ///
-    /// Each of these functions could fail due to various reasons such as configuration issues, 
+    /// Each of these functions could fail due to various reasons such as configuration issues,
     /// resource allocation failures, or other runtime errors specific to the initialization process
     /// of each component.
     pub async fn new(settings: &Settings, _event_bus: &Arc<TokioBus>) -> Result<Self, String> {

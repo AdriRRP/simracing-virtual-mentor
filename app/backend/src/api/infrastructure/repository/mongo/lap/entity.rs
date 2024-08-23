@@ -1,7 +1,7 @@
 use crate::shared::lap::domain::lap::Lap;
 
 use shared::lap::domain::lap::header::Header as DomainHeader;
-use shared::lap::domain::lap::metrics::Metrics;
+use shared::lap::domain::lap::variables::Variables;
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -19,7 +19,7 @@ pub struct Entity {
     pub circuit: String,
     pub date: bson::DateTime,
     pub time: f32,
-    pub metrics: Metrics,
+    pub variables: Variables,
 }
 
 impl TryInto<Lap> for Entity {
@@ -39,7 +39,7 @@ impl TryInto<Lap> for Entity {
                 car: self.car,
                 time: self.time,
             },
-            metrics: self.metrics,
+            variables: self.variables,
         })
     }
 }
@@ -71,7 +71,7 @@ impl TryFrom<Lap> for Entity {
             circuit: lap.header.circuit,
             car: lap.header.car,
             time: lap.header.time,
-            metrics: lap.metrics,
+            variables: lap.variables,
         })
     }
 }

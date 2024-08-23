@@ -30,8 +30,8 @@ impl AppAssembler {
     /// * If `AnalysisAssembler::new` fails, it will return an error string propagated from that function.
     /// * If `IbtAssembler::new` fails, it will return an error string propagated from that function.
     ///
-    /// Each of these functions (`FileAssembler::new`, `LapAssembler::new`, `AnalysisAssembler::new`, 
-    /// and `IbtAssembler::new`) could fail due to various reasons such as configuration issues, 
+    /// Each of these functions (`FileAssembler::new`, `LapAssembler::new`, `AnalysisAssembler::new`,
+    /// and `IbtAssembler::new`) could fail due to various reasons such as configuration issues,
     /// resource allocation failures, or other runtime errors specific to the initialization process
     /// of each component.
     pub async fn new(settings: &Settings) -> Result<Self, String> {

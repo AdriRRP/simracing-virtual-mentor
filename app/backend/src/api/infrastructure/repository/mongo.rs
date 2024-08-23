@@ -14,7 +14,6 @@ use mongodb::options::{ClientOptions, Credential};
 use mongodb::{Client, Collection};
 use serde::de::DeserializeOwned;
 use std::fmt::{Debug, Display};
-use tracing::warn;
 
 pub mod analysis;
 pub mod file;
@@ -138,7 +137,7 @@ where
             .collect();
 
         let filters_bson = filters_bson_result.map_err(Error::Filtering)?;
-        
+
         tracing::trace!("Criteria BSON: {:?}", filters_bson.clone());
 
         let query = if filters_bson.is_empty() {

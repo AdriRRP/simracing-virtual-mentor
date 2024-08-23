@@ -1,4 +1,4 @@
-use crate::lap::domain::lap::metrics::Metrics;
+use crate::lap::domain::lap::variables::Variables;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone)]
@@ -7,7 +7,7 @@ pub struct ReferenceLap {
     pub driver: String,
     pub category: String,
     pub car: String,
-    pub metrics: Metrics,
+    pub variables: Variables,
 }
 
 impl ReferenceLap {
@@ -17,14 +17,14 @@ impl ReferenceLap {
         driver: String,
         category: String,
         car: String,
-        metrics: Metrics,
+        variables: Variables,
     ) -> Self {
         Self {
             number,
             driver,
             category,
             car,
-            metrics,
+            variables,
         }
     }
 }

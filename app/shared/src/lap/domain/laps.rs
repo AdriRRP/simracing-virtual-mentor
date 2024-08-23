@@ -39,7 +39,7 @@ impl DerefMut for Laps {
     ///
     /// # Returns
     ///
-    /// A mutable reference to the vector of analyses.
+    /// A mutable reference to the vector of laps.
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.laps
     }

@@ -4,24 +4,24 @@ pub mod header;
 /// Module for lap headers (plural form).
 pub mod headers;
 
-/// Module for lap metrics.
-pub mod metrics;
+/// Module for lap variables.
+pub mod variables;
 
 use crate::lap::domain::lap::header::Header;
-use crate::lap::domain::lap::metrics::Metrics;
+use crate::lap::domain::lap::variables::Variables;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Represents a lap with associated header and metrics.
+/// Represents a lap with associated header and variables.
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Lap {
     /// Header information for the lap.
     pub header: Header,
 
-    /// Metrics data for the lap.
-    pub metrics: Metrics,
+    /// Variables data for the lap.
+    pub variables: Variables,
 }
 
 impl Lap {
@@ -37,7 +37,7 @@ impl Lap {
     /// * `car` - Name or model of the car.
     /// * `circuit` - Name of the circuit where the lap was performed.
     /// * `date` - Date and time when the lap was performed (in UTC).
-    /// * `metrics` - Metrics data associated with the lap.
+    /// * `variables` - Variables data associated with the lap.
     ///
     /// # Returns
     ///
@@ -53,13 +53,13 @@ impl Lap {
         car: String,
         circuit: String,
         date: DateTime<Utc>,
-        metrics: Metrics,
+        variables: Variables,
     ) -> Self {
-        let time = *metrics.lap_current_lap_time.last().unwrap_or(&0f32);
+        let time = *variables.lap_current_lap_time.last().unwrap_or(&0f32);
         let header = Header::new(
             id, file_id, number, driver, category, car, circuit, date, time,
         );
 
-        Self { header, metrics }
+        Self { header, variables }
     }
 }

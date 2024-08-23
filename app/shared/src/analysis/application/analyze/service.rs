@@ -2,6 +2,7 @@ use crate::analysis::domain::analysis::status::Status;
 use crate::analysis::domain::repository::Repository;
 use crate::lap::domain::repository::Repository as LapRepository;
 
+use crate::analysis::domain::analysis::fcm_grid::Config;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -46,7 +47,7 @@ impl<R: Repository, LR: LapRepository> Analyzer<R, LR> {
     /// # Returns
     ///
     /// Returns `Ok` if the analysis data was successfully created and stored in the repository.
-    pub async fn analyze(&self, id: Uuid) -> Result<(), String> {
+    pub async fn analyze(&self, id: Uuid, fcm_grid_config: &Config) -> Result<(), String> {
         let mut analysis = self.repository.find_by_id(&id).await?.ok_or(format!(
             "Cannot found analysis with id `{id}` to perform an analysis"
         ))?;
@@ -65,7 +66,7 @@ impl<R: Repository, LR: LapRepository> Analyzer<R, LR> {
                 .ok_or(format!("Target Lap with id {target_id} not found"))?;
 
             analysis
-                .analyze(ref_lap, target_lap)
+                .analyze(ref_lap, target_lap, fcm_grid_config)
                 .map_err(|e| format!("{e}"))?;
 
             self.repository.update(&analysis).await

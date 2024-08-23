@@ -1,32 +1,32 @@
 use crate::ibt::domain::file::from_reader;
 use crate::ibt::domain::file::header::Header;
-use crate::ibt::domain::file::metric::Metric;
 use crate::ibt::domain::file::var_filter::VarFilter;
 use crate::ibt::domain::file::var_headers::VarHeaders;
+use crate::ibt::domain::file::variable::Variable;
 
 use std::io::{Read, Seek};
 use std::ops::Deref;
 
-/// Represents a collection of metrics.
+/// Represents a collection of variables.
 #[derive(PartialEq, Clone, Debug)]
-pub struct Metrics {
-    metrics: Vec<Metric>,
+pub struct Variables {
+    variables: Vec<Variable>,
 }
 
-impl Metrics {
-    /// Constructs a `Metrics` instance from a reader, given the header information and an optional variable filter.
+impl Variables {
+    /// Constructs a `Variables` instance from a reader, given the header information and an optional variable filter.
     ///
     /// # Errors
     ///
     /// Returns an error if the maximum by tick count `header.var_buffers` can't be retrieved,
-    /// or if constructing individual metrics using `Metric::from_reader` fails.
+    /// or if constructing individual variable using `Variable::from_reader` fails.
     #[allow(clippy::similar_names)]
     pub fn from_reader<ReadSeek: Read + Seek>(
         reader: &mut ReadSeek,
         header: &Header,
         filter: &Option<VarFilter>,
     ) -> Result<Self, from_reader::Error> {
-        // Headers of all metrics
+        // Headers of all variables
         let mut var_headers = VarHeaders::from_reader(reader, header)?;
 
         // Size of a sample of values of all headers
@@ -40,8 +40,8 @@ impl Metrics {
             var_headers.retain(|var_header| var_filter.allow(var_header));
         }
 
-        // Collect metrics from var headers
-        let metrics_result: Result<Vec<Metric>, from_reader::Error> = var_headers
+        // Collect variables from var headers
+        let metrics_result: Result<Vec<Variable>, from_reader::Error> = var_headers
             .iter()
             .map(|var_header| {
                 // Pick the buffer with the highest tick_count
@@ -54,18 +54,18 @@ impl Metrics {
                             "Can't get the buffer with the highest tick_count".to_string(),
                         )
                     })?;
-                Metric::from_reader(reader, var_header, current_buffer.offset, var_block_size)
+                Variable::from_reader(reader, var_header, current_buffer.offset, var_block_size)
             })
             .collect();
 
-        metrics_result.map(|metrics| Self { metrics })
+        metrics_result.map(|metrics| Self { variables: metrics })
     }
 }
 
-impl Deref for Metrics {
-    type Target = Vec<Metric>;
+impl Deref for Variables {
+    type Target = Vec<Variable>;
 
     fn deref(&self) -> &Self::Target {
-        &self.metrics
+        &self.variables
     }
 }

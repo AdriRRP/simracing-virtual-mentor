@@ -1,4 +1,6 @@
+use reqwest::header::CONTENT_LENGTH;
 use chrono::Utc;
+use log::{error, info};
 use crate::infrastructure::settings::Settings;
 use reqwest::Client;
 use serde::Serialize;
@@ -121,18 +123,26 @@ impl Http {
     pub async fn find_by_criteria(&self, criteria: &Criteria) -> Result<Option<Analyses>, String> {
         let response = Client::new()
             .post(&self.find_by_criteria)
+            .header(CONTENT_LENGTH, "application/json")
             .json(criteria)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
 
+        info!("{:?}", response);
+
         if response.status().is_success() {
-            let analyses: Analyses = response.json().await.map_err(|e| format!("{e}"))?;
-            if analyses.is_empty() {
-                Ok(None)
-            } else {
-                Ok(Some(analyses))
-            }
+            let json = response.json().await.map_err(|e| {
+                error!("{:?}", e);
+                format!("{e}")
+            })?;
+            let analyses: Option<Analyses> = json;
+            Ok(analyses)
+            //if analyses.is_empty() {
+            //    Ok(None)
+            //} else {
+            //    Ok(Some(analyses))
+            //}
         } else {
             Err(response.status().to_string())
         }

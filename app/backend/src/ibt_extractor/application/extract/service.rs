@@ -6,7 +6,7 @@ use shared::ibt::domain::file::File as IbtFile;
 use shared::lap::application::create::service::Creator as LapCreator;
 use shared::lap::domain::repository::Repository as LapRepository;
 
-use crate::ibt_extractor::domain::converter::ibt_metrics2laps;
+use crate::ibt_extractor::domain::converter::ibt_variables2laps;
 use crate::ibt_extractor::domain::event::extracted::Extracted as IbtExtracted;
 
 use std::io::{Read, Seek};
@@ -51,7 +51,7 @@ impl<FR: FileRepository, LR: LapRepository, E: EventBus> Extractor<FR, LR, E> {
 
         match ibt_file {
             Ok(ibt_file) => {
-                let laps = ibt_metrics2laps(&id, &ibt_file.session_info, &ibt_file.metrics);
+                let laps = ibt_variables2laps(&id, &ibt_file.session_info, &ibt_file.metrics);
                 self.lap_creator.create(laps).await;
 
                 tracing::debug!("Laps for file `{}` ({}) created", name.clone(), id.clone());

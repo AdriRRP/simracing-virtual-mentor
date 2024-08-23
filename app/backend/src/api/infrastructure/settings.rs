@@ -10,6 +10,7 @@ pub struct Settings {
     pub event_bus: EventBus,
     pub log_level: LogLevel,
     pub mongo: Mongo,
+    pub fcm_grid: FcmGrid,
 }
 
 #[derive(Debug, Deserialize)]
@@ -45,6 +46,28 @@ pub struct MongoCollections {
     pub analysis: String,
     pub file: String,
     pub lap: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FcmGrid {
+    pub c: InitMaxMinUsize,
+    pub m: InitMaxMinF64,
+    pub max_iter: InitMaxMinUsize,
+    pub error: InitMaxMinF64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct InitMaxMinUsize {
+    pub init: usize,
+    pub max: Option<usize>,
+    pub inc: Option<usize>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct InitMaxMinF64 {
+    pub init: f64,
+    pub max: Option<f64>,
+    pub inc: Option<f64>,
 }
 
 impl Display for LogLevel {

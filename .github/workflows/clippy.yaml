@@ -50,7 +50,7 @@ jobs:
       - name: Run Clippy in Shared
         uses: giraffate/clippy-action@v1.0.1
         with:
-          working_directory: app/shared
+          workdir: app/shared
           reporter: github-pr-check
           github_token: ${{ secrets.GITHUB_TOKEN }}
           clippy_flags: >-
@@ -59,7 +59,7 @@ jobs:
       - name: Run Clippy in Backend
         uses: giraffate/clippy-action@v1.0.1
         with:
-          working_directory: app/backend
+          workdir: app/backend
           reporter: github-pr-check
           github_token: ${{ secrets.GITHUB_TOKEN }}
           clippy_flags: >-
@@ -68,7 +68,7 @@ jobs:
       #- name: Run Clippy in Frontend
       #  uses: giraffate/clippy-action@v1.0.1
       #  with:
-      #    working_directory: app/frontend
+      #    workdir: app/frontend
       #    reporter: github-pr-check
       #    github_token: ${{ secrets.GITHUB_TOKEN }}
       #    clippy_flags: >-

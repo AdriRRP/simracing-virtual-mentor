@@ -326,7 +326,10 @@ mod tests {
             (expected_rows, expected_cols),
             (result_rows, result_cols),
             "Array dimensions do not match: expected ({}, {}), got ({}, {})",
-            expected_rows, expected_cols, result_rows, result_cols
+            expected_rows,
+            expected_cols,
+            result_rows,
+            result_cols
         );
 
         for r in 0..expected_rows {

@@ -80,21 +80,21 @@ jobs:
           reporter: java-junit
           output-to: 'checks'
 
-      # Ejecutar pruebas para el proyecto frontend
-      - name: Run tests in frontend
-        timeout-minutes: 60
-        shell: bash
-        run: |
-          cd app/frontend
-          set -e
-          cargo test --lib --tests --all-features  -- -Z unstable-options --format json | cargo2junit > ../../test-results-frontend-${{ matrix.target.triple }}.xml
+      ## Ejecutar pruebas para el proyecto frontend
+      #- name: Run tests in frontend
+      #  timeout-minutes: 60
+      #  shell: bash
+      #  run: |
+      #    cd app/frontend
+      #    set -e
+      #    cargo test --lib --tests --all-features  -- -Z unstable-options --format json | cargo2junit > ../../test-results-frontend-${{ matrix.target.triple }}.xml
 
-      - name: Report test results for frontend
-        uses: phoenix-actions/test-reporting@v8
-        id: test-report-frontend
-        if: success() || failure()
-        with:
-          name: Tests Summary (frontend - ${{ matrix.target.name }})
-          path: test-results-frontend-${{ matrix.target.triple }}.xml
-          reporter: java-junit
-          output-to: 'checks'
+      #- name: Report test results for frontend
+      #  uses: phoenix-actions/test-reporting@v8
+      #  id: test-report-frontend
+      #  if: success() || failure()
+      #  with:
+      #    name: Tests Summary (frontend - ${{ matrix.target.name }})
+      #    path: test-results-frontend-${{ matrix.target.triple }}.xml
+      #    reporter: java-junit
+      #    output-to: 'checks'

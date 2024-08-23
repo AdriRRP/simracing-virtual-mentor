@@ -1,0 +1,281 @@
+name,description,var_type,unit,count,count_as_time,offset
+SessionTime,Seconds since session start,Double,s,1,0,0
+SessionTick,Current update number,Int,,1,0,8
+SessionNum,Session number,Int,,1,0,12
+SessionState,Session state,Int,irsdk_SessionState,1,0,16
+SessionUniqueID,Session ID,Int,,1,0,20
+SessionFlags,Session flags,BitField,irsdk_Flags,1,0,24
+SessionTimeRemain,Seconds left till session ends,Double,s,1,0,28
+SessionLapsRemain,Old laps left till session ends use SessionLapsRemainEx,Int,,1,0,36
+SessionLapsRemainEx,New improved laps left till session ends,Int,,1,0,40
+SessionTimeTotal,Total number of seconds in session,Double,s,1,0,44
+SessionLapsTotal,Total number of laps in session,Int,,1,0,52
+SessionJokerLapsRemain,Joker laps remaining to be taken,Int,,1,0,56
+SessionOnJokerLap,Player is currently completing a joker lap,Bool,,1,0,60
+SessionTimeOfDay,Time of day in seconds,Float,s,1,0,61
+DriverMarker,Driver activated flag,Bool,,1,0,65
+PushToTalk,Push to talk button state,Bool,,1,0,66
+PushToPass,Push to pass button state,Bool,,1,0,67
+ManualBoost,Hybrid manual boost state,Bool,,1,0,68
+ManualNoBoost,Hybrid manual no boost state,Bool,,1,0,69
+IsOnTrack,1=Car on track physics running with player in car,Bool,,1,0,70
+FrameRate,Average frames per second,Float,fps,1,0,71
+CpuUsageFG,Percent of available tim fg thread took with a 1 sec avg,Float,%,1,0,75
+GpuUsage,Percent of available tim gpu took with a 1 sec avg,Float,%,1,0,79
+ChanAvgLatency,Communications average latency,Float,s,1,0,83
+ChanLatency,Communications latency,Float,s,1,0,87
+ChanQuality,Communications quality,Float,%,1,0,91
+ChanPartnerQuality,Partner communications quality,Float,%,1,0,95
+CpuUsageBG,Percent of available tim bg thread took with a 1 sec avg,Float,%,1,0,99
+ChanClockSkew,Communications server clock skew,Float,s,1,0,103
+MemPageFaultSec,Memory page faults per second,Float,,1,0,107
+MemSoftPageFaultSec,Memory soft page faults per second,Float,,1,0,111
+PlayerCarPosition,Players position in race,Int,,1,0,115
+PlayerCarClassPosition,Players class position in race,Int,,1,0,119
+PlayerCarClass,Player car class id,Int,,1,0,123
+PlayerTrackSurface,Players car track surface type,Int,irsdk_TrkLoc,1,0,127
+PlayerTrackSurfaceMaterial,Players car track surface material type,Int,irsdk_TrkSurf,1,0,131
+PlayerCarIdx,Players carIdx,Int,,1,0,135
+PlayerCarTeamIncidentCount,Players team incident count for this session,Int,,1,0,139
+PlayerCarMyIncidentCount,Players own incident count for this session,Int,,1,0,143
+PlayerCarDriverIncidentCount,Teams current drivers incident count for this session,Int,,1,0,147
+PlayerCarWeightPenalty,Players weight penalty,Float,kg,1,0,151
+PlayerCarPowerAdjust,Players power adjust,Float,%,1,0,155
+PlayerCarDryTireSetLimit,Players dry tire set limit,Int,,1,0,159
+PlayerCarTowTime,Players car is being towed if time is greater than zero,Float,s,1,0,163
+PlayerCarInPitStall,Players car is properly in their pitstall,Bool,,1,0,167
+PlayerCarPitSvStatus,Players car pit service status bits,Int,irsdk_PitSvStatus,1,0,168
+PlayerTireCompound,Players car current tire compound,Int,,1,0,172
+PlayerFastRepairsUsed,Players car number of fast repairs used,Int,,1,0,176
+PaceMode,Are we pacing or not,Int,irsdk_PaceMode,1,0,180
+OnPitRoad,Is the player car on pit road between the cones,Bool,,1,0,184
+SteeringWheelAngle,Steering wheel angle,Float,rad,1,0,185
+Throttle,0=off throttle to 1=full throttle,Float,%,1,0,189
+Brake,0=brake released to 1=max pedal force,Float,%,1,0,193
+Clutch,0=disengaged to 1=fully engaged,Float,%,1,0,197
+Gear,-1=reverse  0=neutral  1..n=current gear,Int,,1,0,201
+RPM,Engine rpm,Float,revs/min,1,0,205
+Lap,Laps started count,Int,,1,0,209
+LapCompleted,Laps completed count,Int,,1,0,213
+LapDist,Meters traveled from S/F this lap,Float,m,1,0,217
+LapDistPct,Percentage distance around lap,Float,%,1,0,221
+LapBestLap,Players best lap number,Int,,1,0,225
+LapBestLapTime,Players best lap time,Float,s,1,0,229
+LapLastLapTime,Players last lap time,Float,s,1,0,233
+LapCurrentLapTime,Estimate of players current lap time as shown in F3 box,Float,s,1,0,237
+LapLasNLapSeq,Player num consecutive clean laps completed for N average,Int,,1,0,241
+LapLastNLapTime,Player last N average lap time,Float,s,1,0,245
+LapBestNLapLap,Player last lap in best N average lap time,Int,,1,0,249
+LapBestNLapTime,Player best N average lap time,Float,s,1,0,253
+LapDeltaToBestLap,Delta time for best lap,Float,s,1,0,257
+LapDeltaToBestLap_DD,Rate of change of delta time for best lap,Float,s/s,1,0,261
+LapDeltaToBestLap_OK,Delta time for best lap is valid,Bool,,1,0,265
+LapDeltaToOptimalLap,Delta time for optimal lap,Float,s,1,0,266
+LapDeltaToOptimalLap_DD,Rate of change of delta time for optimal lap,Float,s/s,1,0,270
+LapDeltaToOptimalLap_OK,Delta time for optimal lap is valid,Bool,,1,0,274
+LapDeltaToSessionBestLap,Delta time for session best lap,Float,s,1,0,275
+LapDeltaToSessionBestLap_DD,Rate of change of delta time for session best lap,Float,s/s,1,0,279
+LapDeltaToSessionBestLap_OK,Delta time for session best lap is valid,Bool,,1,0,283
+LapDeltaToSessionOptimalLap,Delta time for session optimal lap,Float,s,1,0,284
+LapDeltaToSessionOptimalLap_DD,Rate of change of delta time for session optimal lap,Float,s/s,1,0,288
+LapDeltaToSessionOptimalLap_OK,Delta time for session optimal lap is valid,Bool,,1,0,292
+LapDeltaToSessionLastlLap,Delta time for session last lap,Float,s,1,0,293
+LapDeltaToSessionLastlLap_DD,Rate of change of delta time for session last lap,Float,s/s,1,0,297
+LapDeltaToSessionLastlLap_OK,Delta time for session last lap is valid,Bool,,1,0,301
+Speed,GPS vehicle speed,Float,m/s,1,0,302
+Yaw,Yaw orientation,Float,rad,1,0,306
+YawNorth,Yaw orientation relative to north,Float,rad,1,0,310
+Pitch,Pitch orientation,Float,rad,1,0,314
+Roll,Roll orientation,Float,rad,1,0,318
+EnterExitReset,Indicate action the reset key will take 0 enter 1 exit 2 reset,Int,,1,0,322
+Lat,Latitude in decimal degrees,Double,deg,1,0,326
+Lon,Longitude in decimal degrees,Double,deg,1,0,334
+Alt,Altitude in meters,Float,m,1,0,342
+TrackTemp,Deprecated  set to TrackTempCrew,Float,C,1,0,346
+TrackTempCrew,Temperature of track measured by crew around track,Float,C,1,0,350
+AirTemp,Temperature of air at start/finish line,Float,C,1,0,354
+WeatherType,Weather type (0=constant  1=dynamic),Int,,1,0,358
+Skies,Skies (0=clear/1=p cloudy/2=m cloudy/3=overcast),Int,,1,0,362
+AirDensity,Density of air at start/finish line,Float,kg/m^3,1,0,366
+AirPressure,Pressure of air at start/finish line,Float,Pa,1,0,370
+WindVel,Wind velocity at start/finish line,Float,m/s,1,0,374
+WindDir,Wind direction at start/finish line,Float,rad,1,0,378
+RelativeHumidity,Relative Humidity,Float,%,1,0,382
+FogLevel,Fog level,Float,%,1,0,386
+SolarAltitude,Sun angle above horizon in radians,Float,rad,1,0,390
+SolarAzimuth,Sun angle clockwise from north in radians,Float,rad,1,0,394
+PitsOpen,True if pit stop is allowed for the current player,Bool,,1,0,398
+PitRepairLeft,Time left for mandatory pit repairs if repairs are active,Float,s,1,0,399
+PitOptRepairLeft,Time left for optional repairs if repairs are active,Float,s,1,0,403
+PitstopActive,Is the player getting pit stop service,Bool,,1,0,407
+FastRepairUsed,How many fast repairs used so far,Int,,1,0,408
+FastRepairAvailable,How many fast repairs left  255 is unlimited,Int,,1,0,412
+LFTiresUsed,How many left front tires used so far,Int,,1,0,416
+RFTiresUsed,How many right front tires used so far,Int,,1,0,420
+LRTiresUsed,How many left rear tires used so far,Int,,1,0,424
+RRTiresUsed,How many right rear tires used so far,Int,,1,0,428
+LeftTireSetsUsed,How many left tire sets used so far,Int,,1,0,432
+RightTireSetsUsed,How many right tire sets used so far,Int,,1,0,436
+FrontTireSetsUsed,How many front tire sets used so far,Int,,1,0,440
+RearTireSetsUsed,How many rear tire sets used so far,Int,,1,0,444
+TireSetsUsed,How many tire sets used so far,Int,,1,0,448
+LFTiresAvailable,How many left front tires are remaining  255 is unlimited,Int,,1,0,452
+RFTiresAvailable,How many right front tires are remaining  255 is unlimited,Int,,1,0,456
+LRTiresAvailable,How many left rear tires are remaining  255 is unlimited,Int,,1,0,460
+RRTiresAvailable,How many right rear tires are remaining  255 is unlimited,Int,,1,0,464
+LeftTireSetsAvailable,How many left tire sets are remaining  255 is unlimited,Int,,1,0,468
+RightTireSetsAvailable,How many right tire sets are remaining  255 is unlimited,Int,,1,0,472
+FrontTireSetsAvailable,How many front tire sets are remaining  255 is unlimited,Int,,1,0,476
+RearTireSetsAvailable,How many rear tire sets are remaining  255 is unlimited,Int,,1,0,480
+TireSetsAvailable,How many tire sets are remaining  255 is unlimited,Int,,1,0,484
+IsOnTrackCar,1=Car on track physics running,Bool,,1,0,488
+SteeringWheelAngleMax,Steering wheel max angle,Float,rad,1,0,489
+ShiftPowerPct,Friction torque applied to gears when shifting or grinding,Float,%,1,0,493
+ShiftGrindRPM,RPM of shifter grinding noise,Float,RPM,1,0,497
+ThrottleRaw,Raw throttle input 0=off throttle to 1=full throttle,Float,%,1,0,501
+BrakeRaw,Raw brake input 0=brake released to 1=max pedal force,Float,%,1,0,505
+ClutchRaw,Raw clutch input 0=disengaged to 1=fully engaged,Float,%,1,0,509
+HandbrakeRaw,Raw handbrake input 0=handbrake released to 1=max force,Float,%,1,0,513
+BrakeABSactive,true if abs is currently reducing brake force pressure,Bool,,1,0,517
+BrakeABScutPct,Percent of brake force reduction caused by ABS system,Float,%,1,0,518
+EngineWarnings,Bitfield for warning lights,BitField,irsdk_EngineWarnings,1,0,522
+FuelLevelPct,Percent fuel remaining,Float,%,1,0,526
+PitSvFlags,Bitfield of pit service checkboxes,BitField,irsdk_PitSvFlags,1,0,530
+PitSvLFP,Pit service left front tire pressure,Float,kPa,1,0,534
+PitSvRFP,Pit service right front tire pressure,Float,kPa,1,0,538
+PitSvLRP,Pit service left rear tire pressure,Float,kPa,1,0,542
+PitSvRRP,Pit service right rear tire pressure,Float,kPa,1,0,546
+PitSvFuel,Pit service fuel add amount,Float,l or kWh,1,0,550
+PitSvTireCompound,Pit service pending tire compound,Int,,1,0,554
+SteeringWheelPctTorque,Force feedback % max torque on steering shaft unsigned,Float,%,1,0,558
+SteeringWheelPctTorqueSign,Force feedback % max torque on steering shaft signed,Float,%,1,0,562
+SteeringWheelPctTorqueSignStops,Force feedback % max torque on steering shaft signed stops,Float,%,1,0,566
+SteeringWheelPctIntensity,Force feedback % max intensity,Float,%,1,0,570
+SteeringWheelPctSmoothing,Force feedback % max smoothing,Float,%,1,0,574
+SteeringWheelPctDamper,Force feedback % max damping,Float,%,1,0,578
+SteeringWheelLimiter,Force feedback limiter strength limits impacts and oscillation,Float,%,1,0,582
+SteeringWheelMaxForceNm,Value of strength or max force slider in Nm for FFB,Float,N*m,1,0,586
+SteeringWheelUseLinear,True if steering wheel force is using linear mode,Bool,,1,0,590
+ShiftIndicatorPct,DEPRECATED use DriverCarSLBlinkRPM instead,Float,%,1,0,591
+TireLF_RumblePitch,Players LF Tire Sound rumblestrip pitch,Float,Hz,1,0,595
+TireRF_RumblePitch,Players RF Tire Sound rumblestrip pitch,Float,Hz,1,0,599
+TireLR_RumblePitch,Players LR Tire Sound rumblestrip pitch,Float,Hz,1,0,603
+TireRR_RumblePitch,Players RR Tire Sound rumblestrip pitch,Float,Hz,1,0,607
+SteeringWheelTorque_ST,Output torque on steering shaft at 360 Hz,Float,N*m,6,1,611
+SteeringWheelTorque,Output torque on steering shaft,Float,N*m,1,0,635
+VelocityZ,Z velocity,Float,m/s,1,0,639
+VelocityY,Y velocity,Float,m/s,1,0,643
+VelocityX,X velocity,Float,m/s,1,0,647
+YawRate,Yaw rate,Float,rad/s,1,0,651
+PitchRate,Pitch rate,Float,rad/s,1,0,655
+RollRate,Roll rate,Float,rad/s,1,0,659
+VertAccel,Vertical acceleration (including gravity),Float,m/s^2,1,0,663
+LatAccel,Lateral acceleration (including gravity),Float,m/s^2,1,0,667
+LongAccel,Longitudinal acceleration (including gravity),Float,m/s^2,1,0,671
+dcStarter,In car trigger car starter,Bool,,1,0,675
+dcPitSpeedLimiterToggle,In car traction control active,Bool,,1,0,676
+dcTractionControlToggle,In car traction control active,Bool,,1,0,677
+dcHeadlightFlash,In car headlight flash control active,Bool,,1,0,678
+dpWindshieldTearoff,Pitstop windshield tearoff,Float,,1,0,679
+dpRFTireChange,Pitstop rf tire change request,Float,,1,0,683
+dpLFTireChange,Pitstop lf tire change request,Float,,1,0,687
+dpRRTireChange,Pitstop rr tire change request,Float,,1,0,691
+dpLRTireChange,Pitstop lr tire change request,Float,,1,0,695
+dpFuelFill,Pitstop fuel fill flag,Float,,1,0,699
+dpFuelAddKg,Pitstop fuel add amount,Float,kg,1,0,703
+dpFastRepair,Pitstop fast repair set,Float,,1,0,707
+dcAntiRollFront,In car front anti roll bar adjustment,Float,,1,0,711
+dcAntiRollRear,In car rear anti roll bar adjustment,Float,,1,0,715
+dcBrakeBias,In car brake bias adjustment,Float,,1,0,719
+dpLFTireColdPress,Pitstop lf tire cold pressure adjustment,Float,Pa,1,0,723
+dpRFTireColdPress,Pitstop rf cold tire pressure adjustment,Float,Pa,1,0,727
+dpLRTireColdPress,Pitstop lr tire cold pressure adjustment,Float,Pa,1,0,731
+dpRRTireColdPress,Pitstop rr cold tire pressure adjustment,Float,Pa,1,0,735
+dcMGUKDeployMode,In car MGU-K deployment mode level adjustment,Float,,1,0,739
+dcTractionControl2,In car traction control 2 adjustment,Float,,1,0,743
+dcTractionControl,In car traction control adjustment,Float,,1,0,747
+RFbrakeLinePress,RF brake line pressure,Float,bar,1,0,751
+RFspeed,RF wheel speed,Float,m/s,1,0,755
+RFpressure,RF tire pressure,Float,kPa,1,0,759
+RFcoldPressure,RF tire cold pressure  as set in the garage,Float,kPa,1,0,763
+RFtempL,RF tire left surface temperature,Float,C,1,0,767
+RFtempM,RF tire middle surface temperature,Float,C,1,0,771
+RFtempR,RF tire right surface temperature,Float,C,1,0,775
+RFtempCL,RF tire left carcass temperature,Float,C,1,0,779
+RFtempCM,RF tire middle carcass temperature,Float,C,1,0,783
+RFtempCR,RF tire right carcass temperature,Float,C,1,0,787
+RFwearL,RF tire left percent tread remaining,Float,%,1,0,791
+RFwearM,RF tire middle percent tread remaining,Float,%,1,0,795
+RFwearR,RF tire right percent tread remaining,Float,%,1,0,799
+LFbrakeLinePress,LF brake line pressure,Float,bar,1,0,803
+LFspeed,LF wheel speed,Float,m/s,1,0,807
+LFpressure,LF tire pressure,Float,kPa,1,0,811
+LFcoldPressure,LF tire cold pressure  as set in the garage,Float,kPa,1,0,815
+LFtempL,LF tire left surface temperature,Float,C,1,0,819
+LFtempM,LF tire middle surface temperature,Float,C,1,0,823
+LFtempR,LF tire right surface temperature,Float,C,1,0,827
+LFtempCL,LF tire left carcass temperature,Float,C,1,0,831
+LFtempCM,LF tire middle carcass temperature,Float,C,1,0,835
+LFtempCR,LF tire right carcass temperature,Float,C,1,0,839
+LFwearL,LF tire left percent tread remaining,Float,%,1,0,843
+LFwearM,LF tire middle percent tread remaining,Float,%,1,0,847
+LFwearR,LF tire right percent tread remaining,Float,%,1,0,851
+FuelUsePerHour,Engine fuel used instantaneous,Float,kg/h,1,0,855
+Voltage,Engine voltage,Float,V,1,0,859
+WaterTemp,Engine coolant temp,Float,C,1,0,863
+WaterLevel,Engine coolant level,Float,l,1,0,867
+FuelPress,Engine fuel pressure,Float,bar,1,0,871
+OilTemp,Engine oil temperature,Float,C,1,0,875
+OilPress,Engine oil pressure,Float,bar,1,0,879
+OilLevel,Engine oil level,Float,l,1,0,883
+ManifoldPress,Engine manifold pressure,Float,bar,1,0,887
+PowerMGU_K,Engine MGU-K mechanical power,Float,W,1,0,891
+TorqueMGU_K,Engine MGU-K mechanical torque,Float,Nm,1,0,895
+PowerMGU_H,Engine MGU-H mechanical power,Float,W,1,0,899
+EnergyERSBattery,Engine ERS battery charge,Float,J,1,0,903
+EnergyERSBatteryPct,Engine ERS battery charge as a percent,Float,%,1,0,907
+EnergyBatteryToMGU_KLap,Electrical energy from battery to MGU-K per lap,Float,J,1,0,911
+EnergyMGU_KLapDeployPct,Electrical energy available to MGU-K per lap as a percent,Float,%,1,0,915
+FuelLevel,Liters of fuel remaining,Float,l,1,0,919
+Engine0_RPM,Engine0Engine rpm,Float,revs/min,1,0,923
+RRbrakeLinePress,RR brake line pressure,Float,bar,1,0,927
+RRspeed,RR wheel speed,Float,m/s,1,0,931
+RRpressure,RR tire pressure,Float,kPa,1,0,935
+RRcoldPressure,RR tire cold pressure  as set in the garage,Float,kPa,1,0,939
+RRtempL,RR tire left surface temperature,Float,C,1,0,943
+RRtempM,RR tire middle surface temperature,Float,C,1,0,947
+RRtempR,RR tire right surface temperature,Float,C,1,0,951
+RRtempCL,RR tire left carcass temperature,Float,C,1,0,955
+RRtempCM,RR tire middle carcass temperature,Float,C,1,0,959
+RRtempCR,RR tire right carcass temperature,Float,C,1,0,963
+RRwearL,RR tire left percent tread remaining,Float,%,1,0,967
+RRwearM,RR tire middle percent tread remaining,Float,%,1,0,971
+RRwearR,RR tire right percent tread remaining,Float,%,1,0,975
+LRbrakeLinePress,LR brake line pressure,Float,bar,1,0,979
+LRspeed,LR wheel speed,Float,m/s,1,0,983
+LRpressure,LR tire pressure,Float,kPa,1,0,987
+LRcoldPressure,LR tire cold pressure  as set in the garage,Float,kPa,1,0,991
+LRtempL,LR tire left surface temperature,Float,C,1,0,995
+LRtempM,LR tire middle surface temperature,Float,C,1,0,999
+LRtempR,LR tire right surface temperature,Float,C,1,0,1003
+LRtempCL,LR tire left carcass temperature,Float,C,1,0,1007
+LRtempCM,LR tire middle carcass temperature,Float,C,1,0,1011
+LRtempCR,LR tire right carcass temperature,Float,C,1,0,1015
+LRwearL,LR tire left percent tread remaining,Float,%,1,0,1019
+LRwearM,LR tire middle percent tread remaining,Float,%,1,0,1023
+LRwearR,LR tire right percent tread remaining,Float,%,1,0,1027
+HFshockDefl,HF shock deflection,Float,m,1,0,1031
+HFshockVel,HF shock velocity,Float,m/s,1,0,1035
+LRshockDefl,LR shock deflection,Float,m,1,0,1039
+LRshockVel,LR shock velocity,Float,m/s,1,0,1043
+RRshockDefl,RR shock deflection,Float,m,1,0,1047
+RRshockVel,RR shock velocity,Float,m/s,1,0,1051
+LFshockDefl,LF shock deflection,Float,m,1,0,1055
+LFshockVel,LF shock velocity,Float,m/s,1,0,1059
+RFshockDefl,RF shock deflection,Float,m,1,0,1063
+RFshockVel,RF shock velocity,Float,m/s,1,0,1067
+LFrideHeight,LF ride height,Float,m,1,0,1071
+RFrideHeight,RF ride height,Float,m,1,0,1075
+LRrideHeight,LR ride height,Float,m,1,0,1079
+RRrideHeight,RR ride height,Float,m,1,0,1083
+CFSRrideHeight,Center front splitter ride height,Float,m,1,0,1087

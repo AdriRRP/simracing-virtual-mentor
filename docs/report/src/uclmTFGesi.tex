@@ -96,6 +96,27 @@
 %% Añade aquí los paquetes y comandos adicionales que necesites
 %% ===>
 
+\usepackage[printonlyused]{acronym}
+% Possible package options:
+%   - footnote :
+%       The option footnote makes the full name appear as a footnote.
+%   - nohyperlinks
+%       If hyperref is loaded, all acronyms will link to their glossary entry. With the option nohyperlinks these links can be suppressed.
+%   - printonlyused
+%       Only list used acronyms
+%   - withpage
+%       In printonlyused-mode show the page number where each acronym was first used.
+%   - smaller
+%       Make the acronym appear smaller.
+%   - dua
+%       The option 'dua' stands for “don’t use acronyms”. It leads to a redefinition of \ac and \acp, making the full name appear all the time and  suppressing all acronyms but the explicitly requested by \acf or \acfp.
+%   - nolist
+%       The option nolist stands for “don’t write the list of acronyms”.
+ 
+%% to modify default formating, you can redefine the formatting for the \acf \acs and ac commands
+\renewcommand*\acffont{\textit}
+\renewcommand*\acsfont{\textbf}
+\renewcommand*\acfsfont{\underline}
 
 
 % -------------------------
@@ -111,8 +132,8 @@
 % campos señalados como <campo>Primera y <campo>Segunda. Si no se desea 
 % emplear los campos opcionales (OPT.) estos deben comentarse.
 % -------------------------
-\tituloPrimera{Desarrollo de un Asistente Virtual para Simulación de Conducción Deportiva:} % 1ª Línea
-\tituloSegunda{Un Enfoque en Telemetría Comparativa} % OPT.: Títulos largos.
+\tituloPrimera{Desarrollo de un Asistente Virtual para Simulación de Conducción Deportiva. Un Enfoque en Telemetría Comparativa} % 1ª Línea
+%\tituloSegunda{Un Enfoque en Telemetría Comparativa} % OPT.: Títulos largos.
 \tituloCorto{Asistente Virtual para Simulación de Conducción Deportiva} % Título corto (mostrado en pág. de
 %créditos)
 \autor{Adrián Ramos Rodríguez-Palmero}
@@ -123,8 +144,8 @@
 % (EN: BACHELOR IN COMPUTING ENGINEERING)
 \tipoDoc{TRABAJO FIN DE GRADO} % (EN: BACHELOR DISSERTATION)
 % Si las fechas se desean en inglés hay que ponerla explícita.
-\mesTF{julio}        	% Mes de defensa (incluir siempre)
-\monthTF{July}        	% En inglés (incluir siempre)
+\mesTF{Septiembre}        	% Mes de defensa (incluir siempre)
+\monthTF{September}        	% En inglés (incluir siempre)
 \yearTF{2024}        	% Año de defensa
 \cityTF{Ciudad Real}	% Ciudad de defensa
 
@@ -207,8 +228,9 @@
 % OPT.: Ficheros incluidos correspondientes a los caps.
 \include{./caps/Introduccion}
 \include{./caps/Objetivo}
+\include{./caps/Antecedentes}
 \include{./caps/Planificacion}
-\include{./caps/Desarrollo}
+\include{./caps/Resultados}
 \include{./caps/Conclusiones}
 %--- (FIN MAINMATTER)
 
@@ -242,7 +264,7 @@
 	\input{refs.bbl} % OJO: Fichero refs.bbl debe existir
 \else % OPT: Estilo en bibliografía
 	\bibliography{biblioTFG}   % Nombre del fichero .bib (sin extensión)
-	\bibliographystyle{plain}  % Estilo empleado en la bibliografía
+	\bibliographystyle{unsrt}  % Estilo empleado en la bibliografía
 \fi
 % Estilos nativos incluidos con LaTeX (plain, abbrv, alpha, unsrt).
 %

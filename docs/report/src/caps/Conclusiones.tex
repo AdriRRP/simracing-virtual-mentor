@@ -1,39 +1,100 @@
 \chapter{Conclusiones}
 \label{cap:Conclusiones}
 
-
+En este capítulo se presentan las conclusiones del trabajo realizado, evaluando el grado de cumplimiento de los objetivos planteados y destacando las competencias adquiridas a lo largo del desarrollo del proyecto. Asimismo, se discutirán los trabajos derivados y futuros que pueden surgir a partir de este proyecto y se ofrecerá una valoración personal sobre las lecciones aprendidas y la experiencia obtenida.
 
 
 \section{Objetivos alcanzados}
-En este capítulo se realizará un juicio crítico y discusión sobre el objetivo general y objetivos secundarios alcanzados. 
 
+El objetivo principal del \ac{tfg} era diseñar y desarrollar un entrenador virtual de código abierto capaz de interpretar archivos de telemetría del software iRacing. Este entrenador debía proporcionar un análisis detallado, permitiendo la visualización de métricas comparativas entre dos vueltas en un circuito, y ofrecer recomendaciones de mejora de la conducción en lenguaje natural. Este objetivo se ha cumplido satisfactoriamente, desarrollando una herramienta robusta y eficiente que facilita la comprensión y aplicación de las mejoras por parte de los pilotos, contribuyendo a su rendimiento y desarrollo en el Simracing.
+
+Para alcanzar este objetivo general, se plantearon los siguientes objetivos específicos, todos los cuales han sido alcanzados:
+
+\subsection{Adquirir y procesar datos de telemetría}
+\begin{itemize}
+    \item Se investigó cómo se adquieren y transfieren los ficheros de telemetría .ibt de iRacing y se consiguió una muestra.
+    \item Se estudió el formato de telemetría .ibt de iRacing.
+    \item Se desarrolló un módulo para la lectura y decodificación de archivos de telemetría en formato .ibt.
+\end{itemize}
+
+\subsection{Fijar las métricas de comparación}
+\begin{itemize}
+    \item Se identificaron y seleccionaron las variables de telemetría relevantes para su posterior comparación.
+    \item Se desarrolló un modelo que define y permite comparar los datos de telemetría.
+\end{itemize}
+
+\subsection{Comparar datos de telemetría y aplicar aprendizaje no supervisado para clasificar diferencias}
+\begin{itemize}
+    \item Se implementaron métodos para la comparación de datos de telemetría.
+    \item Se aplicaron técnicas de aprendizaje no supervisado para clasificar las diferencias observadas.
+\end{itemize}
+
+\subsection{Construir el conjunto de sugerencias con una respuesta en lenguaje natural}
+\begin{itemize}
+    \item Se desarrolló un método sistemático para la asignación de etiquetas interpretables a las diferencias en los datos de telemetría.
+    \item Se creó un sistema de generación de sugerencias en lenguaje natural basado en la interpretación de las diferencias.
+    \item Se diseñó una interfaz que presenta las sugerencias de manera clara y comprensible para el usuario.
+\end{itemize}
+
+\subsection{Desarrollar una aplicación web donde se realicen todas las acciones y se muestren gráficamente los resultados}
+\begin{itemize}
+    \item Se investigaron y evaluaron lenguajes y frameworks adecuados para el desarrollo de aplicaciones web con gráficos interactivos y algoritmos complejos.
+    \item Se analizaron los requisitos de rendimiento y escalabilidad necesarios para gestionar eficientemente grandes volúmenes de datos.
+    \item Se diseñó una arquitectura que soporta la escalabilidad y la modularidad para facilitar el desarrollo y mantenimiento.
+    \item Se exploraron opciones de bases de datos que proporcionan simplicidad y flexibilidad en los cambios de esquema.
+    \item Se desarrolló una interfaz de usuario intuitiva y eficiente que permite la visualización gráfica de los resultados.
+    \item Se aseguró que la aplicación sea extensible y adaptable para futuras mejoras y colaboraciones en la comunidad de código abierto.
+\end{itemize}
 
 
 
 
 \section{Justificación de competencias adquiridas}
-Es muy importante recordar que según la normativa vigente en la ESI-UCLM, el capítulo de conclusiones debe incluir \emph{obligatoriamente} un apartado destinado a justificar la aplicación en el TFG de las competencias específicas (una o más) adquiridas en la tecnología específica cursada, como se indica a continuación:
-
-En el TFG se han aplicado las competencias correspondientes a la Tecnología Específica de \emph{[poner lo que corresponda]}:
+En el \ac{tfg} se han aplicado las competencias correspondientes a la Tecnología Específica de Computación:
 
 \begin{description}
-\item[Código de la competencia 1:] \emph{[Texto de la competencia 1]}. Explicación de cómo se ha aplicado en el TFG.
-\item[\dots] (otras más si las hubiera).
+\item[CM1:] \emph{Capacidad para tener un conocimiento profundo de los principios fundamentales y modelos de la computación y saberlos aplicar para interpretar, seleccionar, valorar, modelar, y crear nuevos conceptos, teorías, usos y desarrollos tecnológicos relacionados con la informática.} Esta competencia se aplicó en el desarrollo del módulo de lectura y decodificación de archivos de telemetría en formato .ibt, así como en la implementación del algoritmo \ac{fcm} para el análisis de diferencias. Se requirió un conocimiento detallado de los principios fundamentales de la computación para interpretar y modelar los datos de telemetría de iRacing, seleccionar las técnicas de análisis más adecuadas y desarrollar conceptos novedosos para la generación de sugerencias en lenguaje natural.
+
+\item[CM2:] \emph{Capacidad para conocer los fundamentos teóricos de los lenguajes de programación y las técnicas de procesamiento léxico, sintáctico y semántico asociadas, y saber aplicarlas para la creación, diseño y procesamiento de lenguajes.} La implementación del entrenador virtual involucró el uso de Rust, un lenguaje de programación moderno que ofrece seguridad y concurrencia. Se aplicaron conocimientos sobre los fundamentos teóricos del lenguaje y técnicas de procesamiento para desarrollar módulos eficientes y seguros, garantizando un rendimiento óptimo del sistema.
+
+\item[CM3:] \emph{Capacidad para evaluar la complejidad computacional de un problema, conocer estrategias algorítmicas que puedan conducir a su resolución y recomendar, desarrollar e implementar aquella que garantice el mejor rendimiento de acuerdo con los requisitos establecidos.} Se evaluaron diversas estrategias algorítmicas para la clasificación de diferencias y se implementó la que garantizaba el mejor rendimiento. La complejidad computacional del algoritmo \ac{fcm} y la interpolación de datos fueron analizadas para asegurar que el sistema pudiera manejar grandes volúmenes de datos de telemetría de manera eficiente.
+
+\item[CM4:] \emph{Capacidad para conocer los fundamentos, paradigmas y técnicas propias de los sistemas inteligentes y analizar, diseñar y construir sistemas, servicios y aplicaciones informáticas que utilicen dichas técnicas en cualquier ámbito de aplicación.} Esta competencia se reflejó en la aplicación de técnicas de aprendizaje no supervisado, específicamente el algoritmo \ac{fcm}, para clasificar las diferencias en los datos de telemetría y generar recomendaciones inteligentes en lenguaje natural.
+
+\item[CM5:] \emph{Capacidad para adquirir, obtener, formalizar y representar el conocimiento humano en una forma computable para la resolución de problemas mediante un sistema informático en cualquier ámbito de aplicación, particularmente los relacionados con aspectos de computación, percepción y actuación en ambientes o entornos inteligentes.} Se desarrolló un método sistemático para la asignación de etiquetas interpretables a las diferencias en los datos de telemetría, representando el conocimiento humano de manera computable para proporcionar sugerencias de mejora a los pilotos.
+
+\item[CM6:] \emph{Capacidad para desarrollar y evaluar sistemas interactivos y de presentación de información compleja y su aplicación a la resolución de problemas de diseño de interacción persona-computadora.} Se diseñó una interfaz de usuario intuitiva y eficiente que permite la visualización gráfica de los resultados, facilitando la interpretación y toma de decisiones basadas en los datos de telemetría. Se implementaron gráficos interactivos y un cuadro de mandos para presentar la información de manera clara y comprensible.
+
+\item[CM7:] \emph{Capacidad para conocer y desarrollar técnicas de aprendizaje computacional y diseñar e implementar aplicaciones y sistemas que las utilicen, incluyendo las dedicadas a extracción automática de información y conocimiento a partir de grandes volúmenes de datos.} Esta competencia se aplicó en la implementación de técnicas de aprendizaje no supervisado para la clasificación de diferencias y la generación de recomendaciones en lenguaje natural. Se desarrolló un sistema que automatiza la extracción de información y proporciona análisis detallados de los datos de telemetría.
 \end{description}
 
-
-
-
 \section{Trabajos derivados y futuros}
-Si es pertinente se puede incluir información sobre trabajos derivados como publicaciones o ponencias en preparación, así como trabajos futuros \emph{(solo si estos están iniciados o planificados en el momento que se redacta el texto)}.
+Este proyecto ha sentado las bases para futuros trabajos y mejoras. Gracias a su naturaleza de software libre, se pretende que esta herramienta crezca con la colaboración de interesados y la comunidad de usuarios. A continuación, se detallan algunas de las direcciones futuras para el desarrollo y expansión del proyecto:
 
-Se recomienda evitar la inclusión de una lista de posibles mejoras. Contrariamente a lo que se pueda pensar, pueden transmitir la impresión de que el trabajo se encuentra en un estado incompleto o inacabado.\footnote{En cualquier caso se debe reflexionar sobre este aspecto por si los miembros del comité evaluador preguntan sobre estas posibles mejoras durante la defensa del trabajo.}
+\begin{itemize}
+    \item \textbf{Extensibilidad y colaboración comunitaria:} Las librerías desarrolladas están diseñadas para ser extensibles, permitiendo a otros desarrolladores añadir nuevas funcionalidades y mejorar las existentes. Se planea promocionar el proyecto en foros específicos de Simracing y desarrollo de software libre, invitando a la comunidad a contribuir con sus ideas y mejoras.
+    
+    \item \textbf{Mejora de la calidad del código:} Se trabajará en la mejora continua de la calidad del código existente, añadiendo más tests unitarios y de integración, así como implementando procesos automáticos de mejora de la calidad. Esto incluye la integración de herramientas de análisis estático y dinámico, y la adopción de prácticas de desarrollo continuo para asegurar la estabilidad y robustez del sistema.
+    
+    \item \textbf{Análisis online:} Una de las futuras mejoras será la implementación de capacidades de análisis en tiempo real, permitiendo a los usuarios obtener información y recomendaciones durante sus sesiones de entrenamiento. Esto implicará la integración de tecnologías de transmisión en tiempo real y la optimización del procesamiento de datos para minimizar la latencia.
+    
+    \item \textbf{Configuración del entrenamiento del algoritmo \ac{fcm}:} Se pretende habilitar una interfaz que permita a los usuarios establecer la configuración del entrenamiento del algoritmo \ac{fcm}. Esto ofrecerá mayor flexibilidad y control sobre el proceso de análisis, permitiendo ajustes personalizados que se adapten a las necesidades específicas de cada usuario.
+\end{itemize}
 
-
-
+Estos trabajos futuros tienen como objetivo no sólo mejorar la funcionalidad y la usabilidad de la herramienta, sino también fomentar una comunidad activa y colaborativa que contribuya al desarrollo continuo del proyecto. La visión a largo plazo es que esta plataforma se convierta en un referente en el ámbito del análisis de telemetría para Simracing, aprovechando las ventajas del software libre y la inteligencia colectiva de sus usuarios y desarrolladores.
 
 \section{Valoración personal}
-En esta sección final se realizará un rápido análisis de las lecciones aprendidas en las que se pueden incluir tanto buenas prácticas adquiridas (tecnológicas y procedimentales) como cualquier otro aspecto de interés. También se puede resumir cuantitativamente el tiempo y esfuerzo dedicados al proyecto a lo largo de su desarrollo.
+
+La realización de este trabajo me ha permitido experimentar de primera mano las aplicaciones prácticas de los conjuntos difusos, trascendiendo su carácter meramente teórico y apreciando su utilidad en problemas reales como el análisis de telemetría en el Simracing. Esta experiencia ha sido enormemente enriquecedora, ya que me ha permitido aplicar conceptos matemáticos avanzados a situaciones concretas, mejorando mi comprensión y habilidades en esta área.
+
+Además, este proyecto me ha brindado la oportunidad de aprender y trabajar con tecnologías muy interesantes y avanzadas, como Rust y su ecosistema. La elección de Rust como lenguaje de programación principal no sólo ha demostrado ser acertada por su eficiencia y seguridad, sino que también ha ampliado significativamente mis conocimientos en programación de sistemas y en el desarrollo de aplicaciones de alto rendimiento.
+
+Uno de los aspectos a mejorar que he identificado a lo largo del proyecto es la sub-estimación del tiempo necesario para la documentación. A menudo, la documentación adecuada es crucial para el éxito y la mantenibilidad de un proyecto, y he aprendido que debe ser tratada con la misma importancia que el desarrollo del código.
+
+En cuanto al tiempo dedicado al proyecto, aunque no ha sido desmesurado, ha sido un desafío significativo equilibrar este trabajo con mis responsabilidades laborales de 8 horas diarias. A pesar de estas dificultades, he logrado dedicar el esfuerzo necesario para completar el proyecto, lo que me ha permitido desarrollar habilidades de gestión del tiempo y organización, esenciales para la realización de proyectos complejos.
+
+En resumen, este proyecto no sólo me ha permitido aplicar y profundizar en conocimientos técnicos avanzados, sino que también ha sido una valiosa experiencia de aprendizaje y crecimiento personal.
+
 
 
 

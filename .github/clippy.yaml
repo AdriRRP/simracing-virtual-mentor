@@ -1,0 +1,75 @@
+name: clippy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (nightly)
+        uses: actions-rust-lang/setup-rust-toolchain@v1.8.0
+        with:
+          toolchain: nightly
+          components: rustfmt
+
+      - name: Check formatting in project1
+        run: cd app/shared && cargo fmt --all -- --check
+
+      - name: Check formatting in project2
+        run: cd app/backend && cargo fmt --all -- --check
+
+      #- name: Check formatting in project3
+      #  run: cd app/frontend && cargo fmt --all -- --check
+
+  clippy:
+    permissions:
+      contents: read
+      checks: write # para añadir los checks de clippy a los PR
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1.8.0
+        with:
+          components: clippy
+
+      - name: Run Clippy in Shared
+        uses: giraffate/clippy-action@v1.0.1
+        with:
+          working_directory: app/shared
+          reporter: github-pr-check
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clippy_flags: >-
+            --all -- -W clippy::all -W clippy::pedantic -W clippy::nursery -D warnings
+
+      - name: Run Clippy in Backend
+        uses: giraffate/clippy-action@v1.0.1
+        with:
+          working_directory: app/backend
+          reporter: github-pr-check
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clippy_flags: >-
+            --all -- -W clippy::all -W clippy::pedantic -W clippy::nursery -D warnings
+
+      #- name: Run Clippy in Frontend
+      #  uses: giraffate/clippy-action@v1.0.1
+      #  with:
+      #    working_directory: app/frontend
+      #    reporter: github-pr-check
+      #    github_token: ${{ secrets.GITHUB_TOKEN }}
+      #    clippy_flags: >-
+      #      --all -- -W clippy::all -W clippy::pedantic -W clippy::nursery -D warnings

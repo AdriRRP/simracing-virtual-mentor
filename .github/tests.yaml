@@ -1,0 +1,100 @@
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  checks: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_and_test:
+    strategy:
+      fail-fast: false
+      matrix:
+        # prettier-ignore
+        target:
+          - { name: Linux, os: ubuntu-latest, triple: x86_64-unknown-linux-gnu }
+          - { name: macOS, os: macos-latest, triple: x86_64-apple-darwin }
+          # - { name: Windows, os: windows-latest, triple: x86_64-pc-windows-msvc }
+        version:
+          # Nightly version for allow export test in json format
+          - { name: nightly, version: nightly }
+
+    name: ${{ matrix.target.name }} / ${{ matrix.version.name }}
+    runs-on: ${{ matrix.target.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (${{ matrix.version.name }})
+        uses: actions-rust-lang/setup-rust-toolchain@v1.8.0
+        with:
+          toolchain: ${{ matrix.version.version }}
+
+      - name: Install cargo2junit
+        run: cargo install cargo2junit
+
+      # Ejecutar pruebas para el proyecto shared lib
+      - name: Run tests in shared lib
+        timeout-minutes: 60
+        shell: bash
+        run: |
+          cd app/shared
+          set -e
+          cargo test --lib --tests --all-features  -- -Z unstable-options --format json | cargo2junit > ../../test-results-shared-lib-${{ matrix.target.triple }}.xml
+
+      - name: Report test results for shared lib
+        uses: phoenix-actions/test-reporting@v8
+        id: test-report-shared-lib
+        if: success() || failure()
+        with:
+          name: Tests Summary (shared lib - ${{ matrix.target.name }})
+          path: test-results-shared-lib-${{ matrix.target.triple }}.xml
+          reporter: java-junit
+          output-to: 'checks'
+
+      # Ejecutar pruebas para el proyecto backend
+      - name: Run tests in backend
+        timeout-minutes: 60
+        shell: bash
+        run: |
+          cd app/backend
+          set -e
+          cargo test --lib --tests --all-features  -- -Z unstable-options --format json | cargo2junit > ../../test-results-backend-${{ matrix.target.triple }}.xml
+
+      - name: Report test results for backend
+        uses: phoenix-actions/test-reporting@v8
+        id: test-report-backend
+        if: success() || failure()
+        with:
+          name: Tests Summary (backend - ${{ matrix.target.name }})
+          path: test-results-backend-${{ matrix.target.triple }}.xml
+          reporter: java-junit
+          output-to: 'checks'
+
+      # Ejecutar pruebas para el proyecto frontend
+      - name: Run tests in frontend
+        timeout-minutes: 60
+        shell: bash
+        run: |
+          cd app/frontend
+          set -e
+          cargo test --lib --tests --all-features  -- -Z unstable-options --format json | cargo2junit > ../../test-results-frontend-${{ matrix.target.triple }}.xml
+
+      - name: Report test results for frontend
+        uses: phoenix-actions/test-reporting@v8
+        id: test-report-frontend
+        if: success() || failure()
+        with:
+          name: Tests Summary (frontend - ${{ matrix.target.name }})
+          path: test-results-frontend-${{ matrix.target.triple }}.xml
+          reporter: java-junit
+          output-to: 'checks'

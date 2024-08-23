@@ -23,7 +23,7 @@ fi
 
 if [ $? -eq 0 ]; then
   echo "Compiling the document in the docs/build/ directory..."
-  docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD/src":/data -v "$PWD/build":/build latex-builder latexmk -gg -pdf -bibtex-cond1 -quiet -outdir=/build uclmTFGesi.tex || true # true to pick pdf despite errors
+  docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD/src":/data -v "$PWD/build":/build latex-builder latexmk -gg -pdf -bibtex-cond1 -quiet -f -outdir=/build uclmTFGesi.tex || true # true to pick pdf despite errors
   if [ $? -eq 0 ]; then
     echo "Document generated in ./build/uclmTFGesi.pdf"
     # If release flag included

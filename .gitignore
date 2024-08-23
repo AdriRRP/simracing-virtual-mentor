@@ -24,6 +24,7 @@ Cargo.lock
 
 # docs/target
 docs/report/build/
+docs/report/TFG_Adrian_Ramos_Report.pdf
 
 # dist/ trunk folder
 dist/

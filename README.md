@@ -1,4 +1,5 @@
 # Simracing Virtual Mentor
+[![clippy](https://github.com/AdriRRP/simracing-virtual-mentor/actions/workflows/clippy.yaml/badge.svg)](https://github.com/AdriRRP/simracing-virtual-mentor/actions/workflows/clippy.yaml) [![tests](https://github.com/AdriRRP/simracing-virtual-mentor/actions/workflows/tests.yaml/badge.svg)](https://github.com/AdriRRP/simracing-virtual-mentor/actions/workflows/tests.yaml)[![codecov](https://codecov.io/gh/AdriRRP/simracing-virtual-mentor/graph/badge.svg?token=EesiDPcxBF)](https://codecov.io/gh/AdriRRP/simracing-virtual-mentor)
 
 Virtual Assistant for Sports Driving Simulation: A Comparative Telemetry Approach
 

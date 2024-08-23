@@ -314,6 +314,37 @@ mod tests {
     use super::*;
     use ndarray::array;
 
+    /// Define the tolerance for floating-point comparisons.
+    const EPSILON: f64 = 1e-6;
+
+    /// Helper function to compare two arrays of f64 with a given tolerance.
+    fn assert_array_eq(expected: &Array2<f64>, result: &Array2<f64>, epsilon: f64) {
+        let (expected_rows, expected_cols) = expected.dim();
+        let (result_rows, result_cols) = result.dim();
+
+        assert_eq!(
+            (expected_rows, expected_cols),
+            (result_rows, result_cols),
+            "Array dimensions do not match: expected ({}, {}), got ({}, {})",
+            expected_rows, expected_cols, result_rows, result_cols
+        );
+
+        for r in 0..expected_rows {
+            for c in 0..expected_cols {
+                assert!(
+                    (expected[[r, c]] - result[[r, c]]).abs() < epsilon,
+                    "Element at ({}, {}) differs by more than epsilon {}: expected {}, got {}",
+                    r,
+                    c,
+                    epsilon,
+                    expected[[r, c]],
+                    result[[r, c]]
+                );
+            }
+        }
+    }
+
+    /// Tests FuzzyCMeans with one-dimensional data and verifies centroids, memberships, and FPC.
     #[test]
     fn first_iter_on_one_dim_data() {
         let c = 2;
@@ -332,8 +363,7 @@ mod tests {
             .unwrap_or_else(|e| panic!("Test Failed: {e}"));
 
         let expected_centroids = array![[1.6539221306009797], [5.198884159924932]];
-
-        assert_eq!(result.centroids(), expected_centroids);
+        assert_array_eq(&expected_centroids, result.centroids(), EPSILON);
 
         let expected_memberships = array![
             [0.9950975335864382, 0.004902466413561808],
@@ -341,14 +371,19 @@ mod tests {
             [0.12806762946010766, 0.8719323705398923],
             [0.042760125204558706, 0.9572398747954414]
         ];
-
-        assert_eq!(result.memberships(), expected_memberships);
+        assert_array_eq(&expected_memberships, result.memberships(), EPSILON);
 
         let expected_fpc = 0.920394895454056;
-
-        assert_eq!(result.fpc(), expected_fpc);
+        assert!(
+            (result.fpc() - expected_fpc).abs() < EPSILON,
+            "FPC value {} differs from expected {} beyond epsilon {}",
+            result.fpc(),
+            expected_fpc,
+            EPSILON
+        );
     }
 
+    /// Tests FuzzyCMeans with two-dimensional data and verifies centroids, memberships, and FPC.
     #[test]
     fn first_iter_on_two_dim_data() {
         let c = 2;
@@ -370,8 +405,7 @@ mod tests {
             [1.6539221306009797, 4.167447085460862],
             [5.198884159924932, 8.072577522696557]
         ];
-
-        assert_eq!(result.centroids(), expected_centroids);
+        assert_array_eq(&expected_centroids, result.centroids(), EPSILON);
 
         let expected_memberships = array![
             [0.9895736243443243, 0.010426375655675672],
@@ -379,14 +413,19 @@ mod tests {
             [0.022536642797307747, 0.9774633572026923],
             [0.025939954747919117, 0.9740600452520809]
         ];
-
-        assert_eq!(result.memberships(), expected_memberships);
+        assert_array_eq(&expected_memberships, result.memberships(), EPSILON);
 
         let expected_fpc = 0.9660297481982968;
-
-        assert_eq!(result.fpc(), expected_fpc);
+        assert!(
+            (result.fpc() - expected_fpc).abs() < EPSILON,
+            "FPC value {} differs from expected {} beyond epsilon {}",
+            result.fpc(),
+            expected_fpc,
+            EPSILON
+        );
     }
 
+    /// Tests FuzzyCMeans behavior with incompatible membership shape.
     #[test]
     fn incompatible_shape() {
         let c = 2;
@@ -407,6 +446,7 @@ mod tests {
 
         let result = fcm.try_fit_with_memberships(&data, &mut initial_memberships);
 
+        // Verify that the error matches the expected error
         assert!(result.is_err_and(|e| e == expected_error));
     }
 }

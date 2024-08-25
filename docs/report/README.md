@@ -2,22 +2,24 @@
 
 Latex project using https://github.com/JesusSalido/TFG_ESI_UCLM.
 
-The latest release of the documentation can be found in  [`./TFG_Adrian_Ramos_Report.pdf`](TFG_Adrian_Ramos_Report.pdf).
-
 ## Build
 
-You can generate the `.pdf` file related to the project report by executing:
+### Development
+
+You can compile the Latex project by running the following command:
 
 ```bash
 ./build.sh
 ```
 
-The report is generated in [`./build/uclmTFGesi.pdf`](buildclmTFGesi.pdf).
+The `.pdf` report is generated in [`./build/uclmTFGesi.pdf`](buildclmTFGesi.pdf).
 
 ### Release
 
-You can overwrite the current release by running:
+You can generate the current release by running:
 
 ```bash
 ./build.sh --release
 ```
+
+The latest release of the documentation will be found in  [`./TFG_Adrian_Ramos_Report.pdf`](TFG_Adrian_Ramos_Report.pdf).

@@ -1,4 +1,4 @@
-# Estado del arte
+# Background
 - https://garage61.net
 - Virtual Racing School (https://virtualracingschool.com)
 - Sim Racing Telemetry [UNAmedia](https://www.simracingtelemetry.com)
@@ -32,7 +32,7 @@
 # Libros
 - https://amzn.eu/d/0KKyvML
 
-# herramientas de data analysis motorsport:
+# Motorsport Analysis Tools:
 - Motec i2 (Standard/Pro)
 - AIM RaceStudio
 - Mclaren ATLAS

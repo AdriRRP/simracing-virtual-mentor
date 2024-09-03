@@ -7,17 +7,19 @@ use serde::Serialize;
 
 use shared::analysis::domain::analyses::Analyses;
 use shared::analysis::domain::analysis::Analysis;
+use shared::analysis::domain::analysis::headers::Headers;
 
 use serde::Deserialize;
 use shared::common::domain::criteria::Criteria;
 use uuid::Uuid;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct Http {
     pub create: String,
     pub delete: String,
     pub find_by_id: String,
     pub find_by_criteria: String,
+    pub find_header_by_criteria: String,
 }
 
 impl Http {
@@ -39,6 +41,10 @@ impl Http {
             find_by_criteria: format!(
                 "{}{}",
                 settings.endpoints.analysis.server, settings.endpoints.analysis.find_by_criteria
+            ),
+            find_header_by_criteria: format!(
+                "{}{}",
+                settings.endpoints.analysis.server, settings.endpoints.analysis.find_header_by_criteria
             ),
         }
     }
@@ -139,6 +145,33 @@ impl Http {
             //} else {
             //    Ok(Some(analyses))
             //}
+        } else {
+            Err(response.status().to_string())
+        }
+    }
+
+    pub(crate) async fn find_header_by_criteria(
+        &self,
+        criteria: &Criteria,
+    ) -> Result<Option<Headers>, String> {
+        error!("response: {:?}", &self.find_header_by_criteria);
+        
+        let response = Client::new()
+            .post(&self.find_header_by_criteria)
+            .json(criteria)
+            .send()
+            .await
+            .map_err(|e| format!("{e}"))?;
+        
+        error!("response: {response:?}");
+
+        if response.status().is_success() {
+            let headers: Headers = response.json().await.map_err(|e| format!("{e}"))?;
+            if headers.is_empty() {
+                Ok(None)
+            } else {
+                Ok(Some(headers))
+            }
         } else {
             Err(response.status().to_string())
         }

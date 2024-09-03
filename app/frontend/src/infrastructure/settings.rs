@@ -23,6 +23,7 @@ pub struct Analysis {
     pub delete: String,
     pub find_by_id: String,
     pub find_by_criteria: String,
+    pub find_header_by_criteria: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -59,6 +60,7 @@ impl Default for Settings {
                     delete: "/analysis/delete".to_string(),
                     find_by_id: "/analysis/find".to_string(),
                     find_by_criteria: "/analysis/find".to_string(),
+                    find_header_by_criteria: "/analysis/find/header".to_string(),
                 },
                 file: File {
                     server: "http://127.0.0.1:16666".to_string(),

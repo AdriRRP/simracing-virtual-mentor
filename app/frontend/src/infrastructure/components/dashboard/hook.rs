@@ -6,6 +6,7 @@ use log::{error, info};
 use plotly::Plot;
 use std::rc::Rc;
 use std::time::Duration;
+use uuid::Uuid;
 use web_sys::HtmlElement;
 
 use shared::common::domain::criteria::Criteria;
@@ -15,26 +16,25 @@ use yew::suspense::{Suspension, SuspensionResult};
 
 #[hook]
 pub fn use_analyses(
-    criteria: &str,
+    id: &Uuid,
     repo: AnalysisHttpRepository,
 ) -> SuspensionResult<Option<Analysis>> {
     let result_handle = use_state(|| None);
     let result = (*result_handle).clone();
 
     let suspension_hanlde = use_state(|| {
-        let criteria = criteria.to_owned();
+        let id = id.to_owned();
         Suspension::from_future(async move {
-            match repo.find_by_criteria(&Criteria::default()).await {
-                Ok(Some(found_analyses)) => {
-                    let selection = found_analyses.first().unwrap().clone();
-                    result_handle.set(Some(selection))
+            match repo.find_by_id(&id).await {
+                Ok(Some(found_analysis)) => {
+                    result_handle.set(Some(found_analysis))
                 }
                 Ok(None) => {
-                    error!("No analyses found");
+                    error!("No analysis found");
                     result_handle.set(None)
                 }
                 Err(e) => {
-                    error!("Error fetching analyses: {e}");
+                    error!("Error fetching analysis: {e}");
                     result_handle.set(None)
                 }
             }

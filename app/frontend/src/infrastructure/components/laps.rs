@@ -112,7 +112,7 @@ impl Component for Laps {
         html! {
             <div class="container">
                 <h1 class="title">{"Laps"}</h1>
-                <LapFilter {on_filter_change} />
+                //<LapFilter {on_filter_change} />
                 <LapList
                     laps={self.laps.clone()}
                     error={self.error.clone()}

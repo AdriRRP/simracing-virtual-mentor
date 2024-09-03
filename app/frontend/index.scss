@@ -23,24 +23,44 @@
 }
 
 .console {
-  background-color: #1e1e1e;
+  background-color: rgba(83, 83, 181, 0.72);
   color: #d4d4d4;
   padding: 10px;
   border-radius: 5px;
   font-family: monospace;
   margin-top: 10px;
   white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 12px;
+
 }
 
 .console pre {
   margin: 0;
   padding: 5px 0;
+  background-color: black;
 }
 
-.console .maintain {
-  color: #00ff00; /* Verde para mantener */
+.console .increase {
+  padding-left: 10px;
+  color: #00ff00;
+}
+.console .stay_to_increase {
+  padding-left: 10px;
+  color: rgba(188, 255, 106, 0.76);
 }
 
-.console .action {
-  color: #ff0000; /* Rojo para acciones */
+.console .reduce {
+  padding-left: 10px;
+  color: #ff0000;
+}
+
+.console .stay_to_reduce {
+  padding-left: 10px;
+  color: rgba(255, 106, 0, 0.84);
+}
+
+.console .stay {
+  padding-left: 10px;
+  color: white;
 }

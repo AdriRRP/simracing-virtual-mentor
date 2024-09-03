@@ -1,14 +1,19 @@
 mod circuit;
 mod hook;
 mod plot;
+mod suggestions;
 
-//use crate::infrastructure::components::dashboard::circuit::add_mouse_move_event;
-//use crate::infrastructure::components::dashboard::circuit::create_pointer_layer;
 use crate::infrastructure::components::dashboard::circuit::Circuit;
 use crate::infrastructure::components::dashboard::hook::{use_analyses, use_plotly_draw};
 use crate::infrastructure::components::dashboard::plot::{create_plot, PlotType};
 use crate::infrastructure::repository::analysis::http::Http as AnalysisHttpRepository;
 use crate::infrastructure::settings::Settings;
+use crate::infrastructure::components::dashboard::suggestions::Suggestions;
+
+use shared::lap::domain::laps::Laps;
+use shared::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
+
+
 use std::cell::Cell;
 use std::collections::HashMap;
 use std::ops::{Deref, Div};
@@ -25,7 +30,6 @@ use plotly::layout::{Axis, HoverMode, Legend};
 use plotly::layout::{LayoutGrid, SpikeSnap};
 use plotly::Layout;
 use plotly::{Plot, Scatter};
-use shared::lap::domain::laps::Laps;
 use yew::prelude::*;
 
 use plotly::layout::GridPattern;
@@ -42,9 +46,7 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::{EventTarget, HtmlElement, MouseEvent};
 //use crate::infrastructure::components::dashboard::circuit::create_circuit;
 
-const CANVAS_ID: &str = "circuit_canvas";
-const CANVAS_HEIGHT: f64 = 800.;
-const CANVAS_WIDTH: f64 = 800.;
+
 
 // components/fx
 
@@ -98,9 +100,9 @@ pub struct Canvas {
 impl Default for Canvas {
     fn default() -> Self {
         Self {
-            id: CANVAS_ID.to_string(),
-            height: CANVAS_HEIGHT,
-            width: CANVAS_WIDTH,
+            id: circuit::CANVAS_ID.to_string(),
+            height: circuit::CANVAS_HEIGHT,
+            width: circuit::CANVAS_WIDTH,
             node_ref: NodeRef::default(),
         }
     }
@@ -232,51 +234,16 @@ impl Component for PlotlyDrawer {
                 <div class="grid">
                     <div class="cell">
                         <Circuit
-                            width={800.}
-                            height={600.}
-                            margin={50.}
+                            width={circuit::CANVAS_WIDTH}
+                            height={circuit::CANVAS_HEIGHT}
+                            margin={circuit::CANVAS_MARGIN}
                             latitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.variables.latitude)}
                             longitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.variables.longitude)}
                             distances={analysis.union_distances.clone()}
                         />
-                        // Radio buttons for variable selection
-                        // Radio buttons for variable selection
-                        <div class="control mt-4 ml-6">
-                            <div class="field">
-                                <label class="radio mr-4">
-                                    <input type="radio" name="variable" value="None"/>
-                                    { "None" }
-                                </label>
-                                <label class="radio mr-4">
-                                    <input type="radio" name="variable" value="Speed"/>
-                                    { "Speed" }
-                                </label>
-                                <label class="radio mr-4">
-                                    <input type="radio" name="variable" value="Throttle"/>
-                                    { "Throttle" }
-                                </label>
-                                <label class="radio mr-4">
-                                    <input type="radio" name="variable" value="Gear"/>
-                                    { "Gear" }
-                                </label>
-                                <label class="radio mr-4">
-                                    <input type="radio" name="variable" value="Brake"/>
-                                    { "Brake" }
-                                </label>
-                                <label class="radio mr-4">
-                                    <input type="radio" name="variable" value="Steering Wheel Angle"/>
-                                    { "Steering Wheel Angle" }
-                                </label>
-                            </div>
-                        </div>
-                        // Unix-style console for messages
-                        <div class="console mt-4 ml-4">
-                            <pre class="maintain">{ "maintain speed with a tendency to increase it" }</pre>
-                            <pre class="action">{ "shift the car up a gear" }</pre>
-                            <pre class="maintain">{ "Hold the accelerator pedal with a tendency to depress it." }</pre>
-                            <pre class="maintain">{ "Hold the brake" }</pre>
-                            <pre class="maintain">{ "keep the steering wheel without turning with a tendency to turn to the right" }</pre>
-                        </div>
+                        <Suggestions
+                            memberships={analysis.clustering.clone().unwrap_or(ClustersMemberships::default())}
+                        />
                     </div>
 
                     <div class="cell is-col-start-3" /*ref={self.target_div.clone()}*/ >

@@ -64,11 +64,6 @@ pub fn suggestions(props: &Props) -> Html {
             // Unix-style console for messages
             <div class="console">
                 { for (*suggestion_html).clone() }
-                //<pre class="stay">{ "maintain speed with a tendency to increase it" }</pre>
-                //<pre class="increase">{ "shift the car up a gear" }</pre>
-                //<pre class="reduce">{ "Hold the accelerator pedal with a tendency to depress it." }</pre>
-                //<pre class="low_tendency">{ "Hold the brake" }</pre>
-                //<pre class="high_tendency">{ "keep the steering wheel without turning with a tendency to turn to the right" }</pre>
             </div>
         </div>
     }

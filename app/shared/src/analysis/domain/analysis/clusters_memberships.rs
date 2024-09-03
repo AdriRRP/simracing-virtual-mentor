@@ -1,4 +1,6 @@
+use crate::analysis::domain::analysis::Tags;
 use crate::analysis::domain::analysis::fcm_grid::{Config, FcmGrid};
+use crate::analysis::domain::analysis::tag_assigner::TagAssigner;
 use crate::lap::domain::lap::variables::Variables;
 
 use ndarray::Array2;
@@ -7,10 +9,15 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, PartialEq, Clone, Default)]
 pub struct ClustersMemberships {
     pub speed: Vec<Vec<f64>>,
+    pub speed_tags: Tags,
     pub throttle: Vec<Vec<f64>>,
+    pub throttle_tags: Tags,
     pub brake: Vec<Vec<f64>>,
+    pub brake_tags: Tags,
     pub gear: Vec<Vec<f64>>,
+    pub gear_tags: Tags,
     pub steering_wheel_angle: Vec<Vec<f64>>,
+    pub steering_wheel_angle_tags: Tags,
 }
 
 impl ClustersMemberships {
@@ -86,17 +93,25 @@ impl ClustersMemberships {
             match name {
                 "speed" => {
                     result.speed = memberships.outer_iter().map(|row| row.to_vec()).collect();
+                    result.speed_tags = TagAssigner::new(data, &best_model, 0.2).assign();
                 }
                 "throttle" => {
                     result.throttle = memberships.outer_iter().map(|row| row.to_vec()).collect();
+                    result.throttle_tags = TagAssigner::new(data, &best_model, 0.2).assign();
                 }
                 "brake" => {
                     result.brake = memberships.outer_iter().map(|row| row.to_vec()).collect();
+                    result.brake_tags = TagAssigner::new(data, &best_model, 0.2).assign();
                 }
-                "gear" => result.gear = memberships.outer_iter().map(|row| row.to_vec()).collect(),
+                "gear" => {
+                    result.gear = memberships.outer_iter().map(|row| row.to_vec()).collect();
+                    result.gear_tags = TagAssigner::new(data, &best_model, 0.2).assign();
+                }
                 "steering_wheel_angle" => {
                     result.steering_wheel_angle =
                         memberships.outer_iter().map(|row| row.to_vec()).collect();
+                    result.steering_wheel_angle_tags =
+                        TagAssigner::new(data, &best_model, 0.2).assign();
                 }
                 _ => (),
             }

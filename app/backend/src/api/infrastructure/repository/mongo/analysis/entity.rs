@@ -2,7 +2,6 @@ use shared::analysis::domain::analysis::clusters_memberships::ClustersMembership
 use shared::analysis::domain::analysis::header::Header as DomainHeader;
 use shared::analysis::domain::analysis::reference_lap::ReferenceLap;
 use shared::analysis::domain::analysis::status::Status;
-use shared::analysis::domain::analysis::tags::Tags;
 use shared::analysis::domain::analysis::Analysis;
 use shared::lap::domain::lap::variables::Variables;
 
@@ -23,7 +22,6 @@ pub struct Entity {
     pub union_distances: Vec<f32>,
     pub differences: Option<Variables>,
     pub clustering: Option<ClustersMemberships>,
-    pub tags: Option<Tags>,
 }
 impl TryInto<Analysis> for Entity {
     type Error = String;
@@ -43,7 +41,6 @@ impl TryInto<Analysis> for Entity {
             union_distances: self.union_distances,
             differences: self.differences,
             clustering: self.clustering,
-            tags: self.tags,
         })
     }
 }
@@ -76,7 +73,6 @@ impl TryFrom<Analysis> for Entity {
             union_distances: analysis.union_distances,
             differences: analysis.differences,
             clustering: analysis.clustering,
-            tags: analysis.tags,
         })
     }
 }

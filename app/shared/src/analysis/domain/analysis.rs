@@ -9,6 +9,7 @@ pub mod interpolation;
 pub mod reference_lap;
 pub mod status;
 pub mod tag;
+pub mod tag_assigner;
 pub mod tags;
 
 use crate::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
@@ -45,9 +46,6 @@ pub struct Analysis {
 
     /// Clustering results
     pub clustering: Option<ClustersMemberships>,
-
-    /// Assigned tags for differences
-    pub tags: Option<Tags>,
 }
 
 impl Analysis {
@@ -67,7 +65,6 @@ impl Analysis {
             union_distances: vec![],
             differences: None,
             clustering: None,
-            tags: None,
         }
     }
 
@@ -86,7 +83,6 @@ impl Analysis {
             union_distances: vec![],
             differences: None,
             clustering: None,
-            tags: None,
         }
     }
 

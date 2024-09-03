@@ -10,8 +10,11 @@ use web_sys::console::{info, log};
 use web_sys::CustomEvent;
 use web_sys::{CanvasRenderingContext2d, CustomEventInit, HtmlCanvasElement, MouseEvent};
 use yew::prelude::*;
-
-const UPDATE_CIRCUIT_POINTER_EVENT: &'static str = "update_circuit_pointer";
+pub const CANVAS_ID: &str = "circuit_canvas";
+pub const CANVAS_HEIGHT: f64 = 480.;
+pub const CANVAS_WIDTH: f64 = 800.;
+pub const CANVAS_MARGIN: f64 = 50.;
+pub const UPDATE_CIRCUIT_POINTER_EVENT: &'static str = "update_circuit_pointer";
 
 #[wasm_bindgen(module = "/assets/scripts/plotly_interop.js")]
 extern "C" {
@@ -27,7 +30,7 @@ pub fn hover_event_from_plotly(distance: f32) {
     event_init.detail(&JsValue::from_f64(distance as f64));
 
     let event =
-        web_sys::CustomEvent::new_with_event_init_dict(UPDATE_CIRCUIT_POINTER_EVENT, &event_init)
+        CustomEvent::new_with_event_init_dict(UPDATE_CIRCUIT_POINTER_EVENT, &event_init)
             .unwrap();
     document.dispatch_event(&event).unwrap();
 }
@@ -95,17 +98,17 @@ fn normalize_coordinates(
         .collect()
 }
 
-fn find_nearest_point(points: &Vec<Point>, mouse_x: f64, mouse_y: f64) -> Option<Point> {
+fn find_nearest_point_with_index(points: &Vec<Point>, mouse_x: f64, mouse_y: f64) -> Option<(Point, usize)> {
     let mut min_dist = f64::INFINITY;
     let mut nearest_point = None;
 
-    for point in points.iter() {
+    for (index, point) in points.iter().enumerate() {
         let dx = point.x - mouse_x;
         let dy = point.y - mouse_y;
         let d = (dx * dx + dy * dy).sqrt();
         if d < min_dist {
             min_dist = d;
-            nearest_point = Some(point.clone());
+            nearest_point = Some((point.clone(), index));
         }
     }
 
@@ -212,7 +215,7 @@ pub fn circuit(props: &Props) -> Html {
                 .unwrap();
 
             // Encontrar el punto más cercano
-            if let Some(closest_point) = find_nearest_point(&normalized_points, mouse_x, mouse_y) {
+            if let Some((closest_point, index)) = find_nearest_point_with_index(&normalized_points, mouse_x, mouse_y) {
                 // Redibujar el canvas
                 context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
                 draw_circuit(&context, &normalized_points);
@@ -233,6 +236,13 @@ pub fn circuit(props: &Props) -> Html {
                 let point_json = to_value(&closest_point).unwrap();
                 let plot_div_ids_js = to_value(&plot_div_ids).unwrap();
                 updatePlotlyHover(&plot_div_ids_js, &point_json);
+
+                // Emitir un evento personalizado con el índice del punto más cercano
+                let document = web_sys::window().unwrap().document().unwrap();
+                let mut event_init = CustomEventInit::new();
+                event_init.detail(&JsValue::from_f64(index as f64));
+                let event = CustomEvent::new_with_event_init_dict("suggestion-event", &event_init).unwrap();
+                document.dispatch_event(&event).unwrap();
             }
         })
     };
@@ -252,7 +262,7 @@ pub fn circuit(props: &Props) -> Html {
     });
 
     html! {
-        <canvas ref={canvas_ref} width="800" height="600" {onmousemove}></canvas>
+        <canvas ref={canvas_ref} width={CANVAS_WIDTH.to_string()} height={CANVAS_HEIGHT.to_string()} {onmousemove}></canvas>
     }
 }
 
@@ -271,11 +281,11 @@ fn draw_circuit(context: &CanvasRenderingContext2d, points: &Vec<Point>) {
 }
 
 fn gps_coord(lat: &[f64], lon: &[f64], dist: &[f32]) -> Vec<GpsCoord> {
-    // Asegúrate de que los slices tienen la misma longitud
+    // Asegurar de que los slices tienen la misma longitud
     assert_eq!(lat.len(), lon.len());
     assert_eq!(lat.len(), dist.len());
 
-    // Itera sobre los slices y crea los Points
+    // Iterar sobre los slices y crea los Points
     lat.iter()
         .zip(lon.iter())
         .zip(dist.iter())

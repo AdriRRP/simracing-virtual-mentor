@@ -1,13 +1,13 @@
-use chrono::{DateTime, Utc};
-use config::ValueKind::String;
-use log::{debug, error, info};
-use shared::common::domain::criteria::Criteria;
-use shared::lap::domain::lap::header::Header as Lap;
-
 use crate::infrastructure::components::laps::list::LapList;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::analysis::http::Request;
+
 use shared::common::domain::criteria::filter::condition::Condition;
+use shared::common::domain::criteria::Criteria;
+use shared::lap::domain::lap::header::Header as Lap;
+use chrono::{DateTime, Utc};
+use config::ValueKind::String;
+use log::{debug, error, info};
 use uuid::Uuid;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;

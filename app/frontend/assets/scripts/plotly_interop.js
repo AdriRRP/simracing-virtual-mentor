@@ -14,6 +14,14 @@ export function sync_plotly(div_id, sync_div_ids) {
     let dashboardPlot = document.getElementById(div_id);
     let plotsNames = [...Object.keys(dashboardPlot._fullLayout._plots)];
     dashboardPlot.on('plotly_hover', function (event) {
+
+        // Emitir evento con el índice de distancia
+        let distanceIndex = event.points[0].pointIndex;
+        let customEvent = new CustomEvent("suggestion-event", {
+            detail: distanceIndex
+        });
+        document.dispatchEvent(customEvent);
+
         sync_div_ids.forEach(sync_div_id => {
             let syncPlot = document.getElementById(sync_div_id);
             Plotly.Fx.hover(
@@ -22,15 +30,16 @@ export function sync_plotly(div_id, sync_div_ids) {
                 plotsNames
             );
             window.wasmBindings.hover_event_from_plotly(event.xvals[0]);
+
         });
     });
 
-    dashboardPlot.on('plotly_unhover', function (event) {
-        sync_div_ids.forEach(sync_div_id => {
-            let syncPlot = document.getElementById(sync_div_id);
-            Plotly.Fx.unhover(syncPlot, {});
-        });
-    });
+    //dashboardPlot.on('plotly_unhover', function (event) {
+    //    sync_div_ids.forEach(sync_div_id => {
+    //        let syncPlot = document.getElementById(sync_div_id);
+    //        Plotly.Fx.unhover(syncPlot, {});
+    //    });
+    //});
 
     dashboardPlot.on("plotly_relayout", function(ed) {
         sync_div_ids.forEach((div_id, i) => {

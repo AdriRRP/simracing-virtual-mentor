@@ -153,24 +153,32 @@ fn interpret_tag(variable: &str, tag: Tag) -> (String, String) {
             };
 
             let action2 = match base2 {
-                Base::Stay => "",
-                Base::Increase(_) => "increase",
-                Base::Reduce(_) => "reduce",
+                Base::Stay => "maintain it",
+                Base::Increase(level) => &format!(
+                    "start increasing it{}",
+                    match level {
+                        0 => "",
+                        1 => " significantly",
+                        2 => " greatly",
+                        _ => " a lot",
+                    }
+                ),
+                Base::Reduce(level) => &format!(
+                    "start reducing it{}",
+                    match level {
+                        0 => "",
+                        1 => " significantly",
+                        2 => " greatly",
+                        _ => " a lot",
+                    }
+                ),
             };
 
-            let message = format!(
-                "You should {}, but it would be good to {}.",
-                action1,
-                match action2 {
-                    "increase" => "start increasing it",
-                    "reduce" => "start reducing it",
-                    _ => "maintain it",
-                }
-            );
+            let message = format!("You should {}, but it would be good to {}.", action1, action2);
 
             let css_class = match (base1, base2) {
-                (Base::Stay, Base::Increase(_)) => "stay_to_increase".to_string(),
-                (Base::Stay, Base::Reduce(_)) => "stay_to_reduce".to_string(),
+                (Base::Stay, Base::Increase(_)) | (Base::Increase(_), Base::Stay) => "stay_to_increase".to_string(),
+                (Base::Stay, Base::Reduce(_)) | (Base::Reduce(_), Base::Stay) => "stay_to_reduce".to_string(),
                 (Base::Increase(_), Base::Increase(_)) => "increase".to_string(),
                 (Base::Reduce(_), Base::Reduce(_)) => "reduce".to_string(),
                 _ => "stay".to_string(),

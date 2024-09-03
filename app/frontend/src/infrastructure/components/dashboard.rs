@@ -37,6 +37,7 @@ use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 
 use gloo_events::{EventListener, EventListenerOptions};
 use gloo_net::websocket::Message;
+use uuid::Uuid;
 use shared::analysis::domain::analysis::Analysis;
 use wasm_bindgen::__rt::IntoJsResult;
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -44,6 +45,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::js_sys::Object;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{EventTarget, HtmlElement, MouseEvent};
+use crate::infrastructure::components::dashboard::_DashboardProps::analysis_id;
 //use crate::infrastructure::components::dashboard::circuit::create_circuit;
 
 
@@ -295,20 +297,26 @@ pub fn plotly_loader(Props { analysis }: &Props) -> Html {
     }
 }
 
+
 #[function_component(DashboardDataFetcher)]
-pub fn dashboard_data_fetcher() -> HtmlResult {
+pub fn dashboard_data_fetcher(DashboardProps {  analysis_id: id  }: &DashboardProps) -> HtmlResult {
     info!("Entering DashboardDataFetcher");
 
     let settings = Settings::default();
     let analysis_repo = AnalysisHttpRepository::new(&settings);
 
-    let analysis = use_analyses("", analysis_repo)?;
+    let analysis = use_analyses(id, analysis_repo)?;
 
     Ok(html! { <PlotlyDrawer analysis={analysis.clone()} /> })
 }
 
+#[derive(Properties, PartialEq)]
+pub struct DashboardProps {
+    pub analysis_id: Uuid,
+}
+
 #[function_component(Dashboard)]
-pub fn dashboard() -> Html {
+pub fn dashboard(DashboardProps { analysis_id: id }: &DashboardProps) -> Html {
     info!("Entering Dashboard");
     let fallback = html! {
         <div class="block">
@@ -319,7 +327,7 @@ pub fn dashboard() -> Html {
 
     html! {
         <Suspense {fallback}>
-            <DashboardDataFetcher />
+            <DashboardDataFetcher analysis_id={id.clone()} />
         </Suspense>
     }
 }

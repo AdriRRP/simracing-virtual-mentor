@@ -119,7 +119,7 @@ impl Component for AnalysisCreator {
                     reference_lap={self.reference_lap.clone()}
                     target_lap={self.target_lap.clone()}
                 />
-                <LapFilter {on_filter_change} />
+                //<LapFilter {on_filter_change} />
                 <LapList
                     laps={self.laps.clone()}
                     error={self.error.clone()}

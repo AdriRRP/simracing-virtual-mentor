@@ -8,6 +8,7 @@ use crate::infrastructure::components::laps::Laps;
 use yew::html;
 use yew::Html;
 use yew_router::Routable;
+use uuid::Uuid;
 
 #[derive(Routable, PartialEq, Clone, Debug)]
 pub enum Route {
@@ -21,8 +22,8 @@ pub enum Route {
     Analyses,
     #[at("/analysis_creator")]
     AnalysisCreator,
-    #[at("/dashboard")]
-    Dashboard,
+    #[at("/dashboard/:analysis_id")]
+    Dashboard { analysis_id: Uuid },
 }
 
 pub fn switch(routes: Route) -> Html {
@@ -31,7 +32,7 @@ pub fn switch(routes: Route) -> Html {
         Route::Files => html! { <Files /> },
         Route::Laps => html! { <Laps /> },
         Route::Analyses => html! { <Analyses /> },
-        Route::Dashboard => html! { <Dashboard /> },
+        Route::Dashboard { analysis_id } => html! { <Dashboard analysis_id={analysis_id} /> },
         Route::AnalysisCreator => html! { <AnalysisCreator /> },
     }
 }

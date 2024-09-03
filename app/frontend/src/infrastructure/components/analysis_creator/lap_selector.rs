@@ -1,18 +1,17 @@
 use chrono::{DateTime, Utc};
 use config::ValueKind::String;
 use log::{debug, error, info};
-use shared::lap::domain::lap::header::Header as Lap;
 use shared::common::domain::criteria::Criteria;
+use shared::lap::domain::lap::header::Header as Lap;
 
-use yew::{function_component, html, Html, props};
-use yew::prelude::*;
-use uuid::Uuid;
-use web_sys::HtmlInputElement;
-use shared::common::domain::criteria::filter::condition::Condition;
 use crate::infrastructure::components::laps::list::LapList;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::analysis::http::Request;
-
+use shared::common::domain::criteria::filter::condition::Condition;
+use uuid::Uuid;
+use web_sys::HtmlInputElement;
+use yew::prelude::*;
+use yew::{function_component, html, props, Html};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -45,27 +44,31 @@ pub fn lap_selector(props: &Props) -> Html {
             name.set(value);
         })
     };
-    
+
     let create_lap = {
         let name = name.clone();
         let request = request.clone();
         let analysis_repo = analysis_repo.clone();
         let ref_lap = ref_lap.clone();
-        let target_lap =  target_lap.clone();
+        let target_lap = target_lap.clone();
         Callback::from(move |_: MouseEvent| {
             let ref_lap = ref_lap.clone();
-            let target_lap =  target_lap.clone();
+            let target_lap = target_lap.clone();
             let name = name.clone();
             let request = request.clone();
             if let (Some(ref_lap), Some(target_lap)) = (&ref_lap, &target_lap) {
                 if !(*name).is_empty() {
-                    request.set(Some(Request::new((*name).clone(), ref_lap.id.clone(), target_lap.id.clone())))
+                    request.set(Some(Request::new(
+                        (*name).clone(),
+                        ref_lap.id.clone(),
+                        target_lap.id.clone(),
+                    )))
                 }
                 error!("No name provided!");
             } else {
                 error!("2 laps not found!");
             }
-            
+
             let request = (*request).clone();
             let analysis_repo = analysis_repo.clone();
             if let Some(request) = request {
@@ -86,7 +89,7 @@ pub fn lap_selector(props: &Props) -> Html {
             }
         })
     };
-    
+
     html! {
         <div class="box mt-4">
             <h2 class="subtitle is-5">{"Select Laps to compare"}</h2>

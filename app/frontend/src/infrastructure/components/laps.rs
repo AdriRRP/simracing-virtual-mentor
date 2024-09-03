@@ -1,17 +1,17 @@
-pub(crate) mod list;
 pub(crate) mod filter;
+pub(crate) mod list;
 
 use crate::infrastructure::components::laps::filter::LapFilter;
+use crate::infrastructure::components::laps::list::LapList;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::lap::http::Http as LapRepository;
-use crate::infrastructure::components::laps::list::LapList;
 
 use shared::common::domain::criteria::Criteria;
 use shared::lap::domain::lap::headers::Headers as DomainLaps;
 
-use yew::prelude::*;
 use log::info;
 use uuid::Uuid;
+use yew::prelude::*;
 
 pub enum Msg {
     FetchLaps,
@@ -35,7 +35,6 @@ impl Component for Laps {
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-
         let mut _self = Self::default();
 
         let (repo_ctx, _) = ctx
@@ -44,7 +43,7 @@ impl Component for Laps {
             .expect("No Repositories Context Provided");
 
         _self.lap_repository = repo_ctx.lap.clone();
-        
+
         ctx.link().send_message(Msg::FetchLaps);
         _self.is_fetching = true;
 

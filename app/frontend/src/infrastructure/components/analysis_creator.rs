@@ -1,19 +1,19 @@
 pub mod lap_selector;
 
-use crate::infrastructure::components::laps::filter::LapFilter;
-use crate::infrastructure::components::repository_context::Repositories;
-use crate::infrastructure::repository::lap::http::Http as LapRepository;
-use crate::infrastructure::repository::analysis::http::Http as AnalysisRepository;
-use crate::infrastructure::components::laps::list::LapList;
 use crate::infrastructure::components::analysis_creator::lap_selector::LapSelector;
+use crate::infrastructure::components::laps::filter::LapFilter;
+use crate::infrastructure::components::laps::list::LapList;
+use crate::infrastructure::components::repository_context::Repositories;
+use crate::infrastructure::repository::analysis::http::Http as AnalysisRepository;
+use crate::infrastructure::repository::lap::http::Http as LapRepository;
 
 use shared::common::domain::criteria::Criteria;
-use shared::lap::domain::lap::headers::Headers as Laps;
 use shared::lap::domain::lap::header::Header as Lap;
+use shared::lap::domain::lap::headers::Headers as Laps;
 
-use yew::prelude::*;
 use log::info;
 use uuid::Uuid;
+use yew::prelude::*;
 
 pub enum Msg {
     FetchLaps,
@@ -41,7 +41,6 @@ impl Component for AnalysisCreator {
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-
         let mut _self = Self::default();
 
         let (repo_ctx, _) = ctx
@@ -109,7 +108,7 @@ impl Component for AnalysisCreator {
         let fetch_laps = ctx.link().callback(|_| Msg::FetchLaps);
         let use_as_reference_lap_callback = ctx.link().callback(|lap| Msg::SetReference(lap));
         let use_as_target_lap_callback = ctx.link().callback(|lap| Msg::SetTarget(lap));
-        
+
         info!("reference_lap: {:?}", self.reference_lap.clone());
         info!("target_lap: {:?}", self.target_lap.clone());
 

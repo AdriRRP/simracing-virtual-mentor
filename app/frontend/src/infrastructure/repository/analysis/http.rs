@@ -1,16 +1,16 @@
-use reqwest::header::CONTENT_LENGTH;
+use crate::infrastructure::settings::Settings;
 use chrono::Utc;
 use log::{error, info};
-use crate::infrastructure::settings::Settings;
+use reqwest::header::CONTENT_LENGTH;
 use reqwest::Client;
 use serde::Serialize;
 
 use shared::analysis::domain::analyses::Analyses;
 use shared::analysis::domain::analysis::Analysis;
 
-use uuid::Uuid;
 use serde::Deserialize;
 use shared::common::domain::criteria::Criteria;
+use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Http {
@@ -55,11 +55,7 @@ pub struct Request {
 }
 
 impl Request {
-    pub fn new(
-        name: String,
-        ref_lap_id: Uuid,
-        target_lap_id: Uuid,
-    ) -> Self {
+    pub fn new(name: String, ref_lap_id: Uuid, target_lap_id: Uuid) -> Self {
         Self {
             id: Uuid::new_v4(),
             name,

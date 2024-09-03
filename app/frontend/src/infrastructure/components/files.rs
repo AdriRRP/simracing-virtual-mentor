@@ -1,18 +1,18 @@
+mod filter;
 mod list;
 mod uploader;
-mod filter;
 
 use crate::infrastructure::components::files::filter::FileFilter;
+use crate::infrastructure::components::files::list::FileList;
 use crate::infrastructure::components::files::uploader::FileUploader;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::file::http::Http as FileRepository;
-use crate::infrastructure::components::files::list::FileList;
 
 use shared::common::domain::criteria::Criteria;
 use shared::file::domain::files::Files as DomainFiles;
 
-use yew::prelude::*;
 use log::info;
+use yew::prelude::*;
 
 pub enum Msg {
     FetchFiles,
@@ -36,19 +36,18 @@ impl Component for Files {
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-        
         let mut _self = Self::default();
 
         let (repo_ctx, _) = ctx
             .link()
             .context::<Repositories>(Callback::noop())
             .expect("No Repositories Context Provided");
-        
+
         _self.file_repository = repo_ctx.file.clone();
-        
+
         ctx.link().send_message(Msg::FetchFiles);
         _self.is_fetching = true;
-        
+
         _self
     }
 
@@ -110,7 +109,7 @@ impl Component for Files {
         let on_filter_change = ctx.link().callback(Msg::SetFilter);
         let fetch_files = ctx.link().callback(|_| Msg::FetchFiles);
         let delete_file_callback = ctx.link().callback(Msg::DeleteFile);
-        
+
         html! {
             <div class="container">
                 <h1 class="title">{"Files"}</h1>

@@ -1,10 +1,10 @@
+use shared::common::domain::criteria::Criteria;
 use shared::file::domain::file::Status;
 use shared::file::domain::files::Files;
-use shared::common::domain::criteria::Criteria;
 
 use std::future::Future;
-use yew::{classes, html, Callback, Component, Context, Html};
 use yew::Properties;
+use yew::{classes, html, Callback, Component, Context, Html};
 
 #[derive(Properties, Clone, PartialEq)]
 pub struct FileListProps {
@@ -25,7 +25,7 @@ pub enum Msg {
 pub struct FileList {
     filter: Criteria,
     show_modal: bool,
-    error: Option<String>
+    error: Option<String>,
 }
 
 impl Component for FileList {

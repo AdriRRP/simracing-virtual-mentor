@@ -1,6 +1,6 @@
 use plotly::layout::{Margin, RangeSlider, SpikeMode};
 use shared::analysis::domain::analysis::Analysis;
-use std::fmt::{Display, format, Formatter};
+use std::fmt::{format, Display, Formatter};
 
 use log::info;
 use plotly::color::{Color, NamedColor, Rgb};
@@ -20,7 +20,7 @@ pub enum PlotType {
     Throttle,
     Brake,
     Gear,
-    SteeringWheelAngle
+    SteeringWheelAngle,
 }
 
 impl Display for PlotType {
@@ -35,69 +35,76 @@ impl Display for PlotType {
     }
 }
 pub fn create_plot(plot_type: &PlotType, analysis: &Analysis) -> Result<Plot, String> {
-    
-    let reference = analysis.reference.clone().ok_or("No reference found".to_string())?;
-    let target = analysis.target.clone().ok_or("No target found".to_string())?;
-    let differences = analysis.differences.clone().ok_or("No differences found".to_string())?;
+    let reference = analysis
+        .reference
+        .clone()
+        .ok_or("No reference found".to_string())?;
+    let target = analysis
+        .target
+        .clone()
+        .ok_or("No target found".to_string())?;
+    let differences = analysis
+        .differences
+        .clone()
+        .ok_or("No differences found".to_string())?;
     let distances = analysis.union_distances.clone();
-    
+
     let mut plot = Plot::new();
     let layout = base_layout();
-    traces(&mut plot, &plot_type, &reference, &target, differences, distances);
+    traces(
+        &mut plot,
+        &plot_type,
+        &reference,
+        &target,
+        differences,
+        distances,
+    );
     plot.set_layout(layout);
     Ok(plot)
 }
 
 fn base_layout() -> Layout {
-    let bulma_background = Rgb::new(20,22,26);
+    let bulma_background = Rgb::new(20, 22, 26);
     Layout::new()
         .x_axis(
             Axis::new()
                 .spike_color(NamedColor::DarkGray)
                 .show_tick_labels(false)
-                .show_line(false)
+                .show_line(false),
         )
         .y_axis(
             Axis::new()
                 .fixed_range(true)
                 .show_spikes(false)
-                .show_line(false)
+                .show_line(false),
         )
         .y_axis2(
             Axis::new()
                 .side(AxisSide::Right)
                 .fixed_range(true)
                 .show_spikes(false)
-                .show_line(false)
+                .show_line(false),
         )
-        .paper_background_color(
-            bulma_background
-        )
-        .plot_background_color(
-            bulma_background
-        )
+        .paper_background_color(bulma_background)
+        .plot_background_color(bulma_background)
         .hover_label(
             Label::new()
                 .background_color(NamedColor::Black)
                 .border_color(NamedColor::DarkGray)
-                .font(
-                    Font::new()
-                        .color(NamedColor::DarkGray)
-                ),
+                .font(Font::new().color(NamedColor::DarkGray)),
         )
         .hover_mode(HoverMode::XUnified)
         .height(150)
-        .margin(
-            Margin::new()
-                .top(10)
-                .bottom(10)
-                .left(10)
-                .right(10)
-        )
+        .margin(Margin::new().top(10).bottom(10).left(10).right(10))
 }
 
-fn select_metrics(plot_type: &PlotType, reference: &ReferenceLap, target: &ReferenceLap, difference: Variables, distances: Vec<f32>) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, &'static str)
-{
+fn select_metrics(
+    plot_type: &PlotType,
+    reference: &ReferenceLap,
+    target: &ReferenceLap,
+    difference: Variables,
+    distances: Vec<f32>,
+) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, &'static str) {
     match plot_type {
         PlotType::Speed => (
             distances,
@@ -122,10 +129,27 @@ fn select_metrics(plot_type: &PlotType, reference: &ReferenceLap, target: &Refer
         ),
         PlotType::Gear => (
             distances,
-            reference.variables.gear.clone().iter().map(|&x| f32::from(x)).collect(),
-            target.variables.gear.clone().iter().map(|&x| f32::from(x)).collect(),
-            difference.gear.clone().iter().map(|&x| f32::from(x)).collect(),
-            "Gear %{y:.0f}"
+            reference
+                .variables
+                .gear
+                .clone()
+                .iter()
+                .map(|&x| f32::from(x))
+                .collect(),
+            target
+                .variables
+                .gear
+                .clone()
+                .iter()
+                .map(|&x| f32::from(x))
+                .collect(),
+            difference
+                .gear
+                .clone()
+                .iter()
+                .map(|&x| f32::from(x))
+                .collect(),
+            "Gear %{y:.0f}",
         ),
         PlotType::SteeringWheelAngle => (
             distances,
@@ -137,11 +161,19 @@ fn select_metrics(plot_type: &PlotType, reference: &ReferenceLap, target: &Refer
     }
 }
 
-fn traces(plot: &mut Plot, plot_type: &PlotType, reference: &ReferenceLap, target: &ReferenceLap, difference: Variables, distances: Vec<f32>) {
-    let (x, y_ref, y_target, y_diff, hover) = select_metrics(plot_type, reference, target, difference, distances);
+fn traces(
+    plot: &mut Plot,
+    plot_type: &PlotType,
+    reference: &ReferenceLap,
+    target: &ReferenceLap,
+    difference: Variables,
+    distances: Vec<f32>,
+) {
+    let (x, y_ref, y_target, y_diff, hover) =
+        select_metrics(plot_type, reference, target, difference, distances);
     trace(
         plot,
-        &format!("reference {plot_type}", ),
+        &format!("reference {plot_type}",),
         x.clone(),
         y_ref,
         "x",

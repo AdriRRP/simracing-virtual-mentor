@@ -1,9 +1,9 @@
 use crate::infrastructure::components::analyses::Analyses;
+use crate::infrastructure::components::analysis_creator::AnalysisCreator;
 use crate::infrastructure::components::dashboard::Dashboard;
 use crate::infrastructure::components::files::Files;
 use crate::infrastructure::components::home::Home;
 use crate::infrastructure::components::laps::Laps;
-use crate::infrastructure::components::analysis_creator::AnalysisCreator;
 
 use yew::html;
 use yew::Html;

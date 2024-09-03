@@ -1,12 +1,12 @@
-use shared::file::domain::file::Status;
-use shared::lap::domain::lap::headers::Headers as Laps;
-use shared::lap::domain::lap::header::Header as Lap;
 use shared::common::domain::criteria::Criteria;
+use shared::file::domain::file::Status;
+use shared::lap::domain::lap::header::Header as Lap;
+use shared::lap::domain::lap::headers::Headers as Laps;
 
 use std::future::Future;
 use uuid::Uuid;
-use yew::{classes, html, Callback, Component, Context, Html};
 use yew::Properties;
+use yew::{classes, html, Callback, Component, Context, Html};
 
 #[derive(Properties, Clone, PartialEq)]
 pub struct LapListProps {
@@ -36,7 +36,7 @@ pub enum Msg {
 pub struct LapList {
     filter: Criteria,
     show_modal: bool,
-    error: Option<String>
+    error: Option<String>,
 }
 
 impl Component for LapList {
@@ -103,7 +103,6 @@ impl Component for LapList {
 }
 
 impl LapList {
-
     fn view_laps(ctx: &Context<Self>, modal: bool) -> Html {
         let laps = &ctx.props().laps;
         html! {
@@ -141,104 +140,111 @@ impl LapList {
     }
 
     pub fn lap_name(lap: &Lap) -> String {
-        format!(
-            "{} | Lap {} | {:.2} s",
-            lap.driver,
-            lap.number,
-            lap.time
-        )
+        format!("{} | Lap {} | {:.2} s", lap.driver, lap.number, lap.time)
     }
 
     fn add_delete_button(ctx: &Context<Self>, lap: &Lap, modal: bool) -> Html {
-        ctx.props().delete_lap_callback.clone().map(|cb| {
-            html!{
-                <>
-                <button
-                    class="button is-danger is-outlined is-large js-modal-trigger"
-                    data-target="delete-modal"
-                    onclick={ctx.link().callback(move |_| {Msg::ShowModal})}
-                >{"❌"}</button>
-                <div id="delete-modal"
-                    class={classes!(if modal {"modal is-active"} else {"modal"})}>
-                    <div class="modal-background"></div>
-                    <div class="modal-card">
-                        <header class="modal-card-head">
-                            <p class="modal-card-title">{"Delete File"}</p>
-                            <button
-                                class="delete"
-                                aria-label="close"
-                                onclick={ctx.link().callback(move |_| {Msg::HideModal})}
-                            ></button>
-                        </header>
-                        <section class="modal-card-body">
-                            {
-                                format!(
-                                    "Are you sure you want to delete the `{}` lap?",
-                                    Self::lap_name(lap)
-                                )
-                            }
-                        </section>
-                        <footer class="modal-card-foot">
-                            <div class="buttons">
+        ctx.props()
+            .delete_lap_callback
+            .clone()
+            .map(|cb| {
+                html! {
+                    <>
+                    <button
+                        class="button is-danger is-outlined is-large js-modal-trigger"
+                        data-target="delete-modal"
+                        onclick={ctx.link().callback(move |_| {Msg::ShowModal})}
+                    >{"❌"}</button>
+                    <div id="delete-modal"
+                        class={classes!(if modal {"modal is-active"} else {"modal"})}>
+                        <div class="modal-background"></div>
+                        <div class="modal-card">
+                            <header class="modal-card-head">
+                                <p class="modal-card-title">{"Delete File"}</p>
                                 <button
-                                    class="button is-danger"
-                                    onclick={
-                                        let link = ctx.link().clone();
-                                        let cb = cb.clone();
-                                        let lap_id = lap.id.clone();
-                                        link.callback(move |_| {
-                                            cb.emit(lap_id);
-                                            Msg::HideModal
-                                        })}
-                                >{"Delete"}</button>
-                                <button
-                                    class="button is-dark"
+                                    class="delete"
+                                    aria-label="close"
                                     onclick={ctx.link().callback(move |_| {Msg::HideModal})}
-                                >{"Cancel"}</button>
-                            </div>
-                        </footer>
+                                ></button>
+                            </header>
+                            <section class="modal-card-body">
+                                {
+                                    format!(
+                                        "Are you sure you want to delete the `{}` lap?",
+                                        Self::lap_name(lap)
+                                    )
+                                }
+                            </section>
+                            <footer class="modal-card-foot">
+                                <div class="buttons">
+                                    <button
+                                        class="button is-danger"
+                                        onclick={
+                                            let link = ctx.link().clone();
+                                            let cb = cb.clone();
+                                            let lap_id = lap.id.clone();
+                                            link.callback(move |_| {
+                                                cb.emit(lap_id);
+                                                Msg::HideModal
+                                            })}
+                                    >{"Delete"}</button>
+                                    <button
+                                        class="button is-dark"
+                                        onclick={ctx.link().callback(move |_| {Msg::HideModal})}
+                                    >{"Cancel"}</button>
+                                </div>
+                            </footer>
+                        </div>
                     </div>
-                </div>
-                </>
-            }
-        }).unwrap_or_else(|| html!{})
+                    </>
+                }
+            })
+            .unwrap_or_else(|| html! {})
     }
 
     fn add_reference_button(ctx: &Context<Self>, lap: &Lap) -> Html {
-        ctx.props().use_as_reference_lap_callback.clone().map(|cb| {
-            html!{
-                <>
-                <button
-                    class="button is-danger is-outlined is-large js-modal-trigger mx-4"
-                    onclick={
-                        let link = ctx.link().clone();
-                        let cb = cb.clone();
-                        let lap = lap.clone();
-                        Callback::from(move |_| cb.emit(lap.clone()))
-                    }
-                    disabled={ctx.props().use_as_reference_lap_disabled}
-                >{"🏆"}</button>
-                </>
-            }
-        }).unwrap_or_else(|| html!{})
+        ctx.props()
+            .use_as_reference_lap_callback
+            .clone()
+            .map(|cb| {
+                html! {
+                    <>
+                    <button
+                        class="button is-danger is-outlined is-large js-modal-trigger mx-4"
+                        onclick={
+                            let link = ctx.link().clone();
+                            let cb = cb.clone();
+                            let lap = lap.clone();
+                            Callback::from(move |_| cb.emit(lap.clone()))
+                        }
+                        disabled={ctx.props().use_as_reference_lap_disabled}
+                    >{"🏆"}</button>
+                    </>
+                }
+            })
+            .unwrap_or_else(|| html! {})
     }
 
     fn add_target_button(ctx: &Context<Self>, lap: &Lap) -> Html {
-        ctx.props().use_as_target_lap_callback.clone().map(|cb| {
-            html!{
-                <>
-                <button
-                    class="button is-primary is-outlined is-large js-modal-trigger mx-4"
-                    onclick={
-                        let link = ctx.link().clone();
-                        let cb = cb.clone();
-                        let lap = lap.clone();
-                        Callback::from(move |_| cb.emit(lap.clone()))
-                    }
-                    disabled={ctx.props().use_as_target_lap_disabled}
-                >{"🫥"}</button>
-                </>
-            }
-        }).unwrap_or_else(|| html!{})
+        ctx.props()
+            .use_as_target_lap_callback
+            .clone()
+            .map(|cb| {
+                html! {
+                    <>
+                    <button
+                        class="button is-primary is-outlined is-large js-modal-trigger mx-4"
+                        onclick={
+                            let link = ctx.link().clone();
+                            let cb = cb.clone();
+                            let lap = lap.clone();
+                            Callback::from(move |_| cb.emit(lap.clone()))
+                        }
+                        disabled={ctx.props().use_as_target_lap_disabled}
+                    >{"🫥"}</button>
+                    </>
+                }
+            })
+            .unwrap_or_else(|| html! {})
     }
 }

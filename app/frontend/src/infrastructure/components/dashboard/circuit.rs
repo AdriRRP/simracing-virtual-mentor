@@ -1,15 +1,15 @@
-use web_sys::CustomEvent;
 use log::info;
-use yew::prelude::*;
-use wasm_bindgen::JsCast;
-use wasm_bindgen::prelude::*;
-use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, MouseEvent, CustomEventInit};
-use serde::{Serialize, Deserialize};
-use wasm_bindgen::closure::Closure;
-use wasm_bindgen::JsValue;
-use wasm_bindgen::prelude::wasm_bindgen;
+use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::to_value;
+use wasm_bindgen::closure::Closure;
+use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
+use wasm_bindgen::JsValue;
 use web_sys::console::{info, log};
+use web_sys::CustomEvent;
+use web_sys::{CanvasRenderingContext2d, CustomEventInit, HtmlCanvasElement, MouseEvent};
+use yew::prelude::*;
 
 const UPDATE_CIRCUIT_POINTER_EVENT: &'static str = "update_circuit_pointer";
 
@@ -26,7 +26,9 @@ pub fn hover_event_from_plotly(distance: f32) {
     let mut event_init = CustomEventInit::new();
     event_init.detail(&JsValue::from_f64(distance as f64));
 
-    let event = web_sys::CustomEvent::new_with_event_init_dict(UPDATE_CIRCUIT_POINTER_EVENT, &event_init).unwrap();
+    let event =
+        web_sys::CustomEvent::new_with_event_init_dict(UPDATE_CIRCUIT_POINTER_EVENT, &event_init)
+            .unwrap();
     document.dispatch_event(&event).unwrap();
 }
 
@@ -63,14 +65,26 @@ fn lat_lon_to_xy(lat: f64, lon: f64) -> (f64, f64) {
     (x, y)
 }
 
-fn normalize_coordinates(coords: Vec<GpsCoord>, width: f64, height: f64, margin: f64) -> Vec<Point> {
+fn normalize_coordinates(
+    coords: Vec<GpsCoord>,
+    width: f64,
+    height: f64,
+    margin: f64,
+) -> Vec<Point> {
     let min_lat = coords.iter().map(|c| c.lat).fold(f64::INFINITY, f64::min);
-    let max_lat = coords.iter().map(|c| c.lat).fold(f64::NEG_INFINITY, f64::max);
+    let max_lat = coords
+        .iter()
+        .map(|c| c.lat)
+        .fold(f64::NEG_INFINITY, f64::max);
     let min_lon = coords.iter().map(|c| c.lon).fold(f64::INFINITY, f64::min);
-    let max_lon = coords.iter().map(|c| c.lon).fold(f64::NEG_INFINITY, f64::max);
+    let max_lon = coords
+        .iter()
+        .map(|c| c.lon)
+        .fold(f64::NEG_INFINITY, f64::max);
 
-    coords.iter()
-        .map(|GpsCoord{ lat, lon, dist }| {
+    coords
+        .iter()
+        .map(|GpsCoord { lat, lon, dist }| {
             let (x, y) = lat_lon_to_xy(*lat, *lon);
             Point {
                 x: ((*lat - min_lat) / (max_lat - min_lat)) * (width - 2.0 * margin) + margin,
@@ -99,7 +113,10 @@ fn find_nearest_point(points: &Vec<Point>, mouse_x: f64, mouse_y: f64) -> Option
 }
 
 fn find_nearest_point_by_distance(points: &Vec<Point>, distance: f32) -> Option<Point> {
-    points.iter().min_by_key(|p| ((p.dist - distance).abs() * 1000.0) as i32).cloned()
+    points
+        .iter()
+        .min_by_key(|p| ((p.dist - distance).abs() * 1000.0) as i32)
+        .cloned()
 }
 
 #[derive(Properties, PartialEq)]
@@ -147,18 +164,31 @@ pub fn circuit(props: &Props) -> Html {
 
             let closure = Closure::<dyn FnMut(_)>::new(move |event: web_sys::CustomEvent| {
                 let distance = event.detail().as_f64().unwrap() as f32;
-                if let Some(closest_point) = find_nearest_point_by_distance(&normalized_points, distance) {
+                if let Some(closest_point) =
+                    find_nearest_point_by_distance(&normalized_points, distance)
+                {
                     context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
                     draw_circuit(&context, &normalized_points);
                     context.begin_path();
-                    context.arc(closest_point.x, closest_point.y, 8.0, 0.0, 2.0 * std::f64::consts::PI).unwrap();
+                    context
+                        .arc(
+                            closest_point.x,
+                            closest_point.y,
+                            8.0,
+                            0.0,
+                            2.0 * std::f64::consts::PI,
+                        )
+                        .unwrap();
                     context.set_fill_style(&JsValue::from_str("red"));
                     context.fill();
                 }
             });
 
             document
-                .add_event_listener_with_callback(UPDATE_CIRCUIT_POINTER_EVENT, closure.as_ref().unchecked_ref())
+                .add_event_listener_with_callback(
+                    UPDATE_CIRCUIT_POINTER_EVENT,
+                    closure.as_ref().unchecked_ref(),
+                )
                 .unwrap();
             closure.forget();
 
@@ -187,7 +217,15 @@ pub fn circuit(props: &Props) -> Html {
                 context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
                 draw_circuit(&context, &normalized_points);
                 context.begin_path();
-                context.arc(closest_point.x, closest_point.y, 8.0, 0.0, 2.0 * std::f64::consts::PI).unwrap();
+                context
+                    .arc(
+                        closest_point.x,
+                        closest_point.y,
+                        8.0,
+                        0.0,
+                        2.0 * std::f64::consts::PI,
+                    )
+                    .unwrap();
                 context.set_fill_style(&JsValue::from_str("red"));
                 context.fill();
 
@@ -238,7 +276,9 @@ fn gps_coord(lat: &[f64], lon: &[f64], dist: &[f32]) -> Vec<GpsCoord> {
     assert_eq!(lat.len(), dist.len());
 
     // Itera sobre los slices y crea los Points
-    lat.iter().zip(lon.iter()).zip(dist.iter())
+    lat.iter()
+        .zip(lon.iter())
+        .zip(dist.iter())
         .map(|((&lat, &lon), &d)| GpsCoord::new(lat, lon, d))
         .collect()
 }

@@ -1,16 +1,16 @@
+mod circuit;
 mod hook;
 mod plot;
-mod circuit;
 
 //use crate::infrastructure::components::dashboard::circuit::add_mouse_move_event;
 //use crate::infrastructure::components::dashboard::circuit::create_pointer_layer;
 use crate::infrastructure::components::dashboard::circuit::Circuit;
-use std::cell::Cell;
-use std::collections::HashMap;
 use crate::infrastructure::components::dashboard::hook::{use_analyses, use_plotly_draw};
 use crate::infrastructure::components::dashboard::plot::{create_plot, PlotType};
 use crate::infrastructure::repository::analysis::http::Http as AnalysisHttpRepository;
 use crate::infrastructure::settings::Settings;
+use std::cell::Cell;
+use std::collections::HashMap;
 use std::ops::{Deref, Div};
 use std::rc::Rc;
 
@@ -75,7 +75,7 @@ pub struct PlotlyDrawerProps {
 pub struct PlotDiv {
     id: String,
     plot_type: PlotType,
-    node_ref: NodeRef
+    node_ref: NodeRef,
 }
 
 impl PlotDiv {
@@ -133,13 +133,15 @@ impl Component for PlotlyDrawer {
     type Message = PlotlyDrawerMsg;
     type Properties = PlotlyDrawerProps;
     fn create(_ctx: &Context<Self>) -> Self {
-
         let target_divs: Vec<PlotDiv> = vec![
             PlotDiv::new("speed_plot".to_string(), PlotType::Speed),
             PlotDiv::new("throttle_plot".to_string(), PlotType::Throttle),
             PlotDiv::new("gear_plot".to_string(), PlotType::Gear),
             PlotDiv::new("brake_plot".to_string(), PlotType::Brake),
-            PlotDiv::new("steering_wheel_angle_plot".to_string(), PlotType::SteeringWheelAngle),
+            PlotDiv::new(
+                "steering_wheel_angle_plot".to_string(),
+                PlotType::SteeringWheelAngle,
+            ),
         ];
 
         Self {
@@ -216,75 +218,77 @@ impl Component for PlotlyDrawer {
                             Err(e) => Self::Message::Error(format!("{e:?}")),
                         }
                     } else {
-                        Self::Message::Error(format!("Cannot create plot for analysis `{}`", analysis.header.id))
+                        Self::Message::Error(format!(
+                            "Cannot create plot for analysis `{}`",
+                            analysis.header.id
+                        ))
                     }
-                    
                 }
             });
         }
 
         html! {
-    <div class="fixed-grid">
-        <div class="grid">
-            <div class="cell">
-                <Circuit
-                    width={800.}
-                    height={600.}
-                    margin={50.}
-                    latitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.variables.latitude)}
-                    longitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.variables.longitude)}
-                    distances={analysis.union_distances.clone()}
-                />
-                // Radio buttons for variable selection
-                // Radio buttons for variable selection
-                <div class="control mt-4 ml-6">
-                    <div class="field">
-                        <label class="radio mr-4">
-                            <input type="radio" name="variable" value="None"/>
-                            { "None" }
-                        </label>
-                        <label class="radio mr-4">
-                            <input type="radio" name="variable" value="Speed"/>
-                            { "Speed" }
-                        </label>
-                        <label class="radio mr-4">
-                            <input type="radio" name="variable" value="Throttle"/>
-                            { "Throttle" }
-                        </label>
-                        <label class="radio mr-4">
-                            <input type="radio" name="variable" value="Gear"/>
-                            { "Gear" }
-                        </label>
-                        <label class="radio mr-4">
-                            <input type="radio" name="variable" value="Brake"/>
-                            { "Brake" }
-                        </label>
-                        <label class="radio mr-4">
-                            <input type="radio" name="variable" value="Steering Wheel Angle"/>
-                            { "Steering Wheel Angle" }
-                        </label>
+            <div class="fixed-grid">
+                <div class="grid">
+                    <div class="cell">
+                        <Circuit
+                            width={800.}
+                            height={600.}
+                            margin={50.}
+                            latitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.variables.latitude)}
+                            longitudes={analysis.reference.clone().map_or_else(Vec::default, |a| a.variables.longitude)}
+                            distances={analysis.union_distances.clone()}
+                        />
+                        // Radio buttons for variable selection
+                        // Radio buttons for variable selection
+                        <div class="control mt-4 ml-6">
+                            <div class="field">
+                                <label class="radio mr-4">
+                                    <input type="radio" name="variable" value="None"/>
+                                    { "None" }
+                                </label>
+                                <label class="radio mr-4">
+                                    <input type="radio" name="variable" value="Speed"/>
+                                    { "Speed" }
+                                </label>
+                                <label class="radio mr-4">
+                                    <input type="radio" name="variable" value="Throttle"/>
+                                    { "Throttle" }
+                                </label>
+                                <label class="radio mr-4">
+                                    <input type="radio" name="variable" value="Gear"/>
+                                    { "Gear" }
+                                </label>
+                                <label class="radio mr-4">
+                                    <input type="radio" name="variable" value="Brake"/>
+                                    { "Brake" }
+                                </label>
+                                <label class="radio mr-4">
+                                    <input type="radio" name="variable" value="Steering Wheel Angle"/>
+                                    { "Steering Wheel Angle" }
+                                </label>
+                            </div>
+                        </div>
+                        // Unix-style console for messages
+                        <div class="console mt-4 ml-4">
+                            <pre class="maintain">{ "maintain speed with a tendency to increase it" }</pre>
+                            <pre class="action">{ "shift the car up a gear" }</pre>
+                            <pre class="maintain">{ "Hold the accelerator pedal with a tendency to depress it." }</pre>
+                            <pre class="maintain">{ "Hold the brake" }</pre>
+                            <pre class="maintain">{ "keep the steering wheel without turning with a tendency to turn to the right" }</pre>
+                        </div>
+                    </div>
+
+                    <div class="cell is-col-start-3" /*ref={self.target_div.clone()}*/ >
+                        {
+                            self.plot_divs.iter().map(|target_div| {
+                                html!{<div id={target_div.id.clone()} ref={target_div.node_ref.clone()} />}
+                            }).collect::<Html>()
+                        }
                     </div>
                 </div>
-                // Unix-style console for messages
-                <div class="console mt-4 ml-4">
-                    <pre class="maintain">{ "maintain speed with a tendency to increase it" }</pre>
-                    <pre class="action">{ "shift the car up a gear" }</pre>
-                    <pre class="maintain">{ "Hold the accelerator pedal with a tendency to depress it." }</pre>
-                    <pre class="maintain">{ "Hold the brake" }</pre>
-                    <pre class="maintain">{ "keep the steering wheel without turning with a tendency to turn to the right" }</pre>
-                </div>
             </div>
-            
-            <div class="cell is-col-start-3" /*ref={self.target_div.clone()}*/ >
-                {
-                    self.plot_divs.iter().map(|target_div| {
-                        html!{<div id={target_div.id.clone()} ref={target_div.node_ref.clone()} />}
-                    }).collect::<Html>()
-                }
-            </div>
-        </div>
-    </div>
-}
+        }
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
@@ -292,7 +296,11 @@ impl Component for PlotlyDrawer {
             Self::Message::PlotlyHover => false,
             Self::Message::SyncPlotlyHover(div_id) => {
                 let div_id = JsValue::from(div_id);
-                let sync_div_ids: Vec<JsValue> = self.plot_divs.iter().map(|target_div| { JsValue::from(target_div.id.clone()) }).collect();
+                let sync_div_ids: Vec<JsValue> = self
+                    .plot_divs
+                    .iter()
+                    .map(|target_div| JsValue::from(target_div.id.clone()))
+                    .collect();
                 sync_plotly(div_id, sync_div_ids);
                 false
             }
@@ -301,15 +309,12 @@ impl Component for PlotlyDrawer {
                 // TODO: Manage error
                 true
             }
-            PlotlyDrawerMsg::SyncCanvas(_) => {false}
+            PlotlyDrawerMsg::SyncCanvas(_) => false,
         }
     }
 }
 
-impl PlotlyDrawer {
-
-
-}
+impl PlotlyDrawer {}
 
 #[function_component(PlotlyLoader)]
 pub fn plotly_loader(Props { analysis }: &Props) -> Html {

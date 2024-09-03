@@ -1,29 +1,27 @@
+use crate::infrastructure::components::laps::filter::_Props::on_filter_change;
 use chrono::Utc;
 use chrono::{DateTime, NaiveDate};
-use crate::infrastructure::components::laps::filter::_Props::on_filter_change;
 
-use shared::common::domain::criteria::Criteria;
 use shared::common::domain::criteria::filter::condition::Condition;
 use shared::common::domain::criteria::filter::field::Field;
-use shared::common::domain::criteria::filter::Filter;
 use shared::common::domain::criteria::filter::value::Value;
+use shared::common::domain::criteria::filter::Filter;
 use shared::common::domain::criteria::filters::Filters;
+use shared::common::domain::criteria::Criteria;
 
-use web_sys::{HtmlInputElement, HtmlSelectElement};
-use log::{info, debug};
-use yew::{function_component, html, Html, props};
-use yew::prelude::*;
 use chrono::NaiveDateTime;
-
+use log::{debug, info};
+use web_sys::{HtmlInputElement, HtmlSelectElement};
+use yew::prelude::*;
+use yew::{function_component, html, props, Html};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub on_filter_change: Callback<Criteria>
+    pub on_filter_change: Callback<Criteria>,
 }
 
 #[function_component(LapFilter)]
 pub fn lap_filter(props: &Props) -> Html {
-
     let criteria_state = use_state(|| Criteria::default());
     let parent_callback = props.on_filter_change.clone();
 
@@ -38,7 +36,8 @@ pub fn lap_filter(props: &Props) -> Html {
                 _ => None,
             };
 
-            let criteria = set_criteria(criteria_state.clone(), "status", Condition::Contains, value);
+            let criteria =
+                set_criteria(criteria_state.clone(), "status", Condition::Contains, value);
 
             debug!("{:?}", criteria.clone());
             criteria_state.set(criteria);
@@ -52,13 +51,15 @@ pub fn lap_filter(props: &Props) -> Html {
             let date = input.value();
             let input_id = input.id();
 
-            let date: Option<DateTime<Utc>> = NaiveDate::parse_from_str(&date, "%Y-%m-%d").map(|nd| {
-                let time = chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap();// TODO: revisar
-                // Convert NaiveDate to NaiveDateTime at midnight
-                let naive_datetime = NaiveDateTime::new(nd, time);
-                // Convert NaiveDateTime to DateTime<Utc>
-                DateTime::from_naive_utc_and_offset(naive_datetime, Utc)
-            }).ok();
+            let date: Option<DateTime<Utc>> = NaiveDate::parse_from_str(&date, "%Y-%m-%d")
+                .map(|nd| {
+                    let time = chrono::NaiveTime::from_hms_opt(0, 0, 0).unwrap(); // TODO: revisar
+                                                                                  // Convert NaiveDate to NaiveDateTime at midnight
+                    let naive_datetime = NaiveDateTime::new(nd, time);
+                    // Convert NaiveDateTime to DateTime<Utc>
+                    DateTime::from_naive_utc_and_offset(naive_datetime, Utc)
+                })
+                .ok();
 
             let date = date.map(|d| d.to_rfc3339());
 
@@ -79,8 +80,12 @@ pub fn lap_filter(props: &Props) -> Html {
         let criteria_state = criteria_state.clone();
         Callback::from(move |e: Event| {
             let input: HtmlInputElement = e.target_unchecked_into();
-            let value = if input.value().is_empty() {None} else { Some(input.value()) };
-            
+            let value = if input.value().is_empty() {
+                None
+            } else {
+                Some(input.value())
+            };
+
             let criteria = set_criteria(criteria_state.clone(), "name", Condition::Contains, value);
 
             debug!("{:?}", criteria.clone());
@@ -186,7 +191,12 @@ pub fn lap_filter(props: &Props) -> Html {
     }
 }
 
-fn set_criteria(criteria_state: UseStateHandle<Criteria>, field: &str, condition: Condition, value: Option<String>) -> Criteria {
+fn set_criteria(
+    criteria_state: UseStateHandle<Criteria>,
+    field: &str,
+    condition: Condition,
+    value: Option<String>,
+) -> Criteria {
     let mut criteria = (*criteria_state).clone();
     let mut filters = criteria.filters.clone().unwrap_or_else(Filters::default);
 
@@ -202,7 +212,11 @@ fn set_criteria(criteria_state: UseStateHandle<Criteria>, field: &str, condition
     }
 
     // Update criteria filters
-    criteria.filters = if filters.is_empty() { None } else { Some(filters) };
+    criteria.filters = if filters.is_empty() {
+        None
+    } else {
+        Some(filters)
+    };
 
     criteria.clone()
 }

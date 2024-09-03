@@ -8,10 +8,10 @@ use std::rc::Rc;
 use std::time::Duration;
 use web_sys::HtmlElement;
 
+use shared::common::domain::criteria::Criteria;
 use shared::lap::domain::laps::Laps;
 use yew::prelude::*;
 use yew::suspense::{Suspension, SuspensionResult};
-use shared::common::domain::criteria::Criteria;
 
 #[hook]
 pub fn use_analyses(

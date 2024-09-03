@@ -1,6 +1,6 @@
-use crate::analysis::domain::analysis::Tags;
 use crate::analysis::domain::analysis::fcm_grid::{Config, FcmGrid};
 use crate::analysis::domain::analysis::tag_assigner::TagAssigner;
+use crate::analysis::domain::analysis::Tags;
 use crate::lap::domain::lap::variables::Variables;
 
 use ndarray::Array2;

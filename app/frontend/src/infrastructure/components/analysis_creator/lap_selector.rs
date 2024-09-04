@@ -5,8 +5,8 @@ use crate::infrastructure::repository::analysis::http::Request;
 use shared::common::domain::criteria::filter::condition::Condition;
 use shared::common::domain::criteria::Criteria;
 use shared::lap::domain::lap::header::Header as Lap;
+
 use chrono::{DateTime, Utc};
-use config::ValueKind::String;
 use log::{debug, error, info};
 use uuid::Uuid;
 use web_sys::HtmlInputElement;
@@ -22,6 +22,8 @@ pub struct Props {
 }
 
 pub enum Msg {
+    ShowModal,
+    HideModal,
     FetchLaps,
 }
 
@@ -35,6 +37,8 @@ pub fn lap_selector(props: &Props) -> Html {
 
     let request = use_state(|| Option::<Request>::None);
     let name = use_state(|| "".to_string());
+    let modal_content = use_state(|| "".to_string());
+    let show_modal = use_state(|| false);
 
     let on_name_change = {
         let name = name.clone();
@@ -51,42 +55,60 @@ pub fn lap_selector(props: &Props) -> Html {
         let analysis_repo = analysis_repo.clone();
         let ref_lap = ref_lap.clone();
         let target_lap = target_lap.clone();
+        let modal_content = modal_content.clone();
+        let show_modal = show_modal.clone();
+
         Callback::from(move |_: MouseEvent| {
-            let ref_lap = ref_lap.clone();
-            let target_lap = target_lap.clone();
-            let name = name.clone();
-            let request = request.clone();
             if let (Some(ref_lap), Some(target_lap)) = (&ref_lap, &target_lap) {
-                if !(*name).is_empty() {
-                    request.set(Some(Request::new(
+                if ref_lap.circuit != target_lap.circuit {
+                    modal_content.set("The selected laps are from different circuits.".to_string());
+                    show_modal.set(true); // Mostrar modal si los circuitos son diferentes
+                } else if name.is_empty() {
+                    modal_content.set("No name provided for the analysis.".to_string());
+                    show_modal.set(true); // Mostrar modal si el nombre está vacío
+                } else {
+                    let new_request = Request::new(
                         (*name).clone(),
                         ref_lap.id.clone(),
                         target_lap.id.clone(),
-                    )))
-                }
-                error!("No name provided!");
-            } else {
-                error!("2 laps not found!");
-            }
+                    );
+                    request.set(Some(new_request.clone()));
 
-            let request = (*request).clone();
-            let analysis_repo = analysis_repo.clone();
-            if let Some(request) = request {
-                let request = request.clone();
-                wasm_bindgen_futures::spawn_local(async move {
-                    info!("Into spawn repo");
-                    match analysis_repo.create(request).await {
-                        Ok(_) => {
-                            info!("Análisis creado!");
+                    let modal_content = modal_content.clone();
+                    let analysis_repo = analysis_repo.clone();
+                    let name = name.clone();
+                    let show_modal = show_modal.clone();
+
+                    wasm_bindgen_futures::spawn_local(async move {
+                        let result = analysis_repo.create(new_request).await;
+                        match result {
+                            Ok(_) => {
+                                modal_content.set("Analysis created successfully!".to_string());
+                                name.set("".to_string()); // Reiniciar el nombre del análisis
+                                // Aquí podrías reiniciar las vueltas si es necesario
+                                // ref_lap.set(None);
+                                // target_lap.set(None);
+                            }
+                            Err(e) => {
+                                modal_content.set(format!("Failed to create analysis: {e}"));
+                            }
                         }
-                        Err(e) => {
-                            error!("Lamentablemente no se ha creado el análisis: {e}");
-                        }
-                    }
-                });
+                        show_modal.set(true); // Mostrar modal después de la operación asíncrona
+                    });
+                }
             } else {
-                error!("No request found");
+                modal_content.set("You must select a reference lap and a target lap in order to create the analysis.".to_string());
+                show_modal.set(true); // Mostrar modal si faltan vueltas
             }
+        })
+    };
+
+
+
+    let close_modal = {
+        let show_modal = show_modal.clone();
+        Callback::from(move |_| {
+            show_modal.set(false);
         })
     };
 
@@ -114,6 +136,22 @@ pub fn lap_selector(props: &Props) -> Html {
                             onclick={create_lap}
                         >{"Create Analysis"}</button>
                     </div>
+                </div>
+            </div>
+
+            <div class={classes!(if *show_modal { "modal is-active" } else { "modal" })}>
+                <div class="modal-background" onclick={close_modal.clone()}></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">{"Create Analysis"}</p>
+                        <button class="delete" aria-label="close" onclick={close_modal.clone()}></button>
+                    </header>
+                    <section class="modal-card-body">
+                        {(*modal_content).clone()}
+                    </section>
+                    <footer class="modal-card-foot">
+                        <button class="button" onclick={close_modal.clone()}>{"OK"}</button>
+                    </footer>
                 </div>
             </div>
         </div>

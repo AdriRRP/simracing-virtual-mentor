@@ -17,7 +17,7 @@ fcm_grid:
   c:
     init: 3
     max: 5
-    inc: 1
+    inc: 2
   m:
     init: 1.7
     max: 2.7

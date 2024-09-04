@@ -1,6 +1,6 @@
 use crate::infrastructure::settings::Settings;
 use chrono::Utc;
-use log::{error, info};
+use log::{error, info, warn};
 use reqwest::header::CONTENT_LENGTH;
 use reqwest::Client;
 use serde::Serialize;
@@ -82,9 +82,13 @@ impl Http {
             .await
             .map_err(|e| format!("{e}"))?;
 
+        warn!("{request:?}");
+        
         if response.status().is_success() {
+            warn!("{response:?}");
             Ok(())
         } else {
+            error!("{response:?}");
             Err(response.status().to_string())
         }
     }

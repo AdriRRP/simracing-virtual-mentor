@@ -3,6 +3,8 @@
 
 **Virtual Assistant for Sports Driving Simulation: A Comparative Telemetry Approach**
 
+![Screenshot of Simracing Virtual Mentor](./assets/screenshot.png)
+
 ## Table of Contents
 
 1. [About the Project](#about-the-project)

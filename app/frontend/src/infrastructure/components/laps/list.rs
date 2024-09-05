@@ -1,8 +1,6 @@
-use shared::common::domain::criteria::Criteria;
 use shared::lap::domain::lap::header::Header as Lap;
 use shared::lap::domain::lap::headers::Headers as Laps;
 
-use std::future::Future;
 use uuid::Uuid;
 use yew::Properties;
 use yew::{classes, html, Callback, Component, Context, Html};
@@ -33,7 +31,6 @@ pub enum Msg {
 
 #[derive(Default)]
 pub struct LapList {
-    filter: Criteria,
     show_modal: bool,
     error: Option<String>,
 }
@@ -46,7 +43,7 @@ impl Component for LapList {
         Self::default()
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::Error(e) => {
                 self.error = Some(e);
@@ -106,7 +103,6 @@ impl LapList {
         let laps = &ctx.props().laps;
         html! {
             laps.iter().map(|lap| {
-                let lap_id = lap.id.clone();
                 let lap_name = Self::lap_name(lap);
                 html!{
                     <article class="media is-hoverable">
@@ -211,7 +207,6 @@ impl LapList {
                     <button
                         class="button is-danger is-outlined is-large js-modal-trigger mx-4"
                         onclick={
-                            let link = ctx.link().clone();
                             let cb = cb.clone();
                             let lap = lap.clone();
                             Callback::from(move |_| cb.emit(lap.clone()))
@@ -234,7 +229,6 @@ impl LapList {
                     <button
                         class="button is-primary is-outlined is-large js-modal-trigger mx-4"
                         onclick={
-                            let link = ctx.link().clone();
                             let cb = cb.clone();
                             let lap = lap.clone();
                             Callback::from(move |_| cb.emit(lap.clone()))

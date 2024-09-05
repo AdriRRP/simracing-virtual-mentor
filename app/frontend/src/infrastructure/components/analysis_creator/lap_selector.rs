@@ -2,16 +2,11 @@ use crate::infrastructure::components::laps::list::LapList;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::analysis::http::Request;
 
-use shared::common::domain::criteria::filter::condition::Condition;
-use shared::common::domain::criteria::Criteria;
 use shared::lap::domain::lap::header::Header as Lap;
 
-use chrono::{DateTime, Utc};
-use log::{debug, error, info};
-use uuid::Uuid;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use yew::{function_component, html, props, Html};
+use yew::{function_component, html, Html};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -67,11 +62,8 @@ pub fn lap_selector(props: &Props) -> Html {
                     modal_content.set("No name provided for the analysis.".to_string());
                     show_modal.set(true); // Mostrar modal si el nombre está vacío
                 } else {
-                    let new_request = Request::new(
-                        (*name).clone(),
-                        ref_lap.id.clone(),
-                        target_lap.id.clone(),
-                    );
+                    let new_request =
+                        Request::new((*name).clone(), ref_lap.id.clone(), target_lap.id.clone());
                     request.set(Some(new_request.clone()));
 
                     let modal_content = modal_content.clone();
@@ -85,9 +77,9 @@ pub fn lap_selector(props: &Props) -> Html {
                             Ok(_) => {
                                 modal_content.set("Analysis created successfully!".to_string());
                                 name.set("".to_string()); // Reiniciar el nombre del análisis
-                                // Aquí podrías reiniciar las vueltas si es necesario
-                                // ref_lap.set(None);
-                                // target_lap.set(None);
+                                                          // Aquí podrías reiniciar las vueltas si es necesario
+                                                          // ref_lap.set(None);
+                                                          // target_lap.set(None);
                             }
                             Err(e) => {
                                 modal_content.set(format!("Failed to create analysis: {e}"));
@@ -102,8 +94,6 @@ pub fn lap_selector(props: &Props) -> Html {
             }
         })
     };
-
-
 
     let close_modal = {
         let show_modal = show_modal.clone();

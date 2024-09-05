@@ -1,10 +1,9 @@
 pub mod lap_selector;
 
 use crate::infrastructure::components::analysis_creator::lap_selector::LapSelector;
-use crate::infrastructure::components::laps::filter::LapFilter;
 use crate::infrastructure::components::laps::list::LapList;
 use crate::infrastructure::components::repository_context::Repositories;
-use crate::infrastructure::repository::analysis::http::Http as AnalysisRepository;
+
 use crate::infrastructure::repository::lap::http::Http as LapRepository;
 
 use shared::common::domain::criteria::Criteria;
@@ -12,7 +11,6 @@ use shared::lap::domain::lap::header::Header as Lap;
 use shared::lap::domain::lap::headers::Headers as Laps;
 
 use log::info;
-use uuid::Uuid;
 use yew::prelude::*;
 
 pub enum Msg {
@@ -29,7 +27,6 @@ pub struct AnalysisCreator {
     filter: Criteria,
     laps: Laps,
     lap_repository: LapRepository,
-    analysis_repository: LapRepository,
     error: Option<String>,
     is_fetching: bool,
     reference_lap: Option<Lap>,
@@ -104,7 +101,6 @@ impl Component for AnalysisCreator {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let on_filter_change = ctx.link().callback(Msg::SetFilter);
         let fetch_laps = ctx.link().callback(|_| Msg::FetchLaps);
         let use_as_reference_lap_callback = ctx.link().callback(|lap| Msg::SetReference(lap));
         let use_as_target_lap_callback = ctx.link().callback(|lap| Msg::SetTarget(lap));

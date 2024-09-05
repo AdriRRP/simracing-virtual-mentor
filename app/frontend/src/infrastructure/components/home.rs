@@ -1,5 +1,4 @@
 use crate::infrastructure::components::routes::Route;
-use log::info;
 use yew::prelude::*;
 use yew_router::prelude::*;
 

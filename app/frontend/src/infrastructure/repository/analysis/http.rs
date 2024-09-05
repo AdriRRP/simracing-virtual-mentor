@@ -1,13 +1,12 @@
 use crate::infrastructure::settings::Settings;
-use chrono::Utc;
 use log::{error, info, warn};
 use reqwest::header::CONTENT_LENGTH;
 use reqwest::Client;
 use serde::Serialize;
 
 use shared::analysis::domain::analyses::Analyses;
-use shared::analysis::domain::analysis::Analysis;
 use shared::analysis::domain::analysis::headers::Headers;
+use shared::analysis::domain::analysis::Analysis;
 
 use serde::Deserialize;
 use shared::common::domain::criteria::Criteria;
@@ -44,7 +43,8 @@ impl Http {
             ),
             find_header_by_criteria: format!(
                 "{}{}",
-                settings.endpoints.analysis.server, settings.endpoints.analysis.find_header_by_criteria
+                settings.endpoints.analysis.server,
+                settings.endpoints.analysis.find_header_by_criteria
             ),
         }
     }
@@ -83,7 +83,7 @@ impl Http {
             .map_err(|e| format!("{e}"))?;
 
         warn!("{request:?}");
-        
+
         if response.status().is_success() {
             warn!("{response:?}");
             Ok(())
@@ -159,14 +159,14 @@ impl Http {
         criteria: &Criteria,
     ) -> Result<Option<Headers>, String> {
         error!("response: {:?}", &self.find_header_by_criteria);
-        
+
         let response = Client::new()
             .post(&self.find_header_by_criteria)
             .json(criteria)
             .send()
             .await
             .map_err(|e| format!("{e}"))?;
-        
+
         error!("response: {response:?}");
 
         if response.status().is_success() {

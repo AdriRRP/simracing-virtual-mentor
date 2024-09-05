@@ -1,11 +1,10 @@
 use crate::infrastructure::settings::Settings;
-use log::info;
 
+use shared::common::domain::criteria::Criteria;
 use shared::file::domain::file::File;
 use shared::file::domain::files::Files;
 
 use reqwest::Client;
-use shared::common::domain::criteria::Criteria;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Http {

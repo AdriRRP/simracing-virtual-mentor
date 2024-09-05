@@ -1,4 +1,3 @@
-use crate::infrastructure::components::laps::filter::_Props::on_filter_change;
 use chrono::Utc;
 use chrono::{DateTime, NaiveDate};
 
@@ -10,10 +9,10 @@ use shared::common::domain::criteria::filters::Filters;
 use shared::common::domain::criteria::Criteria;
 
 use chrono::NaiveDateTime;
-use log::{debug, info};
+use log::debug;
 use web_sys::{HtmlInputElement, HtmlSelectElement};
 use yew::prelude::*;
-use yew::{function_component, html, props, Html};
+use yew::{function_component, html, Html};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {

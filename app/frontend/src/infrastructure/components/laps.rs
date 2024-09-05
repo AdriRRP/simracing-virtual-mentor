@@ -1,7 +1,6 @@
 pub(crate) mod filter;
 pub(crate) mod list;
 
-use crate::infrastructure::components::laps::filter::LapFilter;
 use crate::infrastructure::components::laps::list::LapList;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::lap::http::Http as LapRepository;
@@ -105,7 +104,6 @@ impl Component for Laps {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let on_filter_change = ctx.link().callback(Msg::SetFilter);
         let fetch_laps = ctx.link().callback(|_| Msg::FetchLaps);
         let delete_lap_callback = ctx.link().callback(Msg::DeleteLap);
 

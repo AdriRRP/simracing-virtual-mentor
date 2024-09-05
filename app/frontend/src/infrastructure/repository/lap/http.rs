@@ -1,13 +1,11 @@
-use shared::lap::domain::lap::header::Header;
+use shared::common::domain::criteria::Criteria;
 use shared::lap::domain::lap::headers::Headers;
 use shared::lap::domain::lap::Lap;
 use shared::lap::domain::laps::Laps;
 
 use crate::infrastructure::settings::Settings;
 
-use log::info;
 use reqwest::Client;
-use shared::common::domain::criteria::Criteria;
 
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct Http {
@@ -89,27 +87,6 @@ impl Http {
             } else {
                 Ok(Some(laps))
             }
-        } else {
-            Err(response.status().to_string())
-        }
-    }
-
-    pub(crate) async fn find_header_by_id(
-        &self,
-        id: &uuid::Uuid,
-    ) -> Result<Option<Header>, String> {
-        let endpoint = format!("{}/{id}", self.find_header_by_id);
-        let response = Client::new()
-            .get(&endpoint)
-            .send()
-            .await
-            .map_err(|e| format!("{e}"))?;
-
-        if response.status().is_success() {
-            let header: Header = response.json().await.map_err(|e| format!("{e}"))?;
-            Ok(Some(header))
-        } else if response.status() == 404 {
-            Ok(None)
         } else {
             Err(response.status().to_string())
         }

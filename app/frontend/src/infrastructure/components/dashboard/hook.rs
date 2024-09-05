@@ -1,24 +1,16 @@
 use crate::infrastructure::repository::analysis::http::Http as AnalysisHttpRepository;
-use crate::infrastructure::settings::Settings;
-use symracing_virtual_mentor_shared::analysis::domain::analysis::Analysis;
+
+use shared::analysis::domain::analysis::Analysis;
 
 use log::{error, info};
 use plotly::Plot;
-use std::rc::Rc;
-use std::time::Duration;
 use uuid::Uuid;
 use web_sys::HtmlElement;
-
-use shared::common::domain::criteria::Criteria;
-use shared::lap::domain::laps::Laps;
 use yew::prelude::*;
 use yew::suspense::{Suspension, SuspensionResult};
 
 #[hook]
-pub fn use_analyses(
-    id: &Uuid,
-    repo: AnalysisHttpRepository,
-) -> SuspensionResult<Option<Analysis>> {
+pub fn use_analyses(id: &Uuid, repo: AnalysisHttpRepository) -> SuspensionResult<Option<Analysis>> {
     let result_handle = use_state(|| None);
     let result = (*result_handle).clone();
 
@@ -26,9 +18,7 @@ pub fn use_analyses(
         let id = id.to_owned();
         Suspension::from_future(async move {
             match repo.find_by_id(&id).await {
-                Ok(Some(found_analysis)) => {
-                    result_handle.set(Some(found_analysis))
-                }
+                Ok(Some(found_analysis)) => result_handle.set(Some(found_analysis)),
                 Ok(None) => {
                     error!("No analysis found");
                     result_handle.set(None)

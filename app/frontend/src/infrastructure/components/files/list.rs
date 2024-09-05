@@ -1,8 +1,6 @@
-use shared::common::domain::criteria::Criteria;
 use shared::file::domain::file::Status;
 use shared::file::domain::files::Files;
 
-use std::future::Future;
 use yew::Properties;
 use yew::{classes, html, Callback, Component, Context, Html};
 
@@ -23,7 +21,6 @@ pub enum Msg {
 
 #[derive(Default)]
 pub struct FileList {
-    filter: Criteria,
     show_modal: bool,
     error: Option<String>,
 }
@@ -36,7 +33,7 @@ impl Component for FileList {
         Self::default()
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::Error(e) => {
                 self.error = Some(e);

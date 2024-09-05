@@ -1,11 +1,9 @@
 use crate::infrastructure::components::routes::Route;
 
-use shared::common::domain::criteria::Criteria;
-use shared::analysis::domain::analysis::status::Status;
 use shared::analysis::domain::analysis::header::Header as Analysis;
 use shared::analysis::domain::analysis::headers::Headers as Analyses;
+use shared::analysis::domain::analysis::status::Status;
 
-use std::future::Future;
 use uuid::Uuid;
 use yew::Properties;
 use yew::{classes, html, Callback, Component, Context, Html};
@@ -29,7 +27,6 @@ pub enum Msg {
 
 #[derive(Default)]
 pub struct AnalysisList {
-    filter: Criteria,
     show_modal: bool,
     error: Option<String>,
 }
@@ -42,7 +39,7 @@ impl Component for AnalysisList {
         Self::default()
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::Error(e) => {
                 self.error = Some(e);
@@ -102,7 +99,6 @@ impl AnalysisList {
         let analyses = &ctx.props().analyses;
         html! {
             analyses.iter().map(|analysis| {
-                let analysis_id = analysis.id.clone();
                 let analysis_name = Self::analysis_name(analysis);
                 html!{
                     <article class="media is-hoverable">

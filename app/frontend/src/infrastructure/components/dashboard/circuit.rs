@@ -1,12 +1,9 @@
-use log::info;
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::to_value;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::prelude::wasm_bindgen;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
-use web_sys::console::{info, log};
 use web_sys::CustomEvent;
 use web_sys::{CanvasRenderingContext2d, CustomEventInit, HtmlCanvasElement, MouseEvent};
 use yew::prelude::*;
@@ -30,8 +27,7 @@ pub fn hover_event_from_plotly(distance: f32) {
     event_init.detail(&JsValue::from_f64(distance as f64));
 
     let event =
-        CustomEvent::new_with_event_init_dict(UPDATE_CIRCUIT_POINTER_EVENT, &event_init)
-            .unwrap();
+        CustomEvent::new_with_event_init_dict(UPDATE_CIRCUIT_POINTER_EVENT, &event_init).unwrap();
     document.dispatch_event(&event).unwrap();
 }
 
@@ -61,13 +57,6 @@ impl Point {
     }
 }
 
-fn lat_lon_to_xy(lat: f64, lon: f64) -> (f64, f64) {
-    let r = 6378137.0;
-    let x = r * lon.to_radians();
-    let y = r * (lat.to_radians().tan() + (std::f64::consts::PI / 4.0)).ln();
-    (x, y)
-}
-
 fn normalize_coordinates(
     coords: Vec<GpsCoord>,
     width: f64,
@@ -87,18 +76,19 @@ fn normalize_coordinates(
 
     coords
         .iter()
-        .map(|GpsCoord { lat, lon, dist }| {
-            let (x, y) = lat_lon_to_xy(*lat, *lon);
-            Point {
-                x: ((*lat - min_lat) / (max_lat - min_lat)) * (width - 2.0 * margin) + margin,
-                y: ((*lon - min_lon) / (max_lon - min_lon)) * (height - 2.0 * margin) + margin,
-                dist: *dist,
-            }
+        .map(|GpsCoord { lat, lon, dist }| Point {
+            x: ((*lat - min_lat) / (max_lat - min_lat)) * (width - 2.0 * margin) + margin,
+            y: ((*lon - min_lon) / (max_lon - min_lon)) * (height - 2.0 * margin) + margin,
+            dist: *dist,
         })
         .collect()
 }
 
-fn find_nearest_point_with_index(points: &Vec<Point>, mouse_x: f64, mouse_y: f64) -> Option<(Point, usize)> {
+fn find_nearest_point_with_index(
+    points: &Vec<Point>,
+    mouse_x: f64,
+    mouse_y: f64,
+) -> Option<(Point, usize)> {
     let mut min_dist = f64::INFINITY;
     let mut nearest_point = None;
 
@@ -215,7 +205,9 @@ pub fn circuit(props: &Props) -> Html {
                 .unwrap();
 
             // Encontrar el punto más cercano
-            if let Some((closest_point, index)) = find_nearest_point_with_index(&normalized_points, mouse_x, mouse_y) {
+            if let Some((closest_point, index)) =
+                find_nearest_point_with_index(&normalized_points, mouse_x, mouse_y)
+            {
                 // Redibujar el canvas
                 context.clear_rect(0.0, 0.0, canvas.width().into(), canvas.height().into());
                 draw_circuit(&context, &normalized_points);
@@ -241,7 +233,8 @@ pub fn circuit(props: &Props) -> Html {
                 let document = web_sys::window().unwrap().document().unwrap();
                 let mut event_init = CustomEventInit::new();
                 event_init.detail(&JsValue::from_f64(index as f64));
-                let event = CustomEvent::new_with_event_init_dict("suggestion-event", &event_init).unwrap();
+                let event =
+                    CustomEvent::new_with_event_init_dict("suggestion-event", &event_init).unwrap();
                 document.dispatch_event(&event).unwrap();
             }
         })

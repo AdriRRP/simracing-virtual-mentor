@@ -4,51 +4,23 @@ mod plot;
 mod suggestions;
 
 use crate::infrastructure::components::dashboard::circuit::Circuit;
-use crate::infrastructure::components::dashboard::hook::{use_analyses, use_plotly_draw};
+use crate::infrastructure::components::dashboard::hook::use_analyses;
 use crate::infrastructure::components::dashboard::plot::{create_plot, PlotType};
+use crate::infrastructure::components::dashboard::suggestions::Suggestions;
 use crate::infrastructure::repository::analysis::http::Http as AnalysisHttpRepository;
 use crate::infrastructure::settings::Settings;
-use crate::infrastructure::components::dashboard::suggestions::Suggestions;
 
-use shared::lap::domain::laps::Laps;
 use shared::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
-
-
-use std::cell::Cell;
-use std::collections::HashMap;
-use std::ops::{Deref, Div};
-use std::rc::Rc;
-
-use log::{error, info, trace, warn};
-use plotly::color::{Color, NamedColor, Rgb};
-use plotly::common::{
-    Anchor, AxisSide, DashType, Fill, Font, HoverInfo, HoverOn, Label, Line, Marker, Mode,
-    Orientation, Pad, Reference, Side, Title,
-};
-use plotly::layout::update_menu::{Button, ButtonMethod, UpdateMenu, UpdateMenuDirection};
-use plotly::layout::{Axis, HoverMode, Legend};
-use plotly::layout::{LayoutGrid, SpikeSnap};
-use plotly::Layout;
-use plotly::{Plot, Scatter};
-use yew::prelude::*;
-
-use plotly::layout::GridPattern;
-use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
-
-use gloo_events::{EventListener, EventListenerOptions};
-use gloo_net::websocket::Message;
-use uuid::Uuid;
 use shared::analysis::domain::analysis::Analysis;
-use wasm_bindgen::__rt::IntoJsResult;
+
+use gloo_events::EventListener;
+use log::{error, info};
+use std::rc::Rc;
+use uuid::Uuid;
 use wasm_bindgen::prelude::wasm_bindgen;
-use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::js_sys::Object;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::{EventTarget, HtmlElement, MouseEvent};
-use crate::infrastructure::components::dashboard::_DashboardProps::analysis_id;
-//use crate::infrastructure::components::dashboard::circuit::create_circuit;
-
-
+use yew::prelude::*;
 
 // components/fx
 
@@ -93,10 +65,10 @@ impl PlotDiv {
 }
 
 pub struct Canvas {
-    id: String,
-    height: f64,
-    width: f64,
-    node_ref: NodeRef,
+    pub id: String,
+    pub height: f64,
+    pub width: f64,
+    pub node_ref: NodeRef,
 }
 
 impl Default for Canvas {
@@ -111,12 +83,12 @@ impl Default for Canvas {
 }
 
 pub struct PlotlyDrawer {
-    state: PlotlyDrawerState,
-    plot_divs: Vec<PlotDiv>,
-    canvas_pos: Canvas,
-    canvas_circuit: Canvas,
-    dom_node_inserted_listener: Option<EventListener>,
-    plotly_hover_listener: Option<EventListener>,
+    pub state: PlotlyDrawerState,
+    pub plot_divs: Vec<PlotDiv>,
+    pub canvas_pos: Canvas,
+    pub canvas_circuit: Canvas,
+    pub dom_node_inserted_listener: Option<EventListener>,
+    pub plotly_hover_listener: Option<EventListener>,
 }
 
 pub enum PlotlyDrawerState {
@@ -260,7 +232,7 @@ impl Component for PlotlyDrawer {
         }
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Self::Message::PlotlyHover => false,
             Self::Message::SyncPlotlyHover(div_id) => {
@@ -297,9 +269,8 @@ pub fn plotly_loader(Props { analysis }: &Props) -> Html {
     }
 }
 
-
 #[function_component(DashboardDataFetcher)]
-pub fn dashboard_data_fetcher(DashboardProps {  analysis_id: id  }: &DashboardProps) -> HtmlResult {
+pub fn dashboard_data_fetcher(DashboardProps { analysis_id: id }: &DashboardProps) -> HtmlResult {
     info!("Entering DashboardDataFetcher");
 
     let settings = Settings::default();

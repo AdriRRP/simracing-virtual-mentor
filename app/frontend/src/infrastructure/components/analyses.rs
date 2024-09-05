@@ -1,18 +1,18 @@
 //pub(crate) mod filter;
 pub(crate) mod list;
 
-use crate::infrastructure::components::routes::Route;
-use crate::infrastructure::components::repository_context::Repositories;
-use crate::infrastructure::repository::analysis::http::Http as AnalysesRepository;
 use crate::infrastructure::components::analyses::list::AnalysisList;
+use crate::infrastructure::components::repository_context::Repositories;
+use crate::infrastructure::components::routes::Route;
+use crate::infrastructure::repository::analysis::http::Http as AnalysesRepository;
 
 use shared::analysis::domain::analysis::headers::Headers as DomainAnalyses;
 use shared::common::domain::criteria::Criteria;
 
-use yew::prelude::*;
-use yew_router::prelude::Link;
 use log::info;
 use uuid::Uuid;
+use yew::prelude::*;
+use yew_router::prelude::Link;
 
 pub enum Msg {
     FetchAnalyses,
@@ -106,7 +106,6 @@ impl Component for Analyses {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let on_filter_change = ctx.link().callback(Msg::SetFilter);
         let fetch_analyses = ctx.link().callback(|_| Msg::FetchAnalyses);
         let delete_analysis_callback = ctx.link().callback(Msg::DeleteAnalysis);
 

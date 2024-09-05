@@ -5,10 +5,10 @@ use crate::infrastructure::components::files::Files;
 use crate::infrastructure::components::home::Home;
 use crate::infrastructure::components::laps::Laps;
 
+use uuid::Uuid;
 use yew::html;
 use yew::Html;
 use yew_router::Routable;
-use uuid::Uuid;
 
 #[derive(Routable, PartialEq, Clone, Debug)]
 pub enum Route {

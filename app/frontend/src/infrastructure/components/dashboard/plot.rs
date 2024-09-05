@@ -1,18 +1,14 @@
-use plotly::layout::{Margin, RangeSlider, SpikeMode};
+use shared::analysis::domain::analysis::reference_lap::ReferenceLap;
 use shared::analysis::domain::analysis::Analysis;
-use std::fmt::{format, Display, Formatter};
+use shared::lap::domain::lap::variables::Variables;
 
-use log::info;
 use plotly::color::{Color, NamedColor, Rgb};
-use plotly::common::{AxisSide, DashType, Font, HoverInfo, Label, Line, Mode, Reference, Title};
-use plotly::layout::GridPattern;
-use plotly::layout::LayoutGrid;
+use plotly::common::{AxisSide, Font, Label, Line};
+use plotly::layout::Margin;
 use plotly::layout::{Axis, HoverMode};
 use plotly::{Layout, Plot, Scatter};
-use serde::{Deserialize, Serialize};
-use shared::analysis::domain::analysis::reference_lap::ReferenceLap;
-use shared::ibt::domain::file::var_header::Error::Name;
-use shared::lap::domain::lap::variables::Variables;
+use serde::Serialize;
+use std::fmt::{Display, Formatter};
 
 #[derive(Clone)]
 pub enum PlotType {

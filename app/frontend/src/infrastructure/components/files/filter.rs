@@ -3,11 +3,11 @@ use shared::common::domain::criteria::filter::field::Field;
 use shared::common::domain::criteria::filter::value::Value;
 use shared::common::domain::criteria::filter::Filter;
 use shared::common::domain::criteria::Criteria;
-use std::ops::Deref;
 
 use chrono::NaiveDateTime;
 use chrono::Utc;
 use chrono::{DateTime, NaiveDate};
+use std::ops::Deref;
 use web_sys::{HtmlInputElement, HtmlSelectElement};
 use yew::prelude::*;
 use yew::{function_component, html, Html};

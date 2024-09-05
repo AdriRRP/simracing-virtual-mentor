@@ -1,5 +1,6 @@
 use crate::utils::{f32_as_f64, f32_as_i32, f64_as_f32, usize_as_f64};
 
+use crate::infrastructure::components::dashboard::suggestions;
 use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::to_value;
 use wasm_bindgen::closure::Closure;
@@ -233,8 +234,11 @@ pub fn circuit(props: &Props) -> Html {
                 let document = web_sys::window().unwrap().document().unwrap();
                 let mut event_init = CustomEventInit::new();
                 event_init.detail(&JsValue::from_f64(usize_as_f64(index)));
-                let event =
-                    CustomEvent::new_with_event_init_dict("suggestion-event", &event_init).unwrap();
+                let event = CustomEvent::new_with_event_init_dict(
+                    suggestions::UPDATE_SUGGESTION_EVENT,
+                    &event_init,
+                )
+                .unwrap();
                 document.dispatch_event(&event).unwrap();
             }
         })
@@ -261,7 +265,7 @@ pub fn circuit(props: &Props) -> Html {
 
 fn draw_circuit(context: &CanvasRenderingContext2d, points: &[Point]) {
     context.set_stroke_style(&JsValue::from_str("white"));
-    context.set_line_width(6.0); // Grosor del circuito
+    context.set_line_width(6.0);
     context.begin_path();
     for (i, point) in points.iter().enumerate() {
         if i == 0 {
@@ -274,11 +278,9 @@ fn draw_circuit(context: &CanvasRenderingContext2d, points: &[Point]) {
 }
 
 fn gps_coord(lat: &[f64], lon: &[f64], dist: &[f32]) -> Vec<GpsCoord> {
-    // Asegurar de que los slices tienen la misma longitud
     assert_eq!(lat.len(), lon.len());
     assert_eq!(lat.len(), dist.len());
 
-    // Iterar sobre los slices y crea los Points
     lat.iter()
         .zip(lon.iter())
         .zip(dist.iter())

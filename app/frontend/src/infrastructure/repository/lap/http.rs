@@ -1,9 +1,9 @@
+use crate::infrastructure::settings::Settings;
+
 use shared::common::domain::criteria::Criteria;
 use shared::lap::domain::lap::headers::Headers;
 use shared::lap::domain::lap::Lap;
 use shared::lap::domain::laps::Laps;
-
-use crate::infrastructure::settings::Settings;
 
 use reqwest::Client;
 

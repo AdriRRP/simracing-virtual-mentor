@@ -3,7 +3,6 @@ pub mod lap_selector;
 use crate::infrastructure::components::analysis_creator::lap_selector::LapSelector;
 use crate::infrastructure::components::laps::list::LapListComponent;
 use crate::infrastructure::components::repository_context::Repositories;
-
 use crate::infrastructure::repository::lap::http::Http as LapRepository;
 
 use shared::common::domain::criteria::Criteria;

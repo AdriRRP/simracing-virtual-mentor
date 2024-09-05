@@ -1,4 +1,5 @@
 use crate::infrastructure::components::routes::Route;
+
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -66,43 +67,3 @@ pub fn home() -> Html {
         </div>
     }
 }
-
-/*
-
-<div class="home">
-    <div class="card">
-        <img src="https://cdn-icons-png.freepik.com/256/12409/12409363.png?semt=ais_hybrid" alt="Files" />
-        <h2>{ "Files" }</h2>
-        <p>{ "Upload and manage files" }</p>
-    </div>
-    <div class="card">
-        <img src="https://cdn-icons-png.flaticon.com/256/1850/1850750.png" alt="Laps" />
-        <h2>{ "Laps" }</h2>
-        <p>{ "Search and manage Laps" }</p>
-    </div>
-    <div class="card">
-        <img src="https://cdn-icons-png.flaticon.com/256/10797/10797446.png" alt="Analyses" />
-        <h2>{ "Analyses" }</h2>
-        <p>{ "Create and manage Analyses" }</p>
-    </div>
-    <div class="styled-table">
-        <h2>{ "Last Analyses" }</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>{ "ID" }</th>
-                    <th>{ "Name" }</th>
-                    <th>{ "Date" }</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{ "1" }</td>
-                    <td>{ "Analysis 1" }</td>
-                    <td>{ "2024-06-03" }</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-*/

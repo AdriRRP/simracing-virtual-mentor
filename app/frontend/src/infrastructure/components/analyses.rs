@@ -1,4 +1,3 @@
-//pub(crate) mod filter;
 pub(crate) mod list;
 
 use crate::infrastructure::components::analyses::list::AnalysisListComponent;

@@ -9,6 +9,8 @@ use wasm_bindgen::JsCast;
 use web_sys::CustomEvent;
 use yew::prelude::*;
 
+pub const UPDATE_SUGGESTION_EVENT: &str = "update_suggestion_event";
+
 #[derive(Properties, PartialEq)]
 pub struct Props {
     pub memberships: ClustersMemberships,
@@ -33,22 +35,21 @@ pub fn suggestions(props: &Props) -> Html {
                 if let Some(index) = event.detail().as_f64() {
                     let index = f64_as_usize(index);
 
-                    // Generar la lista de elementos <pre> en función de memberships y el índice
                     let suggestions = generate_suggestion(index, &memberships);
-                    suggestion_html.set(suggestions); // Setea Vec<Html> en el estado
+                    suggestion_html.set(suggestions);
                 }
             });
 
             let document = web_sys::window().unwrap().document().unwrap();
             document
                 .add_event_listener_with_callback(
-                    "suggestion-event",
+                    UPDATE_SUGGESTION_EVENT,
                     closure.as_ref().unchecked_ref(),
                 )
                 .unwrap();
             closure.forget();
 
-            || () // Función de limpieza vacía
+            || () // Cleaning function
         });
     }
 
@@ -67,7 +68,6 @@ pub fn suggestions(props: &Props) -> Html {
 fn generate_suggestion(index: usize, memberships: &ClustersMemberships) -> Vec<Html> {
     let mut suggestions = Vec::new();
 
-    // Interpretar el Tag de speed
     if let Some(tag) = memberships.speed_tags.get(index) {
         let (message, css_class) = interpret_tag("speed", *tag);
         suggestions.push(html! {
@@ -75,7 +75,6 @@ fn generate_suggestion(index: usize, memberships: &ClustersMemberships) -> Vec<H
         });
     }
 
-    // Interpretar el Tag de throttle
     if let Some(tag) = memberships.throttle_tags.get(index) {
         let (message, css_class) = interpret_tag("throttle", *tag);
         suggestions.push(html! {
@@ -83,7 +82,6 @@ fn generate_suggestion(index: usize, memberships: &ClustersMemberships) -> Vec<H
         });
     }
 
-    // Interpretar el Tag de brake
     if let Some(tag) = memberships.brake_tags.get(index) {
         let (message, css_class) = interpret_tag("brake", *tag);
         suggestions.push(html! {
@@ -91,7 +89,6 @@ fn generate_suggestion(index: usize, memberships: &ClustersMemberships) -> Vec<H
         });
     }
 
-    // Interpretar el Tag de gear
     if let Some(tag) = memberships.gear_tags.get(index) {
         let (message, css_class) = interpret_tag("gear", *tag);
         suggestions.push(html! {
@@ -99,7 +96,6 @@ fn generate_suggestion(index: usize, memberships: &ClustersMemberships) -> Vec<H
         });
     }
 
-    // Interpretar el Tag de steering_wheel_angle
     if let Some(tag) = memberships.steering_wheel_angle_tags.get(index) {
         let (message, css_class) = interpret_tag("steering wheel angle", *tag);
         suggestions.push(html! {

@@ -55,7 +55,7 @@ The project is organized using Domain-Driven Design (DDD) principles, ensuring a
    This will set up the MongoDB database and start the backend and frontend services.
 
 3. **Access the application:**
-   Once the services are running, the backend should be accessible at http://localhost:8000.
+   Once the services are running, the frontend should be accessible at http://localhost:8000.
 
 ## Usage
 

@@ -4,51 +4,22 @@ mod plot;
 mod suggestions;
 
 use crate::infrastructure::components::dashboard::circuit::Circuit;
-use crate::infrastructure::components::dashboard::hook::{use_analyses, use_plotly_draw};
-use crate::infrastructure::components::dashboard::plot::{create_plot, PlotType};
+use crate::infrastructure::components::dashboard::hook::use_analyses;
+use crate::infrastructure::components::dashboard::plot::{create, Type};
+use crate::infrastructure::components::dashboard::suggestions::Suggestions;
 use crate::infrastructure::repository::analysis::http::Http as AnalysisHttpRepository;
 use crate::infrastructure::settings::Settings;
-use crate::infrastructure::components::dashboard::suggestions::Suggestions;
 
-use shared::lap::domain::laps::Laps;
-use shared::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
-
-
-use std::cell::Cell;
-use std::collections::HashMap;
-use std::ops::{Deref, Div};
-use std::rc::Rc;
-
-use log::{error, info, trace, warn};
-use plotly::color::{Color, NamedColor, Rgb};
-use plotly::common::{
-    Anchor, AxisSide, DashType, Fill, Font, HoverInfo, HoverOn, Label, Line, Marker, Mode,
-    Orientation, Pad, Reference, Side, Title,
-};
-use plotly::layout::update_menu::{Button, ButtonMethod, UpdateMenu, UpdateMenuDirection};
-use plotly::layout::{Axis, HoverMode, Legend};
-use plotly::layout::{LayoutGrid, SpikeSnap};
-use plotly::Layout;
-use plotly::{Plot, Scatter};
-use yew::prelude::*;
-
-use plotly::layout::GridPattern;
-use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
-
-use gloo_events::{EventListener, EventListenerOptions};
-use gloo_net::websocket::Message;
-use uuid::Uuid;
 use shared::analysis::domain::analysis::Analysis;
-use wasm_bindgen::__rt::IntoJsResult;
+
+use gloo_events::EventListener;
+use log::{error, info};
+use std::rc::Rc;
+use uuid::Uuid;
 use wasm_bindgen::prelude::wasm_bindgen;
-use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::js_sys::Object;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::{EventTarget, HtmlElement, MouseEvent};
-use crate::infrastructure::components::dashboard::_DashboardProps::analysis_id;
-//use crate::infrastructure::components::dashboard::circuit::create_circuit;
-
-
+use yew::prelude::*;
 
 // components/fx
 
@@ -78,12 +49,12 @@ pub struct PlotlyDrawerProps {
 
 pub struct PlotDiv {
     id: String,
-    plot_type: PlotType,
+    plot_type: Type,
     node_ref: NodeRef,
 }
 
 impl PlotDiv {
-    fn new(id: String, plot_type: PlotType) -> Self {
+    fn new(id: String, plot_type: Type) -> Self {
         Self {
             id,
             plot_type,
@@ -93,10 +64,10 @@ impl PlotDiv {
 }
 
 pub struct Canvas {
-    id: String,
-    height: f64,
-    width: f64,
-    node_ref: NodeRef,
+    pub id: String,
+    pub height: f64,
+    pub width: f64,
+    pub node_ref: NodeRef,
 }
 
 impl Default for Canvas {
@@ -111,12 +82,12 @@ impl Default for Canvas {
 }
 
 pub struct PlotlyDrawer {
-    state: PlotlyDrawerState,
-    plot_divs: Vec<PlotDiv>,
-    canvas_pos: Canvas,
-    canvas_circuit: Canvas,
-    dom_node_inserted_listener: Option<EventListener>,
-    plotly_hover_listener: Option<EventListener>,
+    pub state: PlotlyDrawerState,
+    pub plot_divs: Vec<PlotDiv>,
+    pub canvas_pos: Canvas,
+    pub canvas_circuit: Canvas,
+    pub dom_node_inserted_listener: Option<EventListener>,
+    pub plotly_hover_listener: Option<EventListener>,
 }
 
 pub enum PlotlyDrawerState {
@@ -138,13 +109,13 @@ impl Component for PlotlyDrawer {
     type Properties = PlotlyDrawerProps;
     fn create(_ctx: &Context<Self>) -> Self {
         let target_divs: Vec<PlotDiv> = vec![
-            PlotDiv::new("speed_plot".to_string(), PlotType::Speed),
-            PlotDiv::new("throttle_plot".to_string(), PlotType::Throttle),
-            PlotDiv::new("gear_plot".to_string(), PlotType::Gear),
-            PlotDiv::new("brake_plot".to_string(), PlotType::Brake),
+            PlotDiv::new("speed_plot".to_string(), Type::Speed),
+            PlotDiv::new("throttle_plot".to_string(), Type::Throttle),
+            PlotDiv::new("gear_plot".to_string(), Type::Gear),
+            PlotDiv::new("brake_plot".to_string(), Type::Brake),
             PlotDiv::new(
                 "steering_wheel_angle_plot".to_string(),
-                PlotType::SteeringWheelAngle,
+                Type::SteeringWheelAngle,
             ),
         ];
 
@@ -169,50 +140,10 @@ impl Component for PlotlyDrawer {
 
         let analysis = Rc::new(analysis);
 
-        //ctx.link().send_future({
-        //    let div_id = self.canvas_circuit.id.clone();
-        //    let analysis = Rc::clone(&analysis);
-        //    async move {
-        //        info!("Starting canvas binding");
-        //        let analysis: &Analysis = &analysis;
-        //        if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
-        //            let lat = &reference.variables.latitude[..];
-        //            let lon = &reference.variables.longitude[..];
-        //            let dist = &union_distances[..];
-        //            match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
-        //                Ok(_) => Self::Message::SyncCanvas(div_id),
-        //                Err(e) => Self::Message::Error(format!("{e:?}")),
-        //            }
-        //        } else {
-        //            Self::Message::Error(format!("Cannot extract latitude and longitude from analysis `{}`", analysis.header.id))
-        //        }
-        //    }
-        //});
-
-        //ctx.link().send_future({
-        //    let div_id = self.canvas_pos.id.clone();
-        //    let analysis = Rc::clone(&analysis);
-        //    async move {
-        //        info!("Starting canvas binding");
-        //        let analysis: &Analysis = &analysis;
-        //        if let Analysis { header: _, reference: Some(reference), target: Some(target), union_distances, .. } = analysis {
-        //            let lat = &reference.metrics.latitude[..];
-        //            let lon = &reference.metrics.longitude[..];
-        //            let dist = &union_distances[..];
-        //            match create_circuit(div_id.as_str(), CANVAS_WIDTH, CANVAS_HEIGHT, lat, lon, dist).await {
-        //                Ok(_) => Self::Message::SyncCanvas(div_id),
-        //                Err(e) => Self::Message::Error(format!("{e:?}")),
-        //            }
-        //        } else {
-        //            Self::Message::Error(format!("Cannot extract latitude and longitude from analysis `{}`", analysis.header.id))
-        //        }
-        //    }
-        //});
-
         for target_div in &self.plot_divs {
             ctx.link().send_future({
                 let analysis = analysis.clone();
-                let plot = create_plot(&target_div.plot_type, &analysis);
+                let plot = create(&target_div.plot_type, &analysis);
                 let div_id = target_div.id.clone();
                 async move {
                     info!("Starting plotly binding");
@@ -244,7 +175,7 @@ impl Component for PlotlyDrawer {
                             distances={analysis.union_distances.clone()}
                         />
                         <Suggestions
-                            memberships={analysis.clustering.clone().unwrap_or(ClustersMemberships::default())}
+                            memberships={analysis.clustering.clone().unwrap_or_default()}
                         />
                     </div>
 
@@ -260,9 +191,8 @@ impl Component for PlotlyDrawer {
         }
     }
 
-    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+    fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Self::Message::PlotlyHover => false,
             Self::Message::SyncPlotlyHover(div_id) => {
                 let div_id = JsValue::from(div_id);
                 let sync_div_ids: Vec<JsValue> = self
@@ -278,7 +208,7 @@ impl Component for PlotlyDrawer {
                 // TODO: Manage error
                 true
             }
-            PlotlyDrawerMsg::SyncCanvas(_) => false,
+            PlotlyDrawerMsg::SyncCanvas(_) | Self::Message::PlotlyHover => false,
         }
     }
 }
@@ -297,9 +227,8 @@ pub fn plotly_loader(Props { analysis }: &Props) -> Html {
     }
 }
 
-
 #[function_component(DashboardDataFetcher)]
-pub fn dashboard_data_fetcher(DashboardProps {  analysis_id: id  }: &DashboardProps) -> HtmlResult {
+pub fn dashboard_data_fetcher(AnalysisProps { analysis_id: id }: &AnalysisProps) -> HtmlResult {
     info!("Entering DashboardDataFetcher");
 
     let settings = Settings::default();
@@ -307,16 +236,16 @@ pub fn dashboard_data_fetcher(DashboardProps {  analysis_id: id  }: &DashboardPr
 
     let analysis = use_analyses(id, analysis_repo)?;
 
-    Ok(html! { <PlotlyDrawer analysis={analysis.clone()} /> })
+    Ok(html! { <PlotlyDrawer analysis={analysis} /> })
 }
 
-#[derive(Properties, PartialEq)]
-pub struct DashboardProps {
+#[derive(Properties, PartialEq, Eq)]
+pub struct AnalysisProps {
     pub analysis_id: Uuid,
 }
 
 #[function_component(Dashboard)]
-pub fn dashboard(DashboardProps { analysis_id: id }: &DashboardProps) -> Html {
+pub fn dashboard(AnalysisProps { analysis_id: id }: &AnalysisProps) -> Html {
     info!("Entering Dashboard");
     let fallback = html! {
         <div class="block">
@@ -327,7 +256,7 @@ pub fn dashboard(DashboardProps { analysis_id: id }: &DashboardProps) -> Html {
 
     html! {
         <Suspense {fallback}>
-            <DashboardDataFetcher analysis_id={id.clone()} />
+            <DashboardDataFetcher analysis_id={*id} />
         </Suspense>
     }
 }

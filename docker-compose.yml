@@ -12,7 +12,7 @@ services:
 
   backend:
     build:
-      context: ./app
+      context: .
       dockerfile: Dockerfile.backend
     depends_on:
       - mongo
@@ -24,4 +24,14 @@ services:
       BACKEND__EVENT_BUS_CAPACITY: 200
       BACKEND__LOG_LEVEL: DEBUG
       BACKEND__MONGO__URI: mongodb://mongo:27017
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    depends_on:
+      - mongo
+      - backend
+    ports:
+      - 8000:8000
 

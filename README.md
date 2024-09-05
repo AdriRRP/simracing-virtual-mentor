@@ -3,6 +3,8 @@
 
 **Virtual Assistant for Sports Driving Simulation: A Comparative Telemetry Approach**
 
+![Screenshot of Simracing Virtual Mentor](./assets/screenshot.png)
+
 ## Table of Contents
 
 1. [About the Project](#about-the-project)
@@ -50,10 +52,10 @@ The project is organized using Domain-Driven Design (DDD) principles, ensuring a
     ```bash
     docker-compose up --build
     ```
-   This will set up the MongoDB database and start the backend server.
+   This will set up the MongoDB database and start the backend and frontend services.
 
 3. **Access the application:**
-   Once the services are running, the backend should be accessible at http://localhost:16666.
+   Once the services are running, the frontend should be accessible at http://localhost:8000.
 
 ## Usage
 
@@ -91,6 +93,22 @@ Contributions are welcome! Please follow these steps:
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
 4. Push to the branch (`git push origin feature/AmazingFeature`).
 5. Open a pull request.
+
+### Working on Issues
+
+If you're looking for something to contribute to, check out the [open issues](https://github.com/AdriRRP/simracing-virtual-mentor/issues) section. There are a variety of tasks, bug reports, and enhancements that could use your help!
+
+Feel free to comment on any issue you'd like to work on, and I'll be happy to assign it to you. If you have any questions or need further clarification, don't hesitate to ask in the issue or reach out via a pull request.
+
+### Guidelines
+
+- Ensure your code follows the style guide and has adequate comments and documentation.
+- Try to include tests for new features or updates to existing ones.
+- Make sure the project builds without errors before submitting your pull request.
+- If you're fixing a bug, please reference the issue number in your commit message (e.g., `Fixes #123`).
+
+We appreciate your efforts to improve the project, and we look forward to your contributions!
+
 
 ## License
 

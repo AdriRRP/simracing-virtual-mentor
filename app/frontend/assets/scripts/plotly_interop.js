@@ -1,15 +1,3 @@
-//export function sync_plotly_hover(div_id) {
-//    var dashboardPlot = document.getElementById(div_id);
-//    var plotsNames = [...Object.keys(dashboardPlot._fullLayout._plots)];
-//    dashboardPlot.on('plotly_hover', function (file) {
-//        Plotly.Fx.hover(
-//            dashboardPlot,
-//            { xval: file.xvals[0] },
-//            plotsNames
-//        );
-//    });
-//}
-
 export function sync_plotly(div_id, sync_div_ids) {
     let dashboardPlot = document.getElementById(div_id);
     let plotsNames = [...Object.keys(dashboardPlot._fullLayout._plots)];
@@ -17,7 +5,7 @@ export function sync_plotly(div_id, sync_div_ids) {
 
         // Emitir evento con el índice de distancia
         let distanceIndex = event.points[0].pointIndex;
-        let customEvent = new CustomEvent("suggestion-event", {
+        let customEvent = new CustomEvent("update_suggestion_event", {
             detail: distanceIndex
         });
         document.dispatchEvent(customEvent);

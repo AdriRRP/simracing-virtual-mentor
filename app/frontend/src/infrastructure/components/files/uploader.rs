@@ -1,7 +1,7 @@
 use crate::infrastructure::components::repository_context::Repositories;
 
 use gloo::file::{callbacks::FileReader, File};
-use log::{error, info};
+use log::info;
 use std::collections::HashMap;
 use wasm_bindgen::JsCast;
 use web_sys::{EventTarget, HtmlInputElement, InputEvent, SubmitEvent};
@@ -23,7 +23,7 @@ pub struct Props {
     pub on_file_uploaded: Callback<()>,
 }
 
-pub struct FileUploader {
+pub struct FileUploaderComponent {
     readers: HashMap<String, FileReader>,
     file_form_node_ref: NodeRef,
     file_name: String,
@@ -35,7 +35,7 @@ pub struct FileUploader {
     error: Option<String>,
 }
 
-impl Default for FileUploader {
+impl Default for FileUploaderComponent {
     fn default() -> Self {
         Self {
             readers: HashMap::default(),
@@ -51,7 +51,7 @@ impl Default for FileUploader {
     }
 }
 
-impl Component for FileUploader {
+impl Component for FileUploaderComponent {
     type Message = Msg;
     type Properties = Props;
 
@@ -59,6 +59,7 @@ impl Component for FileUploader {
         Self::default()
     }
 
+    #[allow(clippy::too_many_lines)]
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
             Msg::Upload(file_name, data) => {
@@ -71,7 +72,7 @@ impl Component for FileUploader {
                     .expect("No Repositories Context Provided");
 
                 {
-                    let ibt_repo = repo_ctx.ibt.clone();
+                    let ibt_repo = repo_ctx.ibt;
                     let file_name = file_name.clone();
                     let name = self.name.clone();
                     let link = ctx.link().clone();
@@ -79,16 +80,14 @@ impl Component for FileUploader {
                     wasm_bindgen_futures::spawn_local(async move {
                         info!("Into spawn repo");
                         match ibt_repo.upload(name, file_name.clone(), data).await {
-                            Ok(_) => {
-                                info!("Correctamente subido!");
+                            Ok(()) => {
                                 link.send_message(Msg::Success(format!(
                                     "File `{file_name}` successfully uploaded"
                                 )));
-                                on_file_uploaded.emit(())
+                                on_file_uploaded.emit(());
                             }
                             Err(e) => {
-                                error!("Lamentablemente hay un error: {e}");
-                                link.send_message(Msg::Error(e))
+                                link.send_message(Msg::Error(e));
                             }
                         }
                     });
@@ -99,7 +98,7 @@ impl Component for FileUploader {
             }
             Msg::Files(files) => {
                 info!("Files message received");
-                for file in files.into_iter() {
+                for file in files {
                     let file_name = file.name();
                     //let file_type = file.raw_mime_type();
 
@@ -112,7 +111,7 @@ impl Component for FileUploader {
                                 Ok(data) => Msg::Upload(file_name, data),
                                 Err(e) => Msg::Error(e.to_string()),
                             };
-                            link.send_message(msg)
+                            link.send_message(msg);
                         })
                     };
                     self.readers.insert(file_name, task);
@@ -144,20 +143,17 @@ impl Component for FileUploader {
                 if let Some(input) = opt_input_element {
                     let file_path = input.value();
                     let file_name = file_path
-                        .clone()
-                        .split("/")
+                        .split('/')
                         .last()
-                        .and_then(|v| v.split("\\").last())
-                        .map(|v| v.to_string())
-                        .unwrap_or_else(String::default);
+                        .and_then(|v| v.split('\\').last())
+                        .map_or_else(String::default, ToString::to_string);
 
                     if file_path.is_empty() || file_name.is_empty() {
                         ctx.link().callback(|()| Msg::BackToDefault);
                     } else {
                         let name = file_name
                             .strip_suffix(".ibt")
-                            .map(|v| v.to_string())
-                            .unwrap_or_else(String::default);
+                            .map_or_else(String::default, ToString::to_string);
 
                         *self = Self {
                             file_name,
@@ -183,7 +179,7 @@ impl Component for FileUploader {
             Msg::Submit(files) => {
                 info!("Submit message received");
                 self.submitting = true;
-                ctx.link().send_message(Msg::Files(files.clone()));
+                ctx.link().send_message(Msg::Files(files));
                 true
             }
         }
@@ -192,113 +188,101 @@ impl Component for FileUploader {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div class="box mt-4">
-                if let Some(msg) = &self.error {
-                    <div class="block mx-2">
-                        <article class="message is-danger">
-                            <div class="message-header">
-                                <p>{"Error submitting file"}</p>
-                                <button class="delete"
-                                    aria-label="delete"
-                                    onclick={ctx.link().callback(|_| {Msg::BackToDefault})}
-                                />
-                            </div>
-                            <div class="message-body">
-                                {msg}
-                            </div>
-                        </article>
-                    </div>
-                } else if let Some(msg) = &self.success {
-                    <div class="block mx-2">
-                        <article class="message is-success">
-                          <div class="message-header">
-                            <p>{"Successfully uploaded file"}</p>
-                            <button class="delete"
-                                aria-label="delete"
-                                onclick={ctx.link().callback(|_| {Msg::BackToDefault})}
-                                />
-                          </div>
-                          <div class="message-body">
-                            {msg}
-                          </div>
-                        </article>
-                    </div>
-                } else if self.submitting {
-                    <div class="block">
-                        <h1 class="title">{format!("Submitting file `{}`", &self.name)}</h1>
-                        <h1 class="subtitle">{format!("Original file name: `{}`", &self.file_name)}</h1>
-                            <progress class="progress is-large is-primary" max="100" />
-                    </div>
-                } else {
-                    <form
-                        class="columns mt-4"
-                        onsubmit={
-                            let file_form_node_ref = self.file_form_node_ref.clone();
-                            ctx.link().callback(move |event: SubmitEvent| {
-                                event.prevent_default();
-                                match Self::extract_files(&file_form_node_ref) {
-                                    Ok(files) => {Msg::Submit(files)}
-                                    Err(e) => {Msg::Error(e)}
-                                }
-                            })
-                        }
-                        //action={ format!("{}/{}", upload_endpoint.clone(), encode(&*name)) }
-                        method="post"
-                        enctype="multipart/form-data">
+                {
+                             self.success.as_ref().map_or_else(|| if self.submitting {
+                                 html! {
+                                     <div class="block">
+                                         <h1 class="title">{format!("Submitting file `{}`", &self.name)}</h1>
+                                         <h1 class="subtitle">{format!("Original file name: `{}`", &self.file_name)}</h1>
+                                         <progress class="progress is-large is-primary" max="100" />
+                                     </div>
+                                 }
+                             } else {
+                                 html! {
+                                     <form
+                                         class="columns mt-4"
+                                         onsubmit={
+                                             let file_form_node_ref = self.file_form_node_ref.clone();
+                                             ctx.link().callback(move |event: SubmitEvent| {
+                                                 event.prevent_default();
+                                                 match Self::extract_files(&file_form_node_ref) {
+                                                     Ok(files) => Msg::Submit(files),
+                                                     Err(e) => Msg::Error(e),
+                                                 }
+                                             })
+                                         }
+                                         method="post"
+                                         enctype="multipart/form-data"
+                                     >
+                                         <div class="column is-two-quarters">
+                                             <div class="file has-name is-boxed is-large">
+                                                 <label class="file-label">
+                                                     <input
+                                                         ref={self.file_form_node_ref.clone()}
+                                                         onchange={ctx.link().callback(|_| Msg::ChangeFilePath)}
+                                                         id="input-file"
+                                                         name="input-file"
+                                                         class="file-input"
+                                                         type="file"
+                                                         accept=".ibt"
+                                                     />
+                                                     <span class="file-cta">
+                                                         <span class="title">{"⇪"}</span>
+                                                         <span class="file-label"> {"Upload .ibt file"} </span>
+                                                     </span>
+                                                 </label>
+                                             </div>
+                                         </div>
+                                         <div class="column is-three-quarters">
+                                             <div class="block">
+                                                 <label for="input-file" class="file-name">{ &self.file_name }</label>
+                                                 <input
+                                                     type="text"
+                                                     oninput={ctx.link().callback(move |event: InputEvent| {
+                                                         Msg::ChangeFileName(event)
+                                                     })}
+                                                     class="input is-normal"
+                                                     placeholder="File name"
+                                                     value={self.name.clone()}
+                                                     disabled={self.name_disabled}
+                                                 />
+                                             </div>
+                                             <div class="block">
+                                                 <button
+                                                     type="submit"
+                                                     class="button"
+                                                     disabled={self.submit_disabled}
+                                                 >
+                                                     {"Submit"}
+                                                 </button>
+                                             </div>
+                                         </div>
+                                     </form>
+                                 }
+                             }, |msg| html! {
+                                     <div class="block mx-2">
+                                         <article class="message is-success">
+                                             <div class="message-header">
+                                                 <p>{"Successfully uploaded file"}</p>
+                                                 <button class="delete"
+                                                     aria-label="delete"
+                                                     onclick={ctx.link().callback(|_| Msg::BackToDefault)}
+                                                 />
+                                             </div>
+                                             <div class="message-body">
+                                                 {msg}
+                                             </div>
+                                         </article>
+                                     </div>
+                                 })
 
-                        <div class="column is-two-quarters">
-                            <div class="file has-name is-boxed is-large">
-                                <label class="file-label">
-                                    <input
-                                        ref={self.file_form_node_ref.clone()}
-                                        onchange={ctx.link().callback(move |_| {
-                                            Msg::ChangeFilePath
-                                        })}
-                                        id="input-file"
-                                        name="input-file"
-                                        class="file-input"
-                                        type="file"
-                                        accept=".ibt"
-                                        name="resume" />
-                                    <span class="file-cta">
-                                        <span class="title">{"⇪"}</span>
-                                        <span class="file-label"> {"Upload .ibt file"} </span>
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="column is-three-quarters">
-                            <div class="block">
-                                <label
-                                    for="input-file"
-                                    class="file-name"
-                                > { &self.file_name } </label>
-                                <input
-                                    type="text"
-                                    oninput={ctx.link().callback(move |event: InputEvent| {
-                                        Msg::ChangeFileName(event)
-                                    })}
-                                    class="input is-normal"
-                                    placeholder="File name"
-                                    value={self.name.clone()}
-                                    disabled={self.name_disabled}
-                                />
-                            </div>
-                            <div class="block">
-                                <button
-                                    type="submit"
-                                    class="button"
-                                    disabled={self.submit_disabled}
-                                >{"Submit"}</button>
-                            </div>
-                        </div>
-                    </form>
                 }
             </div>
         }
     }
 }
 
-impl FileUploader {
+impl FileUploaderComponent {
     pub fn extract_files(input_node_ref: &NodeRef) -> Result<Vec<File>, String> {
         let input = input_node_ref
             .cast::<HtmlInputElement>()

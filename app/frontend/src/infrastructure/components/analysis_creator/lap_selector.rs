@@ -1,17 +1,12 @@
-use crate::infrastructure::components::laps::list::LapList;
+use crate::infrastructure::components::laps::list::LapListComponent;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::analysis::http::Request;
 
-use shared::common::domain::criteria::filter::condition::Condition;
-use shared::common::domain::criteria::Criteria;
 use shared::lap::domain::lap::header::Header as Lap;
 
-use chrono::{DateTime, Utc};
-use log::{debug, error, info};
-use uuid::Uuid;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use yew::{function_component, html, props, Html};
+use yew::{function_component, html, Html};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -36,8 +31,8 @@ pub fn lap_selector(props: &Props) -> Html {
     let analysis_repo = repositories.analysis;
 
     let request = use_state(|| Option::<Request>::None);
-    let name = use_state(|| "".to_string());
-    let modal_content = use_state(|| "".to_string());
+    let name = use_state(String::new);
+    let modal_content = use_state(String::new);
     let show_modal = use_state(|| false);
 
     let on_name_change = {
@@ -50,11 +45,6 @@ pub fn lap_selector(props: &Props) -> Html {
     };
 
     let create_lap = {
-        let name = name.clone();
-        let request = request.clone();
-        let analysis_repo = analysis_repo.clone();
-        let ref_lap = ref_lap.clone();
-        let target_lap = target_lap.clone();
         let modal_content = modal_content.clone();
         let show_modal = show_modal.clone();
 
@@ -62,16 +52,12 @@ pub fn lap_selector(props: &Props) -> Html {
             if let (Some(ref_lap), Some(target_lap)) = (&ref_lap, &target_lap) {
                 if ref_lap.circuit != target_lap.circuit {
                     modal_content.set("The selected laps are from different circuits.".to_string());
-                    show_modal.set(true); // Mostrar modal si los circuitos son diferentes
+                    show_modal.set(true);
                 } else if name.is_empty() {
                     modal_content.set("No name provided for the analysis.".to_string());
-                    show_modal.set(true); // Mostrar modal si el nombre está vacío
+                    show_modal.set(true);
                 } else {
-                    let new_request = Request::new(
-                        (*name).clone(),
-                        ref_lap.id.clone(),
-                        target_lap.id.clone(),
-                    );
+                    let new_request = Request::new((*name).clone(), ref_lap.id, target_lap.id);
                     request.set(Some(new_request.clone()));
 
                     let modal_content = modal_content.clone();
@@ -82,12 +68,11 @@ pub fn lap_selector(props: &Props) -> Html {
                     wasm_bindgen_futures::spawn_local(async move {
                         let result = analysis_repo.create(new_request).await;
                         match result {
-                            Ok(_) => {
+                            Ok(()) => {
                                 modal_content.set("Analysis created successfully!".to_string());
-                                name.set("".to_string()); // Reiniciar el nombre del análisis
-                                // Aquí podrías reiniciar las vueltas si es necesario
-                                // ref_lap.set(None);
-                                // target_lap.set(None);
+                                name.set(String::new());
+                                //ref_lap.set(None);
+                                //target_lap.set(None);
                             }
                             Err(e) => {
                                 modal_content.set(format!("Failed to create analysis: {e}"));
@@ -102,8 +87,6 @@ pub fn lap_selector(props: &Props) -> Html {
             }
         })
     };
-
-
 
     let close_modal = {
         let show_modal = show_modal.clone();
@@ -159,7 +142,18 @@ pub fn lap_selector(props: &Props) -> Html {
 }
 
 fn draw_lap(opt_lap: Option<Lap>, lap_type: &str, icon: &str) -> Html {
-    opt_lap.map(|lap| {
+    opt_lap.map_or_else(
+        || html!{
+            <div class="cell">
+                <label class="label">{format!("{icon} {lap_type}")}</label>
+                <div class="box">
+                    <div class="has-text-centered">
+                        <p class="is-primary is-large">{format!("Select a {lap_type} using {icon} button")}</p>
+                    </div>
+                </div>
+            </div>
+        },
+        |lap| {
         html!{
             <div class="cell">
                 <article class="media is-hoverable">
@@ -171,7 +165,7 @@ fn draw_lap(opt_lap: Option<Lap>, lap_type: &str, icon: &str) -> Html {
                     <div class="media-content">
                         <div class="content">
                             <p>
-                                <p class="title is-6">{LapList::lap_name(&lap)}</p>
+                                <p class="title is-6">{LapListComponent::lap_name(&lap)}</p>
                                 <small class="subtitle is-6">{lap.circuit.clone()}</small>
                                 <br/>
                                 <small><b>{"Car: "}</b>{lap.car.clone()}</small>
@@ -181,17 +175,6 @@ fn draw_lap(opt_lap: Option<Lap>, lap_type: &str, icon: &str) -> Html {
                         </div>
                     </div>
                 </article>
-            </div>
-        }
-    }).unwrap_or_else(|| {
-        html!{
-            <div class="cell">
-                <label class="label">{format!("{icon} {lap_type}")}</label>
-                <div class="box">
-                    <div class="has-text-centered">
-                        <p class="is-primary is-large">{format!("Select a {lap_type} using {icon} button")}</p>
-                    </div>
-                </div>
             </div>
         }
     })

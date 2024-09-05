@@ -16,16 +16,14 @@ pub struct FileListProps {
 pub enum Msg {
     ShowModal,
     HideModal,
-    Error(String),
 }
 
 #[derive(Default)]
-pub struct FileList {
+pub struct FileListComponent {
     show_modal: bool,
-    error: Option<String>,
 }
 
-impl Component for FileList {
+impl Component for FileListComponent {
     type Message = Msg;
     type Properties = FileListProps;
 
@@ -35,10 +33,6 @@ impl Component for FileList {
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::Error(e) => {
-                self.error = Some(e);
-                true
-            }
             Msg::ShowModal => {
                 self.show_modal = true;
                 true
@@ -53,42 +47,57 @@ impl Component for FileList {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div class="box mt-4">
-                if let Some(msg) = &ctx.props().error {
-                    <div class="block mx-2">
-                        <article class="message is-danger">
-                            <div class="message-header">
-                                <p>{"Error fetching files"}</p>
-                                <button class="delete"
-                                    aria-label="delete"
-                                    onclick={
-                                        let callback = ctx.props().fetch_callback.clone();
-                                        Callback::from(move |_| {callback.emit(())})
-                                    }
-                                />
-                            </div>
-                            <div class="message-body">
-                                {msg}
-                            </div>
-                        </article>
-                    </div>
-                } else if ctx.props().fetching {
-                    <div class="block">
-                        {"Fetching Files..."}
-                    </div>
-                    <progress class="progress is-large is-primary" max="100" />
-                } else if ctx.props().files.is_empty() {
-                    <div class="block has-text-centered">
-                        <h1 class="subtitle is-3">{"No files yet! Start adding a file."}</h1>
-                    </div>
-                } else {
-                    {Self::view_files(ctx, self.show_modal)}
+                {
+                    ctx.props().error.as_ref().map_or_else(
+                        || {
+                            if ctx.props().fetching {
+                                html! {
+                                    <>
+                                        <div class="block">
+                                            {"Fetching Files..."}
+                                        </div>
+                                        <progress class="progress is-large is-primary" max="100" />
+                                    </>
+                                }
+                            } else if ctx.props().files.is_empty() {
+                                html! {
+                                    <div class="block has-text-centered">
+                                        <h1 class="subtitle is-3">{"No files yet! Start adding a file."}</h1>
+                                    </div>
+                                }
+                            } else {
+                                Self::view_files(ctx, self.show_modal)
+                            }
+                        },
+                        |msg| {
+                            html! {
+                                <div class="block mx-2">
+                                    <article class="message is-danger">
+                                        <div class="message-header">
+                                            <p>{"Error fetching files"}</p>
+                                            <button class="delete"
+                                                aria-label="delete"
+                                                onclick={
+                                                    let callback = ctx.props().fetch_callback.clone();
+                                                    Callback::from(move |_| { callback.emit(()) })
+                                                }
+                                            />
+                                        </div>
+                                        <div class="message-body">
+                                            {msg}
+                                        </div>
+                                    </article>
+                                </div>
+                            }
+                        }
+                    )
                 }
             </div>
         }
     }
 }
 
-impl FileList {
+impl FileListComponent {
     pub fn view_files(ctx: &Context<Self>, modal: bool) -> Html {
         let files = &ctx.props().files;
 

@@ -10,7 +10,7 @@ use yew::html;
 use yew::Html;
 use yew_router::Routable;
 
-#[derive(Routable, PartialEq, Clone, Debug)]
+#[derive(Routable, PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Route {
     #[at("/")]
     Home,

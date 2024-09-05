@@ -11,7 +11,7 @@ use serde::Serialize;
 use std::fmt::{Display, Formatter};
 
 #[derive(Clone)]
-pub enum PlotType {
+pub enum Type {
     Speed,
     Throttle,
     Brake,
@@ -19,7 +19,7 @@ pub enum PlotType {
     SteeringWheelAngle,
 }
 
-impl Display for PlotType {
+impl Display for Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Speed => write!(f, "speed"),
@@ -30,26 +30,26 @@ impl Display for PlotType {
         }
     }
 }
-pub fn create_plot(plot_type: &PlotType, analysis: &Analysis) -> Result<Plot, String> {
+pub fn create(plot_type: &Type, analysis: &Analysis) -> Result<Plot, String> {
     let reference = analysis
         .reference
         .clone()
-        .ok_or("No reference found".to_string())?;
+        .ok_or_else(|| "No reference found".to_string())?;
     let target = analysis
         .target
         .clone()
-        .ok_or("No target found".to_string())?;
+        .ok_or_else(|| "No target found".to_string())?;
     let differences = analysis
         .differences
         .clone()
-        .ok_or("No differences found".to_string())?;
+        .ok_or_else(|| "No differences found".to_string())?;
     let distances = analysis.union_distances.clone();
 
     let mut plot = Plot::new();
     let layout = base_layout();
     traces(
         &mut plot,
-        &plot_type,
+        plot_type,
         &reference,
         &target,
         differences,
@@ -95,35 +95,35 @@ fn base_layout() -> Layout {
 }
 
 fn select_metrics(
-    plot_type: &PlotType,
+    plot_type: &Type,
     reference: &ReferenceLap,
     target: &ReferenceLap,
     difference: Variables,
     distances: Vec<f32>,
 ) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, &'static str) {
     match plot_type {
-        PlotType::Speed => (
+        Type::Speed => (
             distances,
             reference.variables.speed.clone(),
             target.variables.speed.clone(),
-            difference.speed.clone(),
+            difference.speed,
             "%{y:.1f} km/h",
         ),
-        PlotType::Throttle => (
+        Type::Throttle => (
             distances,
             reference.variables.throttle.clone(),
             target.variables.throttle.clone(),
-            difference.throttle.clone(),
+            difference.throttle,
             "%{y:.2f}",
         ),
-        PlotType::Brake => (
+        Type::Brake => (
             distances,
             reference.variables.brake.clone(),
             target.variables.brake.clone(),
-            difference.brake.clone(),
+            difference.brake,
             "%{y:.2f}",
         ),
-        PlotType::Gear => (
+        Type::Gear => (
             distances,
             reference
                 .variables
@@ -139,19 +139,14 @@ fn select_metrics(
                 .iter()
                 .map(|&x| f32::from(x))
                 .collect(),
-            difference
-                .gear
-                .clone()
-                .iter()
-                .map(|&x| f32::from(x))
-                .collect(),
+            difference.gear.iter().map(|&x| f32::from(x)).collect(),
             "Gear %{y:.0f}",
         ),
-        PlotType::SteeringWheelAngle => (
+        Type::SteeringWheelAngle => (
             distances,
             reference.variables.steering_wheel_angle.clone(),
             target.variables.steering_wheel_angle.clone(),
-            difference.steering_wheel_angle.clone(),
+            difference.steering_wheel_angle,
             "%{y:.2f} rad",
         ),
     }
@@ -159,7 +154,7 @@ fn select_metrics(
 
 fn traces(
     plot: &mut Plot,
-    plot_type: &PlotType,
+    plot_type: &Type,
     reference: &ReferenceLap,
     target: &ReferenceLap,
     difference: Variables,
@@ -192,7 +187,7 @@ fn traces(
     trace(
         plot,
         &format!("target {plot_type}"),
-        x.clone(),
+        x,
         y_target,
         "x",
         "y",
@@ -201,6 +196,7 @@ fn traces(
     );
 }
 
+#[allow(clippy::too_many_arguments)]
 fn trace<X, Y>(
     plot: &mut Plot,
     name: &str,

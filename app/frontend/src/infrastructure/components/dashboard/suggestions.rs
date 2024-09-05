@@ -1,3 +1,5 @@
+use crate::utils::f64_as_usize;
+
 use shared::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
 use shared::analysis::domain::analysis::tag::Base;
 use shared::analysis::domain::analysis::tag::Tag;
@@ -29,7 +31,7 @@ pub fn suggestions(props: &Props) -> Html {
         use_effect(move || {
             let closure = Closure::<dyn FnMut(_)>::new(move |event: CustomEvent| {
                 if let Some(index) = event.detail().as_f64() {
-                    let index = index as usize;
+                    let index = f64_as_usize(index);
 
                     // Generar la lista de elementos <pre> en función de memberships y el índice
                     let suggestions = generate_suggestion(index, &memberships);
@@ -112,21 +114,21 @@ fn interpret_tag(variable: &str, tag: Tag) -> (String, String) {
     match tag {
         Tag::Single(base) => match base {
             Base::Stay => (
-                format!("You can maintain the current {}.", variable),
+                format!("You can maintain the current {variable}."),
                 "stay".to_string(),
             ),
             Base::Increase(_) => (
-                format!("You should increase the {}.", variable),
+                format!("You should increase the {variable}."),
                 "increase".to_string(),
             ),
             Base::Reduce(_) => (
-                format!("You should reduce the {}.", variable),
+                format!("You should reduce the {variable}."),
                 "reduce".to_string(),
             ),
         },
         Tag::Tendency(base1, base2) => {
             let action1 = match base1 {
-                Base::Stay => format!("maintain the current {}", variable),
+                Base::Stay => format!("maintain the current {variable}"),
                 Base::Increase(level) => format!(
                     "increase the {}{}",
                     variable,
@@ -171,10 +173,7 @@ fn interpret_tag(variable: &str, tag: Tag) -> (String, String) {
                 ),
             };
 
-            let message = format!(
-                "You should {}, but it would be good to {}.",
-                action1, action2
-            );
+            let message = format!("You should {action1}, but it would be good to {action2}.");
 
             let css_class = match (base1, base2) {
                 (Base::Stay, Base::Increase(_)) | (Base::Increase(_), Base::Stay) => {

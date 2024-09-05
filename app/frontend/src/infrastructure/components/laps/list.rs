@@ -26,16 +26,14 @@ pub struct LapListProps {
 pub enum Msg {
     ShowModal,
     HideModal,
-    Error(String),
 }
 
 #[derive(Default)]
-pub struct LapList {
+pub struct LapListComponent {
     show_modal: bool,
-    error: Option<String>,
 }
 
-impl Component for LapList {
+impl Component for LapListComponent {
     type Message = Msg;
     type Properties = LapListProps;
 
@@ -45,10 +43,6 @@ impl Component for LapList {
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::Error(e) => {
-                self.error = Some(e);
-                true
-            }
             Msg::ShowModal => {
                 self.show_modal = true;
                 true
@@ -63,42 +57,57 @@ impl Component for LapList {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div class="box mt-4">
-                if let Some(msg) = &ctx.props().error {
-                    <div class="block mx-2">
-                        <article class="message is-danger">
-                            <div class="message-header">
-                                <p>{"Error fetching laps"}</p>
-                                <button class="delete"
-                                    aria-label="delete"
-                                    onclick={
-                                        let callback = ctx.props().fetch_callback.clone();
-                                        Callback::from(move |_| {callback.emit(())})
-                                    }
-                                />
-                            </div>
-                            <div class="message-body">
-                                {msg}
-                            </div>
-                        </article>
-                    </div>
-                } else if ctx.props().fetching {
-                    <div class="block">
-                        {"Fetching Laps..."}
-                    </div>
-                    <progress class="progress is-large is-primary" max="100" />
-                } else if ctx.props().laps.is_empty() {
-                    <div class="block has-text-centered">
-                        <h1 class="subtitle is-3">{"No laps yet! Start adding a file."}</h1>
-                    </div>
-                } else {
-                    {Self::view_laps(ctx, self.show_modal)}
+                {
+                    ctx.props().error.as_ref().map_or_else(
+                        || {
+                            if ctx.props().fetching {
+                                html! {
+                                    <>
+                                        <div class="block">
+                                            {"Fetching Laps..."}
+                                        </div>
+                                        <progress class="progress is-large is-primary" max="100" />
+                                    </>
+                                }
+                            } else if ctx.props().laps.is_empty() {
+                                html! {
+                                    <div class="block has-text-centered">
+                                        <h1 class="subtitle is-3">{"No laps yet! Start adding a file."}</h1>
+                                    </div>
+                                }
+                            } else {
+                                Self::view_laps(ctx, self.show_modal)
+                            }
+                        },
+                        |msg| {
+                            html! {
+                                <div class="block mx-2">
+                                    <article class="message is-danger">
+                                        <div class="message-header">
+                                            <p>{"Error fetching laps"}</p>
+                                            <button class="delete"
+                                                aria-label="delete"
+                                                onclick={
+                                                    let callback = ctx.props().fetch_callback.clone();
+                                                    Callback::from(move |_| { callback.emit(()) })
+                                                }
+                                            />
+                                        </div>
+                                        <div class="message-body">
+                                            {msg}
+                                        </div>
+                                    </article>
+                                </div>
+                            }
+                        }
+                    )
                 }
             </div>
         }
     }
 }
 
-impl LapList {
+impl LapListComponent {
     fn view_laps(ctx: &Context<Self>, modal: bool) -> Html {
         let laps = &ctx.props().laps;
         html! {
@@ -139,10 +148,9 @@ impl LapList {
     }
 
     fn add_delete_button(ctx: &Context<Self>, lap: &Lap, modal: bool) -> Html {
-        ctx.props()
-            .delete_lap_callback
-            .clone()
-            .map(|cb| {
+        ctx.props().delete_lap_callback.clone().map_or_else(
+            || html! {},
+            |cb| {
                 html! {
                     <>
                     <button
@@ -177,7 +185,7 @@ impl LapList {
                                         onclick={
                                             let link = ctx.link().clone();
                                             let cb = cb.clone();
-                                            let lap_id = lap.id.clone();
+                                            let lap_id = lap.id;
                                             link.callback(move |_| {
                                                 cb.emit(lap_id);
                                                 Msg::HideModal
@@ -193,37 +201,38 @@ impl LapList {
                     </div>
                     </>
                 }
-            })
-            .unwrap_or_else(|| html! {})
+            },
+        )
     }
 
     fn add_reference_button(ctx: &Context<Self>, lap: &Lap) -> Html {
         ctx.props()
             .use_as_reference_lap_callback
             .clone()
-            .map(|cb| {
-                html! {
-                    <>
-                    <button
-                        class="button is-danger is-outlined is-large js-modal-trigger mx-4"
-                        onclick={
-                            let cb = cb.clone();
-                            let lap = lap.clone();
-                            Callback::from(move |_| cb.emit(lap.clone()))
-                        }
-                        disabled={ctx.props().use_as_reference_lap_disabled}
-                    >{"🏆"}</button>
-                    </>
-                }
-            })
-            .unwrap_or_else(|| html! {})
+            .map_or_else(
+                || html! {},
+                |cb| {
+                    html! {
+                        <>
+                        <button
+                            class="button is-danger is-outlined is-large js-modal-trigger mx-4"
+                            onclick={
+                                let cb = cb.clone();
+                                let lap = lap.clone();
+                                Callback::from(move |_| cb.emit(lap.clone()))
+                            }
+                            disabled={ctx.props().use_as_reference_lap_disabled}
+                        >{"🏆"}</button>
+                        </>
+                    }
+                },
+            )
     }
 
     fn add_target_button(ctx: &Context<Self>, lap: &Lap) -> Html {
-        ctx.props()
-            .use_as_target_lap_callback
-            .clone()
-            .map(|cb| {
+        ctx.props().use_as_target_lap_callback.clone().map_or_else(
+            || html! {},
+            |cb| {
                 html! {
                     <>
                     <button
@@ -237,7 +246,7 @@ impl LapList {
                     >{"🫥"}</button>
                     </>
                 }
-            })
-            .unwrap_or_else(|| html! {})
+            },
+        )
     }
 }

@@ -1,7 +1,7 @@
 pub mod lap_selector;
 
 use crate::infrastructure::components::analysis_creator::lap_selector::LapSelector;
-use crate::infrastructure::components::laps::list::LapList;
+use crate::infrastructure::components::laps::list::LapListComponent;
 use crate::infrastructure::components::repository_context::Repositories;
 
 use crate::infrastructure::repository::lap::http::Http as LapRepository;
@@ -38,19 +38,19 @@ impl Component for AnalysisCreator {
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-        let mut _self = Self::default();
+        let mut new_self = Self::default();
 
         let (repo_ctx, _) = ctx
             .link()
             .context::<Repositories>(Callback::noop())
             .expect("No Repositories Context Provided");
 
-        _self.lap_repository = repo_ctx.lap.clone();
+        new_self.lap_repository = repo_ctx.lap;
 
         ctx.link().send_message(Msg::FetchLaps);
-        _self.is_fetching = true;
+        new_self.is_fetching = true;
 
-        _self
+        new_self
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
@@ -74,7 +74,6 @@ impl Component for AnalysisCreator {
                 false
             }
             Msg::SetFilter(filter) => {
-                info!("setting new filter {:?}", filter.clone());
                 self.filter = filter;
                 self.is_fetching = true;
                 ctx.link().send_message(Msg::FetchLaps);
@@ -101,9 +100,9 @@ impl Component for AnalysisCreator {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let fetch_laps = ctx.link().callback(|_| Msg::FetchLaps);
-        let use_as_reference_lap_callback = ctx.link().callback(|lap| Msg::SetReference(lap));
-        let use_as_target_lap_callback = ctx.link().callback(|lap| Msg::SetTarget(lap));
+        let fetch_laps = ctx.link().callback(|()| Msg::FetchLaps);
+        let use_as_reference_lap_callback = ctx.link().callback(Msg::SetReference);
+        let use_as_target_lap_callback = ctx.link().callback(Msg::SetTarget);
 
         info!("reference_lap: {:?}", self.reference_lap.clone());
         info!("target_lap: {:?}", self.target_lap.clone());
@@ -116,14 +115,14 @@ impl Component for AnalysisCreator {
                     target_lap={self.target_lap.clone()}
                 />
                 //<LapFilter {on_filter_change} />
-                <LapList
+                <LapListComponent
                     laps={self.laps.clone()}
                     error={self.error.clone()}
                     //{delete_lap_callback}
                     {use_as_reference_lap_callback}
                     {use_as_target_lap_callback}
                     fetch_callback={fetch_laps.clone()}
-                    fetching={self.is_fetching.clone()}
+                    fetching={self.is_fetching}
                 />
             </div>
         }

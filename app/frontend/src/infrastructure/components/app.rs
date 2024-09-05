@@ -14,7 +14,7 @@ pub fn app() -> Html {
     //        <LapHeadersHtml lap_headers={(*lap_headers).clone()} />
     //    </main>
     //}
-    let ctx = use_state(|| Repositories::default());
+    let ctx = use_state(Repositories::default);
     html! {
         <ContextProvider<Repositories> context={(*ctx).clone()}>
             <BrowserRouter>

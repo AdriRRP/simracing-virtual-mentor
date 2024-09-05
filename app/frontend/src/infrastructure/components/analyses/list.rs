@@ -22,16 +22,14 @@ pub struct AnalysisListProps {
 pub enum Msg {
     ShowModal,
     HideModal,
-    Error(String),
 }
 
 #[derive(Default)]
-pub struct AnalysisList {
+pub struct AnalysisListComponent {
     show_modal: bool,
-    error: Option<String>,
 }
 
-impl Component for AnalysisList {
+impl Component for AnalysisListComponent {
     type Message = Msg;
     type Properties = AnalysisListProps;
 
@@ -41,10 +39,6 @@ impl Component for AnalysisList {
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Msg::Error(e) => {
-                self.error = Some(e);
-                true
-            }
             Msg::ShowModal => {
                 self.show_modal = true;
                 true
@@ -59,42 +53,57 @@ impl Component for AnalysisList {
     fn view(&self, ctx: &Context<Self>) -> Html {
         html! {
             <div class="box mt-4">
-                if let Some(msg) = &ctx.props().error {
-                    <div class="block mx-2">
-                        <article class="message is-danger">
-                            <div class="message-header">
-                                <p>{"Error fetching analyses"}</p>
-                                <button class="delete"
-                                    aria-label="delete"
-                                    onclick={
-                                        let callback = ctx.props().fetch_callback.clone();
-                                        Callback::from(move |_| {callback.emit(())})
-                                    }
-                                />
-                            </div>
-                            <div class="message-body">
-                                {msg}
-                            </div>
-                        </article>
-                    </div>
-                } else if ctx.props().fetching {
-                    <div class="block">
-                        {"Fetching Analyses..."}
-                    </div>
-                    <progress class="progress is-large is-primary" max="100" />
-                } else if ctx.props().analyses.is_empty() {
-                    <div class="block has-text-centered">
-                        <h1 class="subtitle is-3">{"No Analyses yet! Start adding a analysis."}</h1>
-                    </div>
-                } else {
-                    {Self::view_analyses(ctx, self.show_modal)}
+                {
+                    ctx.props().error.as_ref().map_or_else(
+                        || {
+                            if ctx.props().fetching {
+                                html! {
+                                    <>
+                                        <div class="block">
+                                            {"Fetching Analyses..."}
+                                        </div>
+                                        <progress class="progress is-large is-primary" max="100" />
+                                    </>
+                                }
+                            } else if ctx.props().analyses.is_empty() {
+                                html! {
+                                    <div class="block has-text-centered">
+                                        <h1 class="subtitle is-3">{"No Analyses yet! Start adding an analysis."}</h1>
+                                    </div>
+                                }
+                            } else {
+                                Self::view_analyses(ctx, self.show_modal)
+                            }
+                        },
+                        |msg| {
+                            html! {
+                                <div class="block mx-2">
+                                    <article class="message is-danger">
+                                        <div class="message-header">
+                                            <p>{"Error fetching analyses"}</p>
+                                            <button class="delete"
+                                                aria-label="delete"
+                                                onclick={
+                                                    let callback = ctx.props().fetch_callback.clone();
+                                                    Callback::from(move |_| { callback.emit(()) })
+                                                }
+                                            />
+                                        </div>
+                                        <div class="message-body">
+                                            {msg}
+                                        </div>
+                                    </article>
+                                </div>
+                            }
+                        }
+                    )
                 }
             </div>
         }
     }
 }
 
-impl AnalysisList {
+impl AnalysisListComponent {
     fn view_analyses(ctx: &Context<Self>, modal: bool) -> Html {
         let analyses = &ctx.props().analyses;
         html! {
@@ -128,7 +137,7 @@ impl AnalysisList {
                             match analysis.status {
                                 Status::Completed => html! {
                                     <>
-                                        <Link<Route> to={Route::Dashboard { analysis_id: analysis.id.clone() }}>
+                                        <Link<Route> to={Route::Dashboard { analysis_id: analysis.id }}>
                                             <button
                                                 class="button is-primary is-outlined is-large js-modal-trigger mx-4"
                                             >{"🔎"}</button>
@@ -139,7 +148,7 @@ impl AnalysisList {
                                 Status::Error(_) => html! {
                                     {Self::add_delete_button(ctx, analysis, modal)}
                                 },
-                                _ => html! { <></> }, // No se muestra ningún botón si está en pendiente
+                                Status::Pending{ .. } => html! { <></> },
                             }
                         }
                         </div>
@@ -154,10 +163,9 @@ impl AnalysisList {
     }
 
     fn add_delete_button(ctx: &Context<Self>, analysis: &Analysis, modal: bool) -> Html {
-        ctx.props()
-            .delete_analysis_callback
-            .clone()
-            .map(|cb| {
+        ctx.props().delete_analysis_callback.clone().map_or_else(
+            || html! {},
+            |cb| {
                 html! {
                     <>
                     <button
@@ -192,7 +200,7 @@ impl AnalysisList {
                                         onclick={
                                             let link = ctx.link().clone();
                                             let cb = cb.clone();
-                                            let analysis_id = analysis.id.clone();
+                                            let analysis_id = analysis.id;
                                             link.callback(move |_| {
                                                 cb.emit(analysis_id);
                                                 Msg::HideModal
@@ -208,7 +216,7 @@ impl AnalysisList {
                     </div>
                     </>
                 }
-            })
-            .unwrap_or_else(|| html! {})
+            },
+        )
     }
 }

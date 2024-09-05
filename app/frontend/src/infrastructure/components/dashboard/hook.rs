@@ -21,11 +21,11 @@ pub fn use_analyses(id: &Uuid, repo: AnalysisHttpRepository) -> SuspensionResult
                 Ok(Some(found_analysis)) => result_handle.set(Some(found_analysis)),
                 Ok(None) => {
                     error!("No analysis found");
-                    result_handle.set(None)
+                    result_handle.set(None);
                 }
                 Err(e) => {
                     error!("Error fetching analysis: {e}");
-                    result_handle.set(None)
+                    result_handle.set(None);
                 }
             }
         })
@@ -33,10 +33,7 @@ pub fn use_analyses(id: &Uuid, repo: AnalysisHttpRepository) -> SuspensionResult
 
     let suspension = (*suspension_hanlde).clone();
     if suspension.resumed() {
-        return match result {
-            Some(v) => Ok(Some(v)),
-            None => Err(suspension),
-        };
+        return result.map_or_else(|| Err(suspension), |v| Ok(Some(v)));
     }
     Err(suspension)
 }
@@ -44,14 +41,14 @@ pub fn use_analyses(id: &Uuid, repo: AnalysisHttpRepository) -> SuspensionResult
 #[hook]
 pub fn use_plotly_draw(plot: Plot, div_id: String, div_ref: NodeRef) -> SuspensionResult<()> {
     if let Some(element) = div_ref.cast::<HtmlElement>() {
-        info!("{:?} exists!", element)
+        info!("{element:?} exists!");
     }
 
     let suspension = Suspension::from_future(async move {
         let div_id = div_id.clone();
         let plot = plot.clone();
         info!("Ready to paint in div `{div_id}`");
-        plotly::bindings::new_plot(&div_id, &plot).await
+        plotly::bindings::new_plot(&div_id, &plot).await;
     });
 
     if suspension.resumed() {

@@ -3,8 +3,8 @@ mod list;
 mod uploader;
 
 use crate::infrastructure::components::files::filter::FileFilter;
-use crate::infrastructure::components::files::list::FileList;
-use crate::infrastructure::components::files::uploader::FileUploader;
+use crate::infrastructure::components::files::list::FileListComponent;
+use crate::infrastructure::components::files::uploader::FileUploaderComponent;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::repository::file::http::Http as FileRepository;
 
@@ -36,19 +36,19 @@ impl Component for Files {
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-        let mut _self = Self::default();
+        let mut new_self = Self::default();
 
         let (repo_ctx, _) = ctx
             .link()
             .context::<Repositories>(Callback::noop())
             .expect("No Repositories Context Provided");
 
-        _self.file_repository = repo_ctx.file.clone();
+        new_self.file_repository = repo_ctx.file;
 
         ctx.link().send_message(Msg::FetchFiles);
-        _self.is_fetching = true;
+        new_self.is_fetching = true;
 
-        _self
+        new_self
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
@@ -87,7 +87,6 @@ impl Component for Files {
                 false
             }
             Msg::SetFilter(filter) => {
-                info!("setting new filter {:?}", filter.clone());
                 self.is_fetching = true;
                 self.filter = filter;
                 ctx.link().send_message(Msg::FetchFiles);
@@ -107,15 +106,15 @@ impl Component for Files {
 
     fn view(&self, ctx: &Context<Self>) -> Html {
         let on_filter_change = ctx.link().callback(Msg::SetFilter);
-        let fetch_files = ctx.link().callback(|_| Msg::FetchFiles);
+        let fetch_files = ctx.link().callback(|()| Msg::FetchFiles);
         let delete_file_callback = ctx.link().callback(Msg::DeleteFile);
 
         html! {
             <div class="container">
                 <h1 class="title">{"Files"}</h1>
-                <FileUploader on_file_uploaded={fetch_files.clone()} />
+                <FileUploaderComponent on_file_uploaded={fetch_files.clone()} />
                 <FileFilter {on_filter_change} />
-                <FileList
+                <FileListComponent
                     files={self.files.clone()}
                     error={self.error.clone()}
                     {delete_file_callback}

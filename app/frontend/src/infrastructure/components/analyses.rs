@@ -1,7 +1,7 @@
 //pub(crate) mod filter;
 pub(crate) mod list;
 
-use crate::infrastructure::components::analyses::list::AnalysisList;
+use crate::infrastructure::components::analyses::list::AnalysisListComponent;
 use crate::infrastructure::components::repository_context::Repositories;
 use crate::infrastructure::components::routes::Route;
 use crate::infrastructure::repository::analysis::http::Http as AnalysesRepository;
@@ -36,19 +36,19 @@ impl Component for Analyses {
     type Properties = ();
 
     fn create(ctx: &Context<Self>) -> Self {
-        let mut _self = Self::default();
+        let mut new_self = Self::default();
 
         let (repo_ctx, _) = ctx
             .link()
             .context::<Repositories>(Callback::noop())
             .expect("No Repositories Context Provided");
 
-        _self.analyses_repository = repo_ctx.analysis.clone();
+        new_self.analyses_repository = repo_ctx.analysis;
 
         ctx.link().send_message(Msg::FetchAnalyses);
-        _self.is_fetching = true;
+        new_self.is_fetching = true;
 
-        _self
+        new_self
     }
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
@@ -87,7 +87,6 @@ impl Component for Analyses {
                 false
             }
             Msg::SetFilter(filter) => {
-                info!("setting new filter {:?}", filter.clone());
                 self.filter = filter;
                 self.is_fetching = true;
                 ctx.link().send_message(Msg::FetchAnalyses);
@@ -106,7 +105,7 @@ impl Component for Analyses {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let fetch_analyses = ctx.link().callback(|_| Msg::FetchAnalyses);
+        let fetch_analyses = ctx.link().callback(|()| Msg::FetchAnalyses);
         let delete_analysis_callback = ctx.link().callback(Msg::DeleteAnalysis);
 
         html! {
@@ -116,12 +115,12 @@ impl Component for Analyses {
                   <Link<Route> to={Route::AnalysisCreator}><button class="button is-link is-rounded is-primary">{"➕ New Analysis"}</button></Link<Route>>
                 </div>
                 //<AnalysisFilter {on_filter_change} />
-                <AnalysisList
+                <AnalysisListComponent
                     analyses={self.analyses.clone()}
                     error={self.error.clone()}
                     {delete_analysis_callback}
                     fetch_callback={fetch_analyses.clone()}
-                    fetching={self.is_fetching.clone()}
+                    fetching={self.is_fetching}
                 />
             </div>
         }

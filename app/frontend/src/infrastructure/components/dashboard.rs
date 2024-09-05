@@ -5,12 +5,11 @@ mod suggestions;
 
 use crate::infrastructure::components::dashboard::circuit::Circuit;
 use crate::infrastructure::components::dashboard::hook::use_analyses;
-use crate::infrastructure::components::dashboard::plot::{create_plot, PlotType};
+use crate::infrastructure::components::dashboard::plot::{create, Type};
 use crate::infrastructure::components::dashboard::suggestions::Suggestions;
 use crate::infrastructure::repository::analysis::http::Http as AnalysisHttpRepository;
 use crate::infrastructure::settings::Settings;
 
-use shared::analysis::domain::analysis::clusters_memberships::ClustersMemberships;
 use shared::analysis::domain::analysis::Analysis;
 
 use gloo_events::EventListener;
@@ -50,12 +49,12 @@ pub struct PlotlyDrawerProps {
 
 pub struct PlotDiv {
     id: String,
-    plot_type: PlotType,
+    plot_type: Type,
     node_ref: NodeRef,
 }
 
 impl PlotDiv {
-    fn new(id: String, plot_type: PlotType) -> Self {
+    fn new(id: String, plot_type: Type) -> Self {
         Self {
             id,
             plot_type,
@@ -110,13 +109,13 @@ impl Component for PlotlyDrawer {
     type Properties = PlotlyDrawerProps;
     fn create(_ctx: &Context<Self>) -> Self {
         let target_divs: Vec<PlotDiv> = vec![
-            PlotDiv::new("speed_plot".to_string(), PlotType::Speed),
-            PlotDiv::new("throttle_plot".to_string(), PlotType::Throttle),
-            PlotDiv::new("gear_plot".to_string(), PlotType::Gear),
-            PlotDiv::new("brake_plot".to_string(), PlotType::Brake),
+            PlotDiv::new("speed_plot".to_string(), Type::Speed),
+            PlotDiv::new("throttle_plot".to_string(), Type::Throttle),
+            PlotDiv::new("gear_plot".to_string(), Type::Gear),
+            PlotDiv::new("brake_plot".to_string(), Type::Brake),
             PlotDiv::new(
                 "steering_wheel_angle_plot".to_string(),
-                PlotType::SteeringWheelAngle,
+                Type::SteeringWheelAngle,
             ),
         ];
 
@@ -184,7 +183,7 @@ impl Component for PlotlyDrawer {
         for target_div in &self.plot_divs {
             ctx.link().send_future({
                 let analysis = analysis.clone();
-                let plot = create_plot(&target_div.plot_type, &analysis);
+                let plot = create(&target_div.plot_type, &analysis);
                 let div_id = target_div.id.clone();
                 async move {
                     info!("Starting plotly binding");
@@ -216,7 +215,7 @@ impl Component for PlotlyDrawer {
                             distances={analysis.union_distances.clone()}
                         />
                         <Suggestions
-                            memberships={analysis.clustering.clone().unwrap_or(ClustersMemberships::default())}
+                            memberships={analysis.clustering.clone().unwrap_or_default()}
                         />
                     </div>
 
@@ -234,7 +233,6 @@ impl Component for PlotlyDrawer {
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            Self::Message::PlotlyHover => false,
             Self::Message::SyncPlotlyHover(div_id) => {
                 let div_id = JsValue::from(div_id);
                 let sync_div_ids: Vec<JsValue> = self
@@ -250,7 +248,7 @@ impl Component for PlotlyDrawer {
                 // TODO: Manage error
                 true
             }
-            PlotlyDrawerMsg::SyncCanvas(_) => false,
+            PlotlyDrawerMsg::SyncCanvas(_) | Self::Message::PlotlyHover => false,
         }
     }
 }
@@ -270,7 +268,7 @@ pub fn plotly_loader(Props { analysis }: &Props) -> Html {
 }
 
 #[function_component(DashboardDataFetcher)]
-pub fn dashboard_data_fetcher(DashboardProps { analysis_id: id }: &DashboardProps) -> HtmlResult {
+pub fn dashboard_data_fetcher(AnalysisProps { analysis_id: id }: &AnalysisProps) -> HtmlResult {
     info!("Entering DashboardDataFetcher");
 
     let settings = Settings::default();
@@ -278,16 +276,16 @@ pub fn dashboard_data_fetcher(DashboardProps { analysis_id: id }: &DashboardProp
 
     let analysis = use_analyses(id, analysis_repo)?;
 
-    Ok(html! { <PlotlyDrawer analysis={analysis.clone()} /> })
+    Ok(html! { <PlotlyDrawer analysis={analysis} /> })
 }
 
-#[derive(Properties, PartialEq)]
-pub struct DashboardProps {
+#[derive(Properties, PartialEq, Eq)]
+pub struct AnalysisProps {
     pub analysis_id: Uuid,
 }
 
 #[function_component(Dashboard)]
-pub fn dashboard(DashboardProps { analysis_id: id }: &DashboardProps) -> Html {
+pub fn dashboard(AnalysisProps { analysis_id: id }: &AnalysisProps) -> Html {
     info!("Entering Dashboard");
     let fallback = html! {
         <div class="block">
@@ -298,7 +296,7 @@ pub fn dashboard(DashboardProps { analysis_id: id }: &DashboardProps) -> Html {
 
     html! {
         <Suspense {fallback}>
-            <DashboardDataFetcher analysis_id={id.clone()} />
+            <DashboardDataFetcher analysis_id={*id} />
         </Suspense>
     }
 }

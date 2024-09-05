@@ -2,13 +2,12 @@ use shared::common::domain::criteria::filter::condition::Condition;
 use shared::common::domain::criteria::filter::field::Field;
 use shared::common::domain::criteria::filter::value::Value;
 use shared::common::domain::criteria::filter::Filter;
-use shared::common::domain::criteria::filters::Filters;
 use shared::common::domain::criteria::Criteria;
+use std::ops::Deref;
 
 use chrono::NaiveDateTime;
 use chrono::Utc;
 use chrono::{DateTime, NaiveDate};
-use log::debug;
 use web_sys::{HtmlInputElement, HtmlSelectElement};
 use yew::prelude::*;
 use yew::{function_component, html, Html};
@@ -20,7 +19,7 @@ pub struct Props {
 
 #[function_component(FileFilter)]
 pub fn file_filter(props: &Props) -> Html {
-    let criteria_state = use_state(|| Criteria::default());
+    let criteria_state = use_state(Criteria::default);
     let parent_callback = props.on_filter_change.clone();
 
     let on_status_change = {
@@ -34,11 +33,12 @@ pub fn file_filter(props: &Props) -> Html {
                 _ => None,
             };
 
-            let criteria =
-                set_criteria(criteria_state.clone(), "status", Condition::Contains, value);
-
-            debug!("{:?}", criteria.clone());
-            criteria_state.set(criteria);
+            set_criteria(
+                &criteria_state.clone(),
+                "status",
+                Condition::Contains,
+                value,
+            );
         })
     };
 
@@ -62,15 +62,12 @@ pub fn file_filter(props: &Props) -> Html {
             let date = date.map(|d| d.to_rfc3339());
 
             let condition = match input_id.to_lowercase().as_str() {
-                "before" => Condition::LowerThan,
                 "after" => Condition::GreaterThan,
+                // "before" or others
                 _ => Condition::LowerThan,
             };
 
-            let criteria = set_criteria(criteria_state.clone(), "created_on", condition, date);
-
-            debug!("{:?}", criteria.clone());
-            criteria_state.set(criteria);
+            set_criteria(&criteria_state, "created_on", condition, date);
         })
     };
 
@@ -84,10 +81,7 @@ pub fn file_filter(props: &Props) -> Html {
                 Some(input.value())
             };
 
-            let criteria = set_criteria(criteria_state.clone(), "name", Condition::Contains, value);
-
-            debug!("{:?}", criteria.clone());
-            criteria_state.set(criteria);
+            set_criteria(&criteria_state, "name", Condition::Contains, value);
         })
     };
 
@@ -101,8 +95,7 @@ pub fn file_filter(props: &Props) -> Html {
     };
 
     let on_submit = {
-        let criteria_state = criteria_state.clone();
-        let parent_callback = parent_callback.clone();
+        let parent_callback = parent_callback;
         Callback::from(move |e: MouseEvent| {
             e.prevent_default();
             parent_callback.emit((*criteria_state).clone());
@@ -190,13 +183,13 @@ pub fn file_filter(props: &Props) -> Html {
 }
 
 fn set_criteria(
-    criteria_state: UseStateHandle<Criteria>,
+    criteria_state: &UseStateHandle<Criteria>,
     field: &str,
     condition: Condition,
     value: Option<String>,
-) -> Criteria {
-    let mut criteria = (*criteria_state).clone();
-    let mut filters = criteria.filters.clone().unwrap_or_else(Filters::default);
+) {
+    let mut criteria = (*criteria_state).deref().clone();
+    let mut filters = criteria.filters.clone().unwrap_or_default();
 
     // Remove existing `field` filters
     filters.retain(|f| !f.field.name().contains(field));
@@ -216,5 +209,5 @@ fn set_criteria(
         Some(filters)
     };
 
-    criteria.clone()
+    criteria_state.set(criteria);
 }

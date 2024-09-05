@@ -55,7 +55,7 @@ impl Default for Settings {
         Self {
             endpoints: Endpoints {
                 analysis: Analysis {
-                    server: "http://127.0.0.1:16666".to_string(),
+                    server: "http://localhost:16666".to_string(),
                     create: "/analysis/create".to_string(),
                     delete: "/analysis/delete".to_string(),
                     find_by_id: "/analysis/find".to_string(),
@@ -63,13 +63,13 @@ impl Default for Settings {
                     find_header_by_criteria: "/analysis/find/header".to_string(),
                 },
                 file: File {
-                    server: "http://127.0.0.1:16666".to_string(),
+                    server: "http://localhost:16666".to_string(),
                     delete: "/file/delete".to_string(),
                     find_by_id: "/file/find".to_string(),
                     find_by_criteria: "/file/find".to_string(),
                 },
                 lap: Lap {
-                    server: "http://127.0.0.1:16666".to_string(),
+                    server: "http://localhost:16666".to_string(),
                     delete: "/lap/delete".to_string(),
                     find_by_id: "/lap/find".to_string(),
                     find_by_criteria: "/lap/find".to_string(),
@@ -77,7 +77,7 @@ impl Default for Settings {
                     find_header_by_criteria: "/lap/find/header".to_string(),
                 },
                 ibt_extractor: IbtExtractor {
-                    server: "http://127.0.0.1:16666".to_string(),
+                    server: "http://localhost:16666".to_string(),
                     upload: "/ibt_extractor/upload".to_string(),
                 },
             },

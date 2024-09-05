@@ -46,12 +46,12 @@ RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 # Leverage a bind mount to the src directory to avoid having to copy the
 # source code into the container. Once built, copy the executable to an
 # output directory before the cache mounted /app/target is unmounted.
-RUN --mount=type=bind,source=backend/src,target=/app/${APP_NAME}/src \
-    --mount=type=bind,source=backend/Cargo.toml,target=/app/${APP_NAME}/Cargo.toml \
-    --mount=type=bind,source=backend/Cargo.lock,target=/app/${APP_NAME}/Cargo.lock \
-    --mount=type=bind,source=shared/src,target=/app/${SHARED_LIB_NAME}/src \
-    --mount=type=bind,source=shared/Cargo.toml,target=/app/${SHARED_LIB_NAME}/Cargo.toml \
-    --mount=type=bind,source=shared/Cargo.lock,target=/app/${SHARED_LIB_NAME}/Cargo.lock \
+RUN --mount=type=bind,source=app/backend/src,target=/app/${APP_NAME}/src \
+    --mount=type=bind,source=app/backend/Cargo.toml,target=/app/${APP_NAME}/Cargo.toml \
+    --mount=type=bind,source=app/backend/Cargo.lock,target=/app/${APP_NAME}/Cargo.lock \
+    --mount=type=bind,source=app/shared/src,target=/app/${SHARED_LIB_NAME}/src \
+    --mount=type=bind,source=app/shared/Cargo.toml,target=/app/${SHARED_LIB_NAME}/Cargo.toml \
+    --mount=type=bind,source=app/shared/Cargo.lock,target=/app/${SHARED_LIB_NAME}/Cargo.lock \
     --mount=type=cache,target=/app/${APP_NAME}/target/,id=rust-cache-${APP_NAME}-${TARGETPLATFORM} \
     --mount=type=cache,target=/usr/local/cargo/git/db \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
@@ -94,7 +94,7 @@ RUN adduser \
 # Copy configuration file
 ENV CONFIG_DIR=/etc/$APP_NAME/
 RUN mkdir -p $CONFIG_DIR
-COPY ./backend/backend-config.yaml $CONFIG_DIR
+COPY app/backend/backend-config.yaml $CONFIG_DIR
 ENV BACKEND_CONFIG_PATH=$CONFIG_DIR/backend-config.yaml
 #######################################################
 

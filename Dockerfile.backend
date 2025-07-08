@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG RUST_VERSION=1.82
+ARG RUST_VERSION=1.88
 ARG APP_NAME=symracing_virtual_mentor_backend
 ARG SHARED_LIB_NAME=shared
 

@@ -19,7 +19,7 @@ impl<R: Repository> Creator<R> {
     /// # Returns
     ///
     /// A new `Creator` instance.
-    pub fn new(repository: Arc<R>) -> Self {
+    pub const fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
 

@@ -177,7 +177,7 @@ mod tests {
     fn try_from_u8_slice_ok() {
         let result = Header::try_from(&test_bytes());
         let expected_result = Ok(expected_header());
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 
     #[test]
@@ -186,7 +186,7 @@ mod tests {
         let mut cursor = Cursor::new(&test_bytes);
         let result = Header::from_reader(&mut cursor, 0);
         let expected_result = Ok(expected_header());
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 
     #[test]
@@ -197,7 +197,7 @@ mod tests {
         let expected_result = Err(from_reader::Error::Reading(
             "failed to fill whole buffer".to_string(),
         ));
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 
     #[test]
@@ -214,7 +214,7 @@ mod tests {
             out of range integral type conversion attempted"
                 .to_string(),
         ));
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 
     #[test]
@@ -231,7 +231,7 @@ mod tests {
             out of range integral type conversion attempted"
                 .to_string(),
         ));
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 
     #[test]
@@ -248,6 +248,6 @@ mod tests {
             out of range integral type conversion attempted"
                 .to_string(),
         ));
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 }

@@ -19,7 +19,7 @@ impl<R: Repository> Finder<R> {
     /// # Returns
     ///
     /// A new `Finder` instance.
-    pub fn new(repository: Arc<R>) -> Self {
+    pub const fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
 

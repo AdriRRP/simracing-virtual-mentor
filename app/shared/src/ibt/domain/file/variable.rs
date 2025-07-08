@@ -62,7 +62,7 @@ mod tests {
     use std::io::Cursor;
 
     fn test_bytes() -> Vec<u8> {
-        vec!['a' as u8]
+        vec![b'a']
     }
 
     fn test_var_header() -> VarHeader {
@@ -106,7 +106,7 @@ mod tests {
             var_header,
             var_values: vec![VarValue::Single(Primitive::Char('a'))],
         });
-        assert_eq!(result, expected)
+        assert_eq!(result, expected);
     }
 
     #[test]
@@ -124,6 +124,6 @@ mod tests {
         let expected = Err(from_reader::Error::Reading(
             "8 bytes are needed to read the Double type but only 1 could be read".to_string(),
         ));
-        assert_eq!(result, expected)
+        assert_eq!(result, expected);
     }
 }

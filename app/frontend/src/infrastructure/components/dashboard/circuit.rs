@@ -27,7 +27,7 @@ extern "C" {
 pub fn hover_event_from_plotly(distance: f32) {
     let document = web_sys::window().unwrap().document().unwrap();
 
-    let mut event_init = CustomEventInit::new();
+    let event_init = CustomEventInit::new();
     event_init.set_detail(&JsValue::from_f64(f32_as_f64(distance)));
 
     let event =
@@ -53,12 +53,6 @@ struct Point {
     x: f64,
     y: f64,
     dist: f32,
-}
-
-impl Point {
-    pub const fn new(x: f64, y: f64, dist: f32) -> Self {
-        Self { x, y, dist }
-    }
 }
 
 fn normalize_coordinates(coords: &[GpsCoord], width: f64, height: f64, margin: f64) -> Vec<Point> {
@@ -173,6 +167,7 @@ pub fn circuit(props: &Props) -> Html {
                             2.0 * std::f64::consts::PI,
                         )
                         .unwrap();
+                    #[allow(deprecated)]
                     context.set_fill_style(&JsValue::from_str("red"));
                     context.fill();
                 }
@@ -222,6 +217,7 @@ pub fn circuit(props: &Props) -> Html {
                         2.0 * std::f64::consts::PI,
                     )
                     .unwrap();
+                #[allow(deprecated)]
                 context.set_fill_style(&JsValue::from_str("red"));
                 context.fill();
 
@@ -232,7 +228,7 @@ pub fn circuit(props: &Props) -> Html {
 
                 // Emitir un evento personalizado con el índice del punto más cercano
                 let document = web_sys::window().unwrap().document().unwrap();
-                let mut event_init = CustomEventInit::new();
+                let event_init = CustomEventInit::new();
                 event_init.set_detail(&JsValue::from_f64(usize_as_f64(index)));
                 let event = CustomEvent::new_with_event_init_dict(
                     suggestions::UPDATE_SUGGESTION_EVENT,
@@ -264,6 +260,7 @@ pub fn circuit(props: &Props) -> Html {
 }
 
 fn draw_circuit(context: &CanvasRenderingContext2d, points: &[Point]) {
+    #[allow(deprecated)]
     context.set_stroke_style(&JsValue::from_str("white"));
     context.set_line_width(6.0);
     context.begin_path();

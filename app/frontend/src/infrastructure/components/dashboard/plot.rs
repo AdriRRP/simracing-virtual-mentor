@@ -102,6 +102,7 @@ fn select_metrics(
     distances: Vec<f32>,
 ) -> (Vec<f32>, Vec<f32>, Vec<f32>, Vec<f32>, &'static str) {
     match plot_type {
+        #[allow(clippy::literal_string_with_formatting_args)]
         Type::Speed => (
             distances,
             reference.variables.speed.clone(),
@@ -109,6 +110,7 @@ fn select_metrics(
             difference.speed,
             "%{y:.1f} km/h",
         ),
+        #[allow(clippy::literal_string_with_formatting_args)]
         Type::Throttle => (
             distances,
             reference.variables.throttle.clone(),
@@ -116,6 +118,7 @@ fn select_metrics(
             difference.throttle,
             "%{y:.2f}",
         ),
+        #[allow(clippy::literal_string_with_formatting_args)]
         Type::Brake => (
             distances,
             reference.variables.brake.clone(),
@@ -123,6 +126,7 @@ fn select_metrics(
             difference.brake,
             "%{y:.2f}",
         ),
+        #[allow(clippy::literal_string_with_formatting_args)]
         Type::Gear => (
             distances,
             reference
@@ -142,6 +146,7 @@ fn select_metrics(
             difference.gear.iter().map(|&x| f32::from(x)).collect(),
             "Gear %{y:.0f}",
         ),
+        #[allow(clippy::literal_string_with_formatting_args)]
         Type::SteeringWheelAngle => (
             distances,
             reference.variables.steering_wheel_angle.clone(),

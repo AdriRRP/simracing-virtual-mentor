@@ -73,104 +73,104 @@ mod tests {
     fn char_ok() {
         let current = VarType::try_from(0);
         let expected = Ok(VarType::Char);
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn char_size_ok() {
         let current = VarType::Char.byte_size();
         let expected = 1;
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn bool_ok() {
         let current = VarType::try_from(1);
         let expected = Ok(VarType::Bool);
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn bool_size_ok() {
         let current = VarType::Bool.byte_size();
         let expected = 1;
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn int_ok() {
         let current = VarType::try_from(2);
         let expected = Ok(VarType::Int);
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn int_size_ok() {
         let current = VarType::Int.byte_size();
         let expected = 4;
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn bit_field_ok() {
         let current = VarType::try_from(3);
         let expected = Ok(VarType::BitField);
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn bit_field_int_ok() {
         let current = VarType::BitField.byte_size();
         let expected = 4;
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn float_ok() {
         let current = VarType::try_from(4);
         let expected = Ok(VarType::Float);
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn float_size_ok() {
         let current = VarType::Float.byte_size();
         let expected = 4;
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn double_ok() {
         let current = VarType::try_from(5);
         let expected = Ok(VarType::Double);
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn double_size_ok() {
         let current = VarType::Double.byte_size();
         let expected = 8;
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn et_count_ok() {
         let current = VarType::try_from(6);
         let expected = Ok(VarType::ETCount);
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn et_count_size_ok() {
         let current = VarType::ETCount.byte_size();
         let expected = 0;
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
     fn unknown_ko() {
         let current = VarType::try_from(-1);
         let expected = Err(Error::FromI32("-1".to_string()));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 }

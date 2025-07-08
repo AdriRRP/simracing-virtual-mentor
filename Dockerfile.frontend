@@ -1,5 +1,5 @@
 # Stage 1: Build the application using Rust and Trunk
-FROM rust:latest AS builder
+FROM rust:1.88 AS builder
 
 # Add the wasm target for Rust
 RUN rustup target add wasm32-unknown-unknown

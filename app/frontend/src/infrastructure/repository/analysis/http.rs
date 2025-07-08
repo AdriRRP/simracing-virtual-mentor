@@ -240,11 +240,11 @@ impl Http {
             .await
             .map_err(|e| format!("{e}"))?;
 
-        info!("{:?}", response);
+        info!("{response:?}");
 
         if response.status().is_success() {
             let json = response.json().await.map_err(|e| {
-                error!("{:?}", e);
+                error!("{e:?}");
                 format!("{e}")
             })?;
             let analyses: Option<Analyses> = json;

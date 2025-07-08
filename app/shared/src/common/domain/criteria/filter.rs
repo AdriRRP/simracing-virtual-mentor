@@ -65,7 +65,7 @@ mod tests {
         let filter_field = filter.field();
         let expected_filter_field = Field::new(filter_field_str());
 
-        assert_eq!(filter_field, expected_filter_field)
+        assert_eq!(filter_field, expected_filter_field);
     }
 
     #[test]
@@ -74,7 +74,7 @@ mod tests {
         let filter_operator = filter.condition();
         let expected_filter_operator = Condition::Contains;
 
-        assert_eq!(filter_operator, expected_filter_operator)
+        assert_eq!(filter_operator, expected_filter_operator);
     }
 
     #[test]
@@ -83,6 +83,6 @@ mod tests {
         let filter_value = filter.value();
         let expected_filter_value = Value::new(filter_value_str());
 
-        assert_eq!(filter_value, expected_filter_value)
+        assert_eq!(filter_value, expected_filter_value);
     }
 }

@@ -8,7 +8,7 @@ pub struct VarFilter {
 impl VarFilter {
     /// Creates a new `VarFilter` instance with the specified allowed names.
     #[must_use]
-    pub fn new(allowed_names: Vec<String>) -> Self {
+    pub const fn new(allowed_names: Vec<String>) -> Self {
         Self { allowed_names }
     }
 
@@ -61,18 +61,18 @@ pub mod tests {
     #[test]
     fn filter_allow_header() {
         let filter = VarFilter::new(vec!["session".to_string()]);
-        assert!(filter.allow(&test_var_header()))
+        assert!(filter.allow(&test_var_header()));
     }
 
     #[test]
     fn filter_trimmed_allow_header() {
         let filter = VarFilter::new(vec!["    session     ".to_string()]);
-        assert!(filter.allow(&test_var_header()))
+        assert!(filter.allow(&test_var_header()));
     }
 
     #[test]
     fn filter_reject_header() {
         let filter = VarFilter::new(vec!["not in header".to_string()]);
-        assert!(!filter.allow(&test_var_header()))
+        assert!(!filter.allow(&test_var_header()));
     }
 }

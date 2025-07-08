@@ -144,8 +144,8 @@ impl Component for FileUploaderComponent {
                     let file_path = input.value();
                     let file_name = file_path
                         .split('/')
-                        .last()
-                        .and_then(|v| v.split('\\').last())
+                        .next_back()
+                        .and_then(|v| v.split('\\').next_back())
                         .map_or_else(String::default, ToString::to_string);
 
                     if file_path.is_empty() || file_name.is_empty() {

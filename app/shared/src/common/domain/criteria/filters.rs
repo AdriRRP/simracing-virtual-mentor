@@ -9,14 +9,14 @@ pub struct Filters {
 
 impl Filters {
     #[must_use]
-    pub fn from(filters_vec: Vec<Filter>) -> Self {
+    pub const fn from(filters_vec: Vec<Filter>) -> Self {
         Self {
             filters: filters_vec,
         }
     }
 
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.filters.is_empty()
     }
 }
@@ -68,13 +68,13 @@ mod tests {
     #[test]
     fn new_empty_filters_ok() {
         let events = Filters::default();
-        assert!(events.is_empty())
+        assert!(events.is_empty());
     }
 
     #[test]
     fn new_events_ok() {
         let filters = Filters::from(filters());
-        assert_eq!(filters.filters.len(), 2)
+        assert_eq!(filters.filters.len(), 2);
     }
 
     #[test]
@@ -83,6 +83,6 @@ mod tests {
 
         let mapped_filters: Vec<String> = filters.iter().map(|e| e.field().to_string()).collect();
 
-        assert_eq!(mapped_filters.len(), 2)
+        assert_eq!(mapped_filters.len(), 2);
     }
 }

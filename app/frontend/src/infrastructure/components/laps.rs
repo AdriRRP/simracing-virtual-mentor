@@ -23,6 +23,7 @@ pub enum Msg {
 #[derive(Default)]
 pub struct Laps {
     filter: Criteria,
+    #[allow(clippy::struct_field_names)]
     laps: DomainLaps,
     lap_repository: LapRepository,
     error: Option<String>,
@@ -85,7 +86,7 @@ impl Component for Laps {
                 false
             }
             Msg::SetFilter(filter) => {
-                info!("setting new filter {:?}", filter);
+                info!("setting new filter {filter:?}");
                 self.filter = filter;
                 self.is_fetching = true;
                 ctx.link().send_message(Msg::FetchLaps);

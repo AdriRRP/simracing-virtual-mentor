@@ -24,6 +24,7 @@ pub struct EventBus {
     pub capacity: usize,
 }
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum LogLevel {
     Trace,
     Debug,

@@ -62,7 +62,7 @@ mod tests {
         let status = Status::Accepted;
         let result = serde_json::to_string(&status).unwrap();
         let expected = "\"accepted\"".to_owned();
-        assert_eq!(result, expected)
+        assert_eq!(result, expected);
     }
 
     #[test]
@@ -70,7 +70,7 @@ mod tests {
         let status = Status::Success;
         let result = serde_json::to_string(&status).unwrap();
         let expected = "\"success\"".to_owned();
-        assert_eq!(result, expected)
+        assert_eq!(result, expected);
     }
 
     #[test]
@@ -78,6 +78,6 @@ mod tests {
         let status = Status::Fail("Error Message".to_owned());
         let result = serde_json::to_string(&status).unwrap();
         let expected = "{\"fail\":\"Error Message\"}".to_owned();
-        assert_eq!(result, expected)
+        assert_eq!(result, expected);
     }
 }

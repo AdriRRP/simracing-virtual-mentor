@@ -18,7 +18,7 @@ impl<R: Repository> Updater<R> {
     /// # Returns
     ///
     /// A new `Updater` instance.
-    pub fn new(repository: Arc<R>) -> Self {
+    pub const fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
 

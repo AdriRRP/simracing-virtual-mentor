@@ -52,7 +52,7 @@ impl Http {
     ///
     /// * `Ok(())` - If the file is successfully uploaded and the server responds with a success status (2xx).
     /// * `Err(String)` - If the upload fails due to client errors, server errors, or other issues,
-    ///                   an error message describing the failure will be returned.
+    ///   an error message describing the failure will be returned.
     ///
     /// # Errors
     ///

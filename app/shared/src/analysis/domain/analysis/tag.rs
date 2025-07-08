@@ -30,7 +30,7 @@ impl Tag {
         Self::Single(Base::Reduce(0))
     }
 
-    pub fn increment(&mut self) {
+    pub const fn increment(&mut self) {
         if let Self::Single(Base::Increase(value) | Base::Reduce(value)) = self {
             *value += 1;
         }
@@ -46,7 +46,7 @@ impl Tag {
         Self::Single(Base::Reduce(level))
     }
 
-    pub fn add_tendency(&mut self, other: &Self) {
+    pub const fn add_tendency(&mut self, other: &Self) {
         if let Self::Single(ref base1) = *self {
             if let Self::Single(ref base2) = *other {
                 *self = Self::Tendency(*base1, *base2);

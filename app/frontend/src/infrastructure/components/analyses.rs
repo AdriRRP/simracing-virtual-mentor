@@ -24,7 +24,9 @@ pub enum Msg {
 #[derive(Default)]
 pub struct Analyses {
     filter: Criteria,
+    #[allow(clippy::struct_field_names)]
     analyses: DomainAnalyses,
+    #[allow(clippy::struct_field_names)]
     analyses_repository: AnalysesRepository,
     error: Option<String>,
     is_fetching: bool,

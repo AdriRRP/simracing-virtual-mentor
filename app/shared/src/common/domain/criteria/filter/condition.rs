@@ -70,7 +70,7 @@ mod tests {
         let op_str = "=";
         let op = Condition::parse(op_str);
 
-        assert_eq!(op, Ok(Condition::Equal))
+        assert_eq!(op, Ok(Condition::Equal));
     }
 
     #[test]
@@ -78,7 +78,7 @@ mod tests {
         let op_str = "!=";
         let op = Condition::parse(op_str);
 
-        assert_eq!(op, Ok(Condition::NotEqual))
+        assert_eq!(op, Ok(Condition::NotEqual));
     }
 
     #[test]
@@ -86,7 +86,7 @@ mod tests {
         let op_str = ">";
         let op = Condition::parse(op_str);
 
-        assert_eq!(op, Ok(Condition::GreaterThan))
+        assert_eq!(op, Ok(Condition::GreaterThan));
     }
 
     #[test]
@@ -94,7 +94,7 @@ mod tests {
         let op_str = "<";
         let op = Condition::parse(op_str);
 
-        assert_eq!(op, Ok(Condition::LowerThan))
+        assert_eq!(op, Ok(Condition::LowerThan));
     }
 
     #[test]
@@ -102,7 +102,7 @@ mod tests {
         let op_str = "contains";
         let op = Condition::parse(op_str);
 
-        assert_eq!(op, Ok(Condition::Contains))
+        assert_eq!(op, Ok(Condition::Contains));
     }
 
     #[test]
@@ -110,7 +110,7 @@ mod tests {
         let op_str = "not_contains";
         let op = Condition::parse(op_str);
 
-        assert_eq!(op, Ok(Condition::NotContains))
+        assert_eq!(op, Ok(Condition::NotContains));
     }
 
     #[test]
@@ -118,6 +118,6 @@ mod tests {
         let op_str = "escalabraguardas";
         let op = Condition::parse(op_str);
 
-        assert_eq!(op, Err(Error::NoSuchOperator(op_str.to_owned())))
+        assert_eq!(op, Err(Error::NoSuchOperator(op_str.to_owned())));
     }
 }

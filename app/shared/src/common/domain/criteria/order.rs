@@ -34,7 +34,7 @@ impl Order {
     }
 
     #[must_use]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.by.field_name().is_empty() && matches!(self.r#type, Type::None)
     }
 
@@ -63,7 +63,7 @@ mod tests {
         let order_by = order.by();
         let expected_order_by = By::new("field_name");
 
-        assert_eq!(order_by, &expected_order_by)
+        assert_eq!(order_by, &expected_order_by);
     }
 
     #[test]
@@ -73,6 +73,6 @@ mod tests {
         let order_type = order.r#type();
         let expected_order_type = Type::Desc;
 
-        assert_eq!(order_type, &expected_order_type)
+        assert_eq!(order_type, &expected_order_type);
     }
 }

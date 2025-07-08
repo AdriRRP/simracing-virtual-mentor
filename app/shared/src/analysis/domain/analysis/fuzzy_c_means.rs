@@ -117,7 +117,7 @@ impl FuzzyCMeans {
     /// # Arguments
     ///
     /// * `data` - A 2D array containing the data points to be clustered. Each row represents
-    ///            a data point, and each column represents a feature.
+    ///   a data point, and each column represents a feature.
     ///
     /// # Returns
     ///
@@ -161,11 +161,11 @@ impl FuzzyCMeans {
     /// # Arguments
     ///
     /// * `data` - A 2D array containing the data points to be clustered. Each row represents
-    ///            a data point, and each column represents a feature.
+    ///   a data point, and each column represents a feature.
     /// * `memberships` - A mutable reference to a 2D array representing the membership matrix,
-    ///                   where each entry denotes the degree of membership of a data point
-    ///                   to a particular cluster. The number of rows should match the number
-    ///                   of data points in `data`.
+    ///   where each entry denotes the degree of membership of a data point
+    ///   to a particular cluster. The number of rows should match the number
+    ///   of data points in `data`.
     ///
     /// # Returns
     ///
@@ -308,7 +308,7 @@ pub enum Error {
     IncompatibleMatrixMultiplication(String, String),
 }
 
-/// Tests for the FuzzyCMeans module.
+/// Tests for the `FuzzyCMeans` module.
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -325,11 +325,7 @@ mod tests {
         assert_eq!(
             (expected_rows, expected_cols),
             (result_rows, result_cols),
-            "Array dimensions do not match: expected ({}, {}), got ({}, {})",
-            expected_rows,
-            expected_cols,
-            result_rows,
-            result_cols
+            "Array dimensions do not match: expected ({expected_rows}, {expected_cols}), got ({result_rows}, {result_cols})"
         );
 
         for r in 0..expected_rows {
@@ -347,7 +343,7 @@ mod tests {
         }
     }
 
-    /// Tests FuzzyCMeans with one-dimensional data and verifies centroids, memberships, and FPC.
+    /// Tests `FuzzyCMeans` with one-dimensional data and verifies centroids, memberships, and FPC.
     #[test]
     fn first_iter_on_one_dim_data() {
         let c = 2;
@@ -386,7 +382,7 @@ mod tests {
         );
     }
 
-    /// Tests FuzzyCMeans with two-dimensional data and verifies centroids, memberships, and FPC.
+    /// Tests `FuzzyCMeans` with two-dimensional data and verifies centroids, memberships, and FPC.
     #[test]
     fn first_iter_on_two_dim_data() {
         let c = 2;
@@ -428,7 +424,7 @@ mod tests {
         );
     }
 
-    /// Tests FuzzyCMeans behavior with incompatible membership shape.
+    /// Tests `FuzzyCMeans` behavior with incompatible membership shape.
     #[test]
     fn incompatible_shape() {
         let c = 2;

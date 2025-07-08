@@ -50,7 +50,7 @@ pub struct Analysis {
 
 impl Analysis {
     #[must_use]
-    pub fn new(
+    pub const fn new(
         id: Uuid,
         name: String,
         date: DateTime<Utc>,
@@ -69,7 +69,7 @@ impl Analysis {
     }
 
     #[must_use]
-    pub fn with_error(
+    pub const fn with_error(
         id: Uuid,
         name: String,
         date: DateTime<Utc>,

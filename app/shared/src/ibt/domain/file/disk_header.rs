@@ -79,6 +79,6 @@ mod tests {
     fn try_from_u8_slice_ok() {
         let result = DiskHeader::try_from(&test_bytes());
         let expected_result = Ok(expected_disk_header());
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 }

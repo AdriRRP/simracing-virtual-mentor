@@ -43,7 +43,7 @@ impl Repository for InMemory {
         let i = laps_guard
             .iter()
             .position(|lap| lap.header.id == *id)
-            .ok_or(format!("No lap with {id} found."))?;
+            .ok_or_else(|| format!("No lap with {id} found."))?;
         laps_guard.remove(i);
         drop(laps_guard);
         Ok(())
@@ -87,7 +87,7 @@ impl Repository for InMemory {
             });
         }
 
-        let opt_laps: Option<Laps> = if laps.len() == 0 { None } else { Some(laps) };
+        let opt_laps: Option<Laps> = if laps.is_empty() { None } else { Some(laps) };
 
         Ok(opt_laps)
     }
@@ -153,7 +153,7 @@ impl InMemory {
                 return filter
                     .condition()
                     .apply(field_value.as_ref(), filter.value().get());
-            };
+            }
             false
         })
     }

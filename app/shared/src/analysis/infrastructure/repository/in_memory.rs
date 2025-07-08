@@ -131,7 +131,7 @@ impl Repository for InMemory {
             });
         }
 
-        let opt_analyses: Option<Analyses> = if analyses.len() == 0 {
+        let opt_analyses: Option<Analyses> = if analyses.is_empty() {
             None
         } else {
             Some(analyses)
@@ -205,7 +205,7 @@ impl InMemory {
                 return filter
                     .condition()
                     .apply(field_value.as_ref(), filter.value().get());
-            };
+            }
             false
         })
     }

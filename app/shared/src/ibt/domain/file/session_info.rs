@@ -198,7 +198,7 @@ mod tests {
     fn try_from_u8_vec_ok() {
         let result = SessionInfo::try_from(&test_bytes());
         let expected_result = Ok(expected_session_info());
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 
     #[test]
@@ -208,7 +208,7 @@ mod tests {
         let expected_result = Err(Error::ParseYaml(
             "invalid type: string \"�����\", expected struct SessionInfo".to_string(),
         ));
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 
     #[test]
@@ -218,6 +218,6 @@ mod tests {
         let expected_result = Err(Error::ParseYaml(
             "control characters are not allowed".to_string(),
         ));
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 }

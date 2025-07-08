@@ -23,7 +23,7 @@ impl<R: Repository, LR: LapRepository> Analyzer<R, LR> {
     /// # Returns
     ///
     /// A new `Analyzer` instance.
-    pub fn new(repository: Arc<R>, lap_repository: Arc<LR>) -> Self {
+    pub const fn new(repository: Arc<R>, lap_repository: Arc<LR>) -> Self {
         Self {
             repository,
             lap_repository,
@@ -48,22 +48,22 @@ impl<R: Repository, LR: LapRepository> Analyzer<R, LR> {
     ///
     /// Returns `Ok` if the analysis data was successfully created and stored in the repository.
     pub async fn analyze(&self, id: Uuid, fcm_grid_config: &Config) -> Result<(), String> {
-        let mut analysis = self.repository.find_by_id(&id).await?.ok_or(format!(
-            "Cannot found analysis with id `{id}` to perform an analysis"
-        ))?;
+        let mut analysis = self.repository.find_by_id(&id).await?.ok_or_else(|| {
+            format!("Cannot found analysis with id `{id}` to perform an analysis")
+        })?;
 
         if let Status::Pending { ref_id, target_id } = analysis.header.status {
             let ref_lap = self
                 .lap_repository
                 .find_by_id(&ref_id)
                 .await?
-                .ok_or(format!("Reference Lap with id {ref_id} not found"))?;
+                .ok_or_else(|| format!("Reference Lap with id {ref_id} not found"))?;
 
             let target_lap = self
                 .lap_repository
                 .find_by_id(&target_id)
                 .await?
-                .ok_or(format!("Target Lap with id {target_id} not found"))?;
+                .ok_or_else(|| format!("Target Lap with id {target_id} not found"))?;
 
             analysis
                 .analyze(ref_lap, target_lap, fcm_grid_config)

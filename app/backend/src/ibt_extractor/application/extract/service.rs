@@ -20,7 +20,7 @@ pub struct Extractor<FR: FileRepository, LR: LapRepository, E: EventBus> {
 }
 
 impl<FR: FileRepository, LR: LapRepository, E: EventBus> Extractor<FR, LR, E> {
-    pub fn new(
+    pub const fn new(
         file_creator: Arc<FileCreator<FR, E>>,
         lap_creator: Arc<LapCreator<LR>>,
         event_bus: Arc<E>,
@@ -32,6 +32,7 @@ impl<FR: FileRepository, LR: LapRepository, E: EventBus> Extractor<FR, LR, E> {
         }
     }
 
+    #[allow(clippy::cognitive_complexity)]
     pub async fn parse<ReadSeek: Read + Seek + Send + Sync>(
         &self,
         id: String,

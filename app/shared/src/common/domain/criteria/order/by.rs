@@ -29,6 +29,6 @@ mod tests {
         let by = By::new(initial_field_name);
         let field_name = by.field_name();
 
-        assert_eq!(initial_field_name, field_name)
+        assert_eq!(initial_field_name, field_name);
     }
 }

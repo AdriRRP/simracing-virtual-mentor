@@ -11,7 +11,7 @@ pub struct Finder<R: Repository> {
 
 impl<R: Repository> Finder<R> {
     /// Creates a new instance of Finder.
-    pub fn new(repository: Arc<R>) -> Self {
+    pub const fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
 

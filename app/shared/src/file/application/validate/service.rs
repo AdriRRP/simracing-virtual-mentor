@@ -12,7 +12,7 @@ pub struct Validator<R: Repository, E: EventBus> {
 
 impl<R: Repository, E: EventBus> Validator<R, E> {
     /// Creates a new `Validator` instance.
-    pub fn new(repository: Arc<R>, event_bus: Arc<E>) -> Self {
+    pub const fn new(repository: Arc<R>, event_bus: Arc<E>) -> Self {
         Self {
             repository,
             event_bus,

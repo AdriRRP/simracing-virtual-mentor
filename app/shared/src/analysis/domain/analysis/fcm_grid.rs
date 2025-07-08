@@ -92,7 +92,7 @@ impl FcmGrid {
 
                         if best_model
                             .as_ref()
-                            .map_or(true, |m| m.fpc() < model_result.fpc())
+                            .is_none_or(|m| m.fpc() < model_result.fpc())
                         {
                             best_model = Some(model_result);
                         }

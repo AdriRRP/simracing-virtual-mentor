@@ -207,10 +207,10 @@ mod tests {
         ];
 
         // Create a FittedModel manually with the centroids and memberships
-        let fitted_model = FittedModel::new(centroids.clone(), memberships.clone());
+        let fitted_model = FittedModel::new(centroids, memberships);
 
         // Create the TagAssigner with the differences and the fitted model
-        let tag_assigner = TagAssigner::new(differences.clone(), &fitted_model, 0.5);
+        let tag_assigner = TagAssigner::new(differences, &fitted_model, 0.5);
 
         // Assign the final tags to the difference points
         let assigned_tags = tag_assigner.assign();
@@ -273,10 +273,10 @@ mod tests {
         ];
 
         // Create a FittedModel manually with the centroids and memberships
-        let fitted_model = FittedModel::new(centroids.clone(), memberships.clone());
+        let fitted_model = FittedModel::new(centroids, memberships);
 
         // Create the TagAssigner with the differences and the fitted model
-        let tag_assigner = TagAssigner::new(differences.clone(), &fitted_model, 0.5);
+        let tag_assigner = TagAssigner::new(differences, &fitted_model, 0.5);
 
         // Assign the final tags to the difference points
         let assigned_tags = tag_assigner.assign();
@@ -321,10 +321,10 @@ mod tests {
         ];
 
         // Create a FittedModel manually with the centroids and memberships
-        let fitted_model = FittedModel::new(centroids.clone(), memberships.clone());
+        let fitted_model = FittedModel::new(centroids, memberships);
 
         // Create the TagAssigner with the differences and the fitted model
-        let tag_assigner = TagAssigner::new(differences.clone(), &fitted_model, 0.5);
+        let tag_assigner = TagAssigner::new(differences, &fitted_model, 0.5);
 
         // Assign the final tags to the difference points
         let assigned_tags = tag_assigner.assign();
@@ -364,10 +364,10 @@ mod tests {
         ];
 
         // Create a FittedModel manually with the centroids and memberships
-        let fitted_model = FittedModel::new(centroids.clone(), memberships.clone());
+        let fitted_model = FittedModel::new(centroids, memberships);
 
         // Create the TagAssigner with the differences and the fitted model
-        let tag_assigner = TagAssigner::new(differences.clone(), &fitted_model, 0.5);
+        let tag_assigner = TagAssigner::new(differences, &fitted_model, 0.5);
 
         // Assign the final tags to the difference points
         let assigned_tags = tag_assigner.assign();
@@ -425,10 +425,10 @@ mod tests {
         ];
 
         // Create a FittedModel manually with the centroids and memberships
-        let fitted_model = FittedModel::new(centroids.clone(), memberships.clone());
+        let fitted_model = FittedModel::new(centroids, memberships);
 
         // Create the TagAssigner with the differences and the fitted model
-        let tag_assigner = TagAssigner::new(differences.clone(), &fitted_model, 0.5);
+        let tag_assigner = TagAssigner::new(differences, &fitted_model, 0.5);
 
         // Assign the final tags to the difference points
         let assigned_tags = tag_assigner.assign();
@@ -477,10 +477,10 @@ mod tests {
         ];
 
         // Create a FittedModel manually with the centroids and memberships
-        let fitted_model = FittedModel::new(centroids.clone(), memberships.clone());
+        let fitted_model = FittedModel::new(centroids, memberships);
 
         // Create the TagAssigner with the differences and the fitted model
-        let tag_assigner = TagAssigner::new(differences.clone(), &fitted_model, 0.2);
+        let tag_assigner = TagAssigner::new(differences, &fitted_model, 0.2);
 
         // Assign the final tags to the difference points
         let assigned_tags = tag_assigner.assign();

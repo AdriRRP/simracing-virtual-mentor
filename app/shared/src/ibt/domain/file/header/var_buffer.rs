@@ -53,6 +53,6 @@ mod tests {
     fn try_from_u8_slice_ok() {
         let result = VarBuffer::try_from(&test_bytes());
         let expected_result = Ok(expected_var_buffer());
-        assert_eq!(result, expected_result)
+        assert_eq!(result, expected_result);
     }
 }

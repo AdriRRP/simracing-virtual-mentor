@@ -23,6 +23,7 @@ pub enum Msg {
 #[derive(Default)]
 pub struct Laps {
     filter: Criteria,
+    #[allow(clippy::struct_field_names)]
     laps: DomainLaps,
     lap_repository: LapRepository,
     error: Option<String>,

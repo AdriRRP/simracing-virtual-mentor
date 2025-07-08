@@ -55,12 +55,6 @@ struct Point {
     dist: f32,
 }
 
-impl Point {
-    pub const fn new(x: f64, y: f64, dist: f32) -> Self {
-        Self { x, y, dist }
-    }
-}
-
 fn normalize_coordinates(coords: &[GpsCoord], width: f64, height: f64, margin: f64) -> Vec<Point> {
     let min_lat = coords.iter().map(|c| c.lat).fold(f64::INFINITY, f64::min);
     let max_lat = coords

@@ -36,7 +36,7 @@ impl Repository for InMemory {
         let i = files_guard
             .iter()
             .position(|file| file.id == id)
-            .ok_or(format!("No files with {id} found."))?;
+            .ok_or_else(|| format!("No files with {id} found."))?;
         files_guard.remove(i);
         drop(files_guard);
         Ok(())
@@ -79,7 +79,7 @@ impl Repository for InMemory {
             });
         }
 
-        let opt_files: Option<Files> = if files.len() == 0 { None } else { Some(files) };
+        let opt_files: Option<Files> = if files.is_empty() { None } else { Some(files) };
 
         Ok(opt_files)
     }
@@ -109,7 +109,7 @@ impl InMemory {
                 return filter
                     .condition()
                     .apply(field_value.as_ref(), filter.value().get());
-            };
+            }
             false
         })
     }

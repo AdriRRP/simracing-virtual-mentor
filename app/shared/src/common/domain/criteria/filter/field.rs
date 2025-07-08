@@ -36,6 +36,6 @@ mod tests {
         let field = Field::new(initial_field);
         let field_value = field.to_string();
 
-        assert_eq!(initial_field.to_owned(), field_value)
+        assert_eq!(initial_field.to_owned(), field_value);
     }
 }

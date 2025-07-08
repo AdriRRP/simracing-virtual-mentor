@@ -10,7 +10,7 @@ pub struct Deleter<R: Repository> {
 
 impl<R: Repository> Deleter<R> {
     /// Creates a new instance of Deleter.
-    pub fn new(repository: Arc<R>) -> Self {
+    pub const fn new(repository: Arc<R>) -> Self {
         Self { repository }
     }
 

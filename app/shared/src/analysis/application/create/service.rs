@@ -26,7 +26,7 @@ impl<R: Repository, LR: LapRepository, E: EventBus> Creator<R, LR, E> {
     /// # Returns
     ///
     /// A new `Creator` instance.
-    pub fn new(repository: Arc<R>, lap_repository: Arc<LR>, event_bus: Arc<E>) -> Self {
+    pub const fn new(repository: Arc<R>, lap_repository: Arc<LR>, event_bus: Arc<E>) -> Self {
         Self {
             repository,
             lap_repository,
@@ -63,13 +63,13 @@ impl<R: Repository, LR: LapRepository, E: EventBus> Creator<R, LR, E> {
             .lap_repository
             .find_by_id(&ref_lap_id)
             .await?
-            .ok_or(format!("Reference Lap with id {ref_lap_id} not found"))?;
+            .ok_or_else(|| format!("Reference Lap with id {ref_lap_id} not found"))?;
 
         let target_lap = self
             .lap_repository
             .find_by_id(&target_lap_id)
             .await?
-            .ok_or(format!("Target Lap with id {target_lap_id} not found"))?;
+            .ok_or_else(|| format!("Target Lap with id {target_lap_id} not found"))?;
 
         if ref_lap.header.circuit != target_lap.header.circuit {
             return Err("the laps in an analysis have to belong to the same circuit".to_owned());

@@ -104,13 +104,13 @@ mod tests {
     #[test]
     fn criteria_has_filters_ok() {
         let criteria = test_criteria();
-        assert!(criteria.has_filters())
+        assert!(criteria.has_filters());
     }
 
     #[test]
     fn criteria_has_order_ok() {
         let criteria = test_criteria();
-        assert!(criteria.has_order())
+        assert!(criteria.has_order());
     }
 
     #[test]
@@ -118,7 +118,7 @@ mod tests {
         let criteria = test_criteria();
         let filters = criteria.filters();
         let expected_filters = Some(test_filters());
-        assert_eq!(filters, expected_filters)
+        assert_eq!(filters, expected_filters);
     }
 
     #[test]
@@ -126,7 +126,7 @@ mod tests {
         let criteria = test_criteria();
         let order = criteria.order();
         let expected_order = Some(test_order());
-        assert_eq!(order, expected_order)
+        assert_eq!(order, expected_order);
     }
 
     #[test]
@@ -134,7 +134,7 @@ mod tests {
         let criteria = test_criteria();
         let offset = criteria.offset();
         let expected_offset = Some(100);
-        assert_eq!(offset, expected_offset)
+        assert_eq!(offset, expected_offset);
     }
 
     #[test]
@@ -142,26 +142,26 @@ mod tests {
         let criteria = test_criteria();
         let limit = criteria.limit();
         let expected_limit = Some(100_000);
-        assert_eq!(limit, expected_limit)
+        assert_eq!(limit, expected_limit);
     }
 
     #[test]
     fn criteria_is_empty_ok() {
         let criteria = Criteria::default();
-        assert!(criteria.is_empty())
+        assert!(criteria.is_empty());
     }
 
     #[test]
     fn criteria_is_empty_when_filters_are_empty_ok() {
         let mut criteria = Criteria::default();
         criteria.filters = Some(Filters::default());
-        assert!(criteria.is_empty())
+        assert!(criteria.is_empty());
     }
 
     #[test]
     fn criteria_is_empty_when_order_is_empty_ok() {
         let mut criteria = Criteria::default();
         criteria.order = Some(Order::new(By::new(""), Type::None));
-        assert!(criteria.is_empty())
+        assert!(criteria.is_empty());
     }
 }

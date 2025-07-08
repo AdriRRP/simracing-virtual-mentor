@@ -59,7 +59,7 @@ mod test {
         let vec = vec![97u8];
         let current = Primitive::try_from((&var_type, vec));
         let expected = Ok(Primitive::Char('a'));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -70,7 +70,7 @@ mod test {
         let expected = Err(Error::IncompatibleNumberOfBytes(
             "Size of Char  isn't 2 bytes".to_string(),
         ));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -79,7 +79,7 @@ mod test {
         let vec = vec![0u8];
         let current = Primitive::try_from((&var_type, vec));
         let expected = Ok(Primitive::Bool(false));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -90,7 +90,7 @@ mod test {
         let expected = Err(Error::IncompatibleNumberOfBytes(
             "Size of Bool isn't 2 bytes".to_string(),
         ));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -99,7 +99,7 @@ mod test {
         let vec = vec![0u8; 4];
         let current = Primitive::try_from((&var_type, vec));
         let expected = Ok(Primitive::Int(0));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -110,7 +110,7 @@ mod test {
         let expected = Err(Error::IncompatibleNumberOfBytes(
             "Size of Int isn't 2 bytes".to_string(),
         ));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -119,7 +119,7 @@ mod test {
         let vec = vec![0u8; 4];
         let current = Primitive::try_from((&var_type, vec));
         let expected = Ok(Primitive::BitField(0));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -130,7 +130,7 @@ mod test {
         let expected = Err(Error::IncompatibleNumberOfBytes(
             "Size of BitField isn't 2 bytes".to_string(),
         ));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -139,7 +139,7 @@ mod test {
         let vec = vec![0u8; 4];
         let current = Primitive::try_from((&var_type, vec));
         let expected = Ok(Primitive::Float(0f32));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -150,7 +150,7 @@ mod test {
         let expected = Err(Error::IncompatibleNumberOfBytes(
             "Size of Float isn't 2 bytes".to_string(),
         ));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -159,7 +159,7 @@ mod test {
         let vec = vec![0u8; 8];
         let current = Primitive::try_from((&var_type, vec));
         let expected = Ok(Primitive::Double(0f64));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 
     #[test]
@@ -170,6 +170,6 @@ mod test {
         let expected = Err(Error::IncompatibleNumberOfBytes(
             "Size of Double isn't 2 bytes".to_string(),
         ));
-        assert_eq!(current, expected)
+        assert_eq!(current, expected);
     }
 }

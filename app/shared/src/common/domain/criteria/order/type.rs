@@ -59,7 +59,7 @@ mod tests {
         let type_str = "asc";
         let r#type = Type::parse(type_str);
 
-        assert_eq!(r#type, Ok(Type::Asc))
+        assert_eq!(r#type, Ok(Type::Asc));
     }
 
     #[test]
@@ -67,7 +67,7 @@ mod tests {
         let type_str = "desc";
         let r#type = Type::parse(type_str);
 
-        assert_eq!(r#type, Ok(Type::Desc))
+        assert_eq!(r#type, Ok(Type::Desc));
     }
 
     #[test]
@@ -75,7 +75,7 @@ mod tests {
         let type_str = "none";
         let r#type = Type::parse(type_str);
 
-        assert_eq!(r#type, Ok(Type::None))
+        assert_eq!(r#type, Ok(Type::None));
     }
 
     #[test]
@@ -83,7 +83,7 @@ mod tests {
         let type_str = "escalabraguardas";
         let r#type = Type::parse(type_str);
 
-        assert_eq!(r#type, Err(Error::NoSuchType(type_str.to_owned())))
+        assert_eq!(r#type, Err(Error::NoSuchType(type_str.to_owned())));
     }
 
     #[test]
@@ -91,6 +91,6 @@ mod tests {
         let type_str = "escalabraguardas";
         let r#type = Type::parse_or_none(type_str);
 
-        assert_eq!(r#type, Type::None)
+        assert_eq!(r#type, Type::None);
     }
 }

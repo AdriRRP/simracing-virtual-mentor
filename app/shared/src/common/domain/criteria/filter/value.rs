@@ -36,6 +36,6 @@ mod tests {
         let value = Value::new(initial_value);
         let current_value = value.to_string();
 
-        assert_eq!(initial_value.to_owned(), current_value)
+        assert_eq!(initial_value.to_owned(), current_value);
     }
 }

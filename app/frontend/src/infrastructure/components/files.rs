@@ -25,6 +25,7 @@ pub enum Msg {
 #[derive(Default)]
 pub struct Files {
     filter: Criteria,
+    #[allow(clippy::struct_field_names)]
     files: DomainFiles,
     file_repository: FileRepository,
     error: Option<String>,

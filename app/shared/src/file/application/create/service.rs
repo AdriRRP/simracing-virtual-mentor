@@ -14,7 +14,7 @@ pub struct Creator<R: Repository, E: EventBus> {
 
 impl<R: Repository, E: EventBus> Creator<R, E> {
     /// Creates a new `Creator` instance.
-    pub fn new(repository: Arc<R>, event_bus: Arc<E>) -> Self {
+    pub const fn new(repository: Arc<R>, event_bus: Arc<E>) -> Self {
         Self {
             repository,
             event_bus,

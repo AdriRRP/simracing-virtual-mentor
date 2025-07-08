@@ -107,11 +107,11 @@ fn configure_router(app_assembler: &AppAssembler) -> Router {
             put(create_analysis).with_state(Arc::clone(&app_assembler.analysis.creator)),
         )
         .route(
-            "/delete/:id",
+            "/delete/{id}",
             delete(delete_analysis).with_state(Arc::clone(&app_assembler.analysis.deleter)),
         )
         .route(
-            "/find/:id",
+            "/find/{id}",
             get(find_analysis_by_id).with_state(Arc::clone(&app_assembler.analysis.by_id_finder)),
         )
         .route(
@@ -120,7 +120,7 @@ fn configure_router(app_assembler: &AppAssembler) -> Router {
                 .with_state(Arc::clone(&app_assembler.analysis.by_criteria_finder)),
         )
         .route(
-            "/find/header/:id",
+            "/find/header/{id}",
             get(find_analysis_header_by_id)
                 .with_state(Arc::clone(&app_assembler.analysis.by_id_header_finder)),
         )
@@ -133,11 +133,11 @@ fn configure_router(app_assembler: &AppAssembler) -> Router {
 
     let file_routes = Router::new()
         .route(
-            "/delete/:id",
+            "/delete/{id}",
             delete(delete_file).with_state(Arc::clone(&app_assembler.file.deleter)),
         )
         .route(
-            "/find/:id",
+            "/find/{id}",
             get(find_file_by_id).with_state(Arc::clone(&app_assembler.file.by_id_finder)),
         )
         .route(
@@ -148,11 +148,11 @@ fn configure_router(app_assembler: &AppAssembler) -> Router {
 
     let lap_routes = Router::new()
         .route(
-            "/delete/:id",
+            "/delete/{id}",
             delete(delete_lap).with_state(Arc::clone(&app_assembler.lap.deleter)),
         )
         .route(
-            "/find/:id",
+            "/find/{id}",
             get(find_lap_by_id).with_state(Arc::clone(&app_assembler.lap.by_id_finder)),
         )
         .route(
@@ -161,7 +161,7 @@ fn configure_router(app_assembler: &AppAssembler) -> Router {
                 .with_state(Arc::clone(&app_assembler.lap.by_criteria_finder)),
         )
         .route(
-            "/find/header/:id",
+            "/find/header/{id}",
             get(find_lap_header_by_id)
                 .with_state(Arc::clone(&app_assembler.lap.by_id_header_finder)),
         )
@@ -172,7 +172,7 @@ fn configure_router(app_assembler: &AppAssembler) -> Router {
         );
 
     let ibt_extractor_routes = Router::new().route(
-        "/upload/:name",
+        "/upload/{name}",
         post(upload).with_state(UploadIbtState {
             ibt_parser: Arc::clone(&app_assembler.ibt.parser),
             file_finder: Arc::clone(&app_assembler.file.by_id_finder),

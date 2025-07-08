@@ -8,7 +8,7 @@ use shared::lap::domain::laps::Laps;
 use reqwest::Client;
 
 /// Struct representing the HTTP client for performing various Lap-related requests.
-/// 
+///
 /// It holds the endpoints for different operations such as deleting, finding by ID,
 /// or retrieving laps and headers based on certain criteria.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]

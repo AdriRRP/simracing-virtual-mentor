@@ -27,8 +27,8 @@ extern "C" {
 pub fn hover_event_from_plotly(distance: f32) {
     let document = web_sys::window().unwrap().document().unwrap();
 
-    let mut event_init = CustomEventInit::new();
-    event_init.detail(&JsValue::from_f64(f32_as_f64(distance)));
+    let event_init = CustomEventInit::new();
+    event_init.set_detail(&JsValue::from_f64(f32_as_f64(distance)));
 
     let event =
         CustomEvent::new_with_event_init_dict(UPDATE_CIRCUIT_POINTER_EVENT, &event_init).unwrap();
@@ -167,6 +167,7 @@ pub fn circuit(props: &Props) -> Html {
                             2.0 * std::f64::consts::PI,
                         )
                         .unwrap();
+                    #[allow(deprecated)]
                     context.set_fill_style(&JsValue::from_str("red"));
                     context.fill();
                 }
@@ -216,6 +217,7 @@ pub fn circuit(props: &Props) -> Html {
                         2.0 * std::f64::consts::PI,
                     )
                     .unwrap();
+                #[allow(deprecated)]
                 context.set_fill_style(&JsValue::from_str("red"));
                 context.fill();
 
@@ -226,8 +228,8 @@ pub fn circuit(props: &Props) -> Html {
 
                 // Emitir un evento personalizado con el índice del punto más cercano
                 let document = web_sys::window().unwrap().document().unwrap();
-                let mut event_init = CustomEventInit::new();
-                event_init.detail(&JsValue::from_f64(usize_as_f64(index)));
+                let event_init = CustomEventInit::new();
+                event_init.set_detail(&JsValue::from_f64(usize_as_f64(index)));
                 let event = CustomEvent::new_with_event_init_dict(
                     suggestions::UPDATE_SUGGESTION_EVENT,
                     &event_init,
@@ -258,6 +260,7 @@ pub fn circuit(props: &Props) -> Html {
 }
 
 fn draw_circuit(context: &CanvasRenderingContext2d, points: &[Point]) {
+    #[allow(deprecated)]
     context.set_stroke_style(&JsValue::from_str("white"));
     context.set_line_width(6.0);
     context.begin_path();

@@ -86,7 +86,7 @@ impl Component for Laps {
                 false
             }
             Msg::SetFilter(filter) => {
-                info!("setting new filter {:?}", filter);
+                info!("setting new filter {filter:?}");
                 self.filter = filter;
                 self.is_fetching = true;
                 ctx.link().send_message(Msg::FetchLaps);
